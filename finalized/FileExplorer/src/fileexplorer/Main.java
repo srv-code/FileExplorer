@@ -1,8 +1,6 @@
 package fileexplorer;
 
-import fileexplorer.handlers.shared.ActivityLogger;
 import fileexplorer.handlers.shared.SystemHandler;
-import fileexplorer.handlers.shared.SystemResources;
 
 
 public class Main {

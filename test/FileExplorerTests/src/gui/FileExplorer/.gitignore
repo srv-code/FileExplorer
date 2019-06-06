@@ -1,0 +1,6 @@
+**/*.swp
+**/*.class
+lib/*
+dist/*
+FileExplorer_dmg/*
+
