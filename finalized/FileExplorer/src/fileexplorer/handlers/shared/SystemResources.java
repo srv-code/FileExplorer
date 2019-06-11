@@ -17,7 +17,7 @@ public class SystemResources {
     public final static String PLATFORM_LINE_SEPARATOR = System.getProperty("line.separator");
     public final static String ACCOUNT_USER_NAME = System.getProperty("user.name");
     public final static String ACCOUNT_USER_HOME_PATH = System.getProperty("user.home");
-    
+    public final static String LOOK_AND_FEEL_CLASS_NAME = "com.sun.java.swing.plaf.windows.WindowsLookAndFeel";
     
     /* Non-final fields - will be set only by SystemHandler, 
      *   paired with public getters only */

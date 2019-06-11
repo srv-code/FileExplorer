@@ -1,5 +1,6 @@
 package fileexplorer.gui.forms;
 
+import fileexplorer.handlers.shared.SystemResources;
 import javax.swing.ImageIcon;
 
 
@@ -34,6 +35,11 @@ public class AboutForm extends javax.swing.JFrame {
         setResizable(false);
         setSize(new java.awt.Dimension(140, 300));
         setType(java.awt.Window.Type.UTILITY);
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowClosing(java.awt.event.WindowEvent evt) {
+                formWindowClosing(evt);
+            }
+        });
 
         aboutIconLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/about_big.png"))); // NOI18N
 
@@ -78,10 +84,10 @@ public class AboutForm extends javax.swing.JFrame {
                         .addComponent(aboutIconLabel)
                         .addGap(0, 0, Short.MAX_VALUE))
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(18, 18, 18)
+                        .addContainerGap()
                         .addComponent(appTitleLabel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 164, Short.MAX_VALUE)))
+                        .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 171, Short.MAX_VALUE)))
                 .addContainerGap())
         );
 
@@ -102,35 +108,15 @@ public class AboutForm extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_appDescTextPaneHyperlinkUpdate
 
-    public static AboutForm init() {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(AboutForm.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(AboutForm.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(AboutForm.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(AboutForm.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
+    private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
+        SystemResources.getFileExplorerForm().setEnabled(true);
+    }//GEN-LAST:event_formWindowClosing
 
-        /* Create and display the form */
-        
+    public static AboutForm init() {
+		/* Create and display the form */        
         AboutForm form = new AboutForm();
-        form.setVisible(true);
         form.setIconImage(new ImageIcon(AboutForm.class.getResource("/images/about.png")).getImage());
+		form.setVisible(true);
         return form;
     }
 

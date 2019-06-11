@@ -48,17 +48,21 @@ public class SystemHandler implements AutoCloseable {
             /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
              * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
              */
-            // Setting Nimbus LAF // TODO Push to AppPrefernces later
+            // Setting LAF // TODO Push to AppPrefernces later
             try {
+				javax.swing.UIManager.setLookAndFeel(SystemResources.LOOK_AND_FEEL_CLASS_NAME);
+
+				/*
                 for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
                     if ("Nimbus".equals(info.getName())) {
                         javax.swing.UIManager.setLookAndFeel(info.getClassName());
                         break;
                     }
                 }
+				*/
             } catch (ClassNotFoundException | InstantiationException | 
                     IllegalAccessException | javax.swing.UnsupportedLookAndFeelException exc) {
-                SystemResources.logger.logSevere("Cannot set Nimbus LAF!");
+                SystemResources.logger.logSevere("Cannot set app LAF to "+ SystemResources.LOOK_AND_FEEL_CLASS_NAME +"!");
             }
             //</editor-fold>
             //</editor-fold>

@@ -288,8 +288,15 @@ public class FileExplorerForm extends javax.swing.JFrame {
 		logger.logInfo("Window opened");
     }//GEN-LAST:event_formWindowOpened
 
+	private AboutForm aboutForm = null;
     private void aboutMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_aboutMenuItemActionPerformed
-        AboutForm.init();
+        if(aboutForm == null) {
+			this.setEnabled(false);
+			aboutForm = AboutForm.init();
+		} else {
+			this.setEnabled(false);
+			aboutForm.setVisible(true);
+		}
     }//GEN-LAST:event_aboutMenuItemActionPerformed
 
     private void formWindowClosed(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosed
@@ -297,7 +304,7 @@ public class FileExplorerForm extends javax.swing.JFrame {
     }//GEN-LAST:event_formWindowClosed
 
     private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
-        int result = JOptionPane.showConfirmDialog(	this,
+        int result = JOptionPane.showConfirmDialog(this,
 				"Do you want to Exit ?", "Exit Confirmation",
 				JOptionPane.YES_NO_OPTION);
 		
@@ -310,7 +317,7 @@ public class FileExplorerForm extends javax.swing.JFrame {
     }//GEN-LAST:event_formWindowClosing
 
     private void exitMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exitMenuItemActionPerformed
-        // TODO add your handling code here:
+        this.dispatchEvent(new java.awt.event.WindowEvent(this, java.awt.event.WindowEvent.WINDOW_CLOSING));
     }//GEN-LAST:event_exitMenuItemActionPerformed
 
     

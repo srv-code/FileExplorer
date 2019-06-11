@@ -1,11 +1,14 @@
 package consoletests;
 
+import java.io.File;
 import java.io.IOException;
+import javax.swing.filechooser.FileSystemView;
 
 public class ConsoleTests {
     public static void main(String[] args) throws Exception {
 //        new PreferencesTest().setPreferenceTest();
-		stackTraceTest();
+//		stackTraceTest();
+		systemDefaultIconTest();
     }
 
 	private static void stackTraceTest() throws Exception {
@@ -22,6 +25,12 @@ public class ConsoleTests {
 						.append(ste.toString())
                         .append("\n");
 		System.out.println("Stack trace: " + stackTrace);
+	}
+
+	private static void systemDefaultIconTest() {
+		FileSystemView fileSystemView = FileSystemView.getFileSystemView();
+		File file = new File("C:\\Users\\soura\\Downloads\\ChromeSetup.exe");
+		System.out.println(fileSystemView.getSystemIcon(file));
 	}
 	
     
