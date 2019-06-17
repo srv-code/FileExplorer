@@ -72,7 +72,7 @@ public class SingleFilePropertiesForm extends javax.swing.JFrame {
         txtSize = new javax.swing.JTextField();
         txtLastModified = new javax.swing.JTextField();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Properties");
         setAlwaysOnTop(true);
         setResizable(false);

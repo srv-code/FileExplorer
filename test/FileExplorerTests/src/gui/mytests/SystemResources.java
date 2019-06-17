@@ -20,62 +20,66 @@ public class SystemResources {
 			return instance;
 		}
 		
-		// TODO Switch to commented lines before moving to production
-		private final Icon dirIcon_SmallSize = 
-//				new ImageIcon(getClass().getResource("D:/Projects/Java/NetBeans/Projects/project/Summer-Project/finalized/FileExplorer/resources/images/folder1.png"));
-				new ImageIcon("D:/Projects/Java/NetBeans/Projects/project/Summer-Project/finalized/FileExplorer/resources/images/folder_small.png");
+		/* TODO Replace with the absolute paths with the following before moving to production:
+			new ImageIcon(getClass().getResource("/images/file.png"));
+		*/
 		
-		private final Icon dirIcon_BigSize = 
-//				new ImageIcon(getClass().getResource("D:/Projects/Java/NetBeans/Projects/project/Summer-Project/finalized/FileExplorer/resources/images/folder1.png"));
-				new ImageIcon("D:/Projects/Java/NetBeans/Projects/project/Summer-Project/finalized/FileExplorer/resources/images/folder_big.png");
+		private final Icon dirIcon_small = 
+				new ImageIcon("D:/Projects/Java/NetBeans/Projects/project/Summer-Project/finalized/FileExplorer/resources/images/folder_small.png");		
+		private final Icon dirIcon_big = 
+				new ImageIcon("D:/Projects/Java/NetBeans/Projects/project/Summer-Project/finalized/FileExplorer/resources/images/folder_big.png");		
 		
-		private final Icon fileIcon_SmallSize = 
-//				new ImageIcon(getClass().getResource("D:/Projects/Java/NetBeans/Projects/project/Summer-Project/finalized/FileExplorer/resources/images/file.png"));
-				new ImageIcon("D:/Projects/Java/NetBeans/Projects/project/Summer-Project/finalized/FileExplorer/resources/images/file.png");
+		private final Icon fileIcon_small = 
+				new ImageIcon("D:/Projects/Java/NetBeans/Projects/project/Summer-Project/finalized/FileExplorer/resources/images/file.png");		
+		private final Icon fileIcon_big = 
+				new ImageIcon("D:/Projects/Java/NetBeans/Projects/project/Summer-Project/finalized/FileExplorer/resources/images/file_big.png");
 		
-		private final Icon imageIcon_SmallSize = 
-//				new ImageIcon(getClass().getResource("D:/Projects/Java/NetBeans/Projects/project/Summer-Project/finalized/FileExplorer/resources/images/img.png"));
-				new ImageIcon("D:/Projects/Java/NetBeans/Projects/project/Summer-Project/finalized/FileExplorer/resources/images/img.png");
+		private final Icon imageIcon_small = 
+				new ImageIcon("D:/Projects/Java/NetBeans/Projects/project/Summer-Project/finalized/FileExplorer/resources/images/img_small.png");
+		private final Icon imageIcon_big = 
+				new ImageIcon("D:/Projects/Java/NetBeans/Projects/project/Summer-Project/finalized/FileExplorer/resources/images/img_big.png");
 		
-		private final Icon configIcon_SmallSize = 
-//				new ImageIcon(getClass().getResource("D:/Projects/Java/NetBeans/Projects/project/Summer-Project/finalized/FileExplorer/resources/images/src.webp"));
-				new ImageIcon("D:/Projects/Java/NetBeans/Projects/project/Summer-Project/finalized/FileExplorer/resources/images/config.png");
+		private final Icon configIcon_small = 
+				new ImageIcon("D:/Projects/Java/NetBeans/Projects/project/Summer-Project/finalized/FileExplorer/resources/images/config_small.png");
+		private final Icon configIcon_big = 
+				new ImageIcon("D:/Projects/Java/NetBeans/Projects/project/Summer-Project/finalized/FileExplorer/resources/images/config_big.png");
 		
-		private final Icon textIcon_SmallSize = 
-//				new ImageIcon(getClass().getResource("D:/Projects/Java/NetBeans/Projects/project/Summer-Project/finalized/FileExplorer/resources/images/src.webp"));
-				new ImageIcon("D:/Projects/Java/NetBeans/Projects/project/Summer-Project/finalized/FileExplorer/resources/images/text.png");
+		private final Icon textIcon_small = 
+				new ImageIcon("D:/Projects/Java/NetBeans/Projects/project/Summer-Project/finalized/FileExplorer/resources/images/text_small.png");		
+		private final Icon textIcon_big = 
+				new ImageIcon("D:/Projects/Java/NetBeans/Projects/project/Summer-Project/finalized/FileExplorer/resources/images/text_big.png");
 		
-		private final Icon sourceCodeIcon_SmallSize = 
-//				new ImageIcon(getClass().getResource("D:/Projects/Java/NetBeans/Projects/project/Summer-Project/finalized/FileExplorer/resources/images/src.webp"));
-				new ImageIcon("D:/Projects/Java/NetBeans/Projects/project/Summer-Project/finalized/FileExplorer/resources/images/src.webp");
+		private final Icon sourceCodeIcon_small = 
+				new ImageIcon("D:/Projects/Java/NetBeans/Projects/project/Summer-Project/finalized/FileExplorer/resources/images/src_small.png");
+		private final Icon sourceCodeIcon_big = 
+				new ImageIcon("D:/Projects/Java/NetBeans/Projects/project/Summer-Project/finalized/FileExplorer/resources/images/src_big.png");
 		
-		public static enum Size { SMALL, BIG };
+		public static final Icon propertiesIcon_small = 
+				new ImageIcon("D:/Projects/Java/NetBeans/Projects/project/Summer-Project/finalized/FileExplorer/resources/images/about_small.png");
+		
+		public static enum IconSize { SMALL, BIG };
 		
 		private Object[][] registry = new Object[][] {
-			new Object[] { Arrays.asList("png", "gif", "png", "jpg", "jpeg"), imageIcon },
-			new Object[] { Arrays.asList("c", "cpp", "py", "java", "cs"), sourceCodeIcon },
-			new Object[] { Arrays.asList("gitconfig", "ini", "cfg", "config", "db"), configIcon },
-			new Object[] { Arrays.asList("txt", "log"), textIcon }
+			new Object[] { Arrays.asList("png", "gif", "png", "jpg", "jpeg"), imageIcon_small, imageIcon_big }, // TODO update
+			new Object[] { Arrays.asList("c", "cpp", "py", "java", "cs"), sourceCodeIcon_small, sourceCodeIcon_big }, // TODO update
+			new Object[] { Arrays.asList("gitconfig", "ini", "cfg", "config", "db"), configIcon_small, configIcon_big }, // TODO update
+			new Object[] { Arrays.asList("txt", "log"), textIcon_small, textIcon_big } // TODO update
 		};
 		
-		public Icon get(final FileAttributes file, final Size size) {
-			Icon icon; // default
+		public Icon getFileIcon(final FileAttributes file, final IconSize size) {
 			if(file.isDirectory) 
-				icon = size==Size.BIG ? dirIcon_BigSize : dirIcon_SmallSize;
-			else {
-				icon = fileIcon;
-				if(!file.type.equals("file")) {
-					for(Object[] record : registry) {
-						if(((List)record[0]).contains(file.type)) {
-							icon = (Icon)record[1];
-							break;
-						}
+				return size==IconSize.SMALL ? dirIcon_small : dirIcon_big;
+			
+			if(!file.type.equals("file")) {
+				for(Object[] record : registry) {
+					if(((List)record[0]).contains(file.type)) {
+						return (Icon)record[ size==IconSize.SMALL ? 1 : 2 ];
 					}
-					if(icon == fileIcon)
-						System.out.printf("Warning: No icon associated with type=%s, filename=%s\n", file.type, file.name); // TODO log warning
 				}
+				System.out.printf("Warning: No icon associated with type=%s, filename=%s\n", file.type, file.name); // TODO log warning
 			}
-			return icon;
+		
+			return size==IconSize.SMALL ? fileIcon_small : fileIcon_big;
 		}
 	}
 	

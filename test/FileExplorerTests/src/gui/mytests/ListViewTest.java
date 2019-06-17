@@ -18,6 +18,13 @@ import java.awt.event.MouseEvent;
 import java.nio.file.InvalidPathException;
 import java.util.Arrays;
 import javax.swing.table.TableModel;
+import java.awt.event.*;
+import gui.mytests.*;
+import static javax.swing.Action.MNEMONIC_KEY;
+import static javax.swing.Action.SHORT_DESCRIPTION;
+import static gui.mytests.SystemResources.IconRegistry;
+import static gui.mytests.SystemResources.IconRegistry.IconSize;
+
 
 
 public class ListViewTest extends javax.swing.JFrame {
@@ -28,7 +35,7 @@ public class ListViewTest extends javax.swing.JFrame {
     private javax.swing.tree.DefaultMutableTreeNode treeNodeBookmarks;
     private javax.swing.tree.DefaultMutableTreeNode treeNodeRemoteServers;
 	private FileSystemHandler fileSystemHandler = null;
-	private SystemResources.IconRegistry iconRegistry = null;
+	private IconRegistry iconRegistry = null;
 	private DefaultTableModel tableModel = null;
 	private String lastVisitedPath = null;
 	
@@ -82,31 +89,22 @@ public class ListViewTest extends javax.swing.JFrame {
 		}
 	}
 	
-	/* Action subclasses */
-	private class PasteAction extends AbstractAction {
-		PasteAction(String text, ImageIcon icon, String desc, Integer mnemonic) {
-            super(text, icon);
-            putValue(SHORT_DESCRIPTION, desc);
-            putValue(MNEMONIC_KEY, mnemonic);
+	private final class ShowPropertiesAction extends AbstractAction {
+		ShowPropertiesAction() {
+            super("Properties", IconRegistry.propertiesIcon_small);
+            putValue(SHORT_DESCRIPTION, "Show properties");
+            putValue(MNEMONIC_KEY, KeyEvent.VK_ENTER);
         }
 		
 		@Override 
-        public void actionPerformed(ActionEvent e) {
-            System.out.println("  // PasteAction.actionPerformed() not yet written"); // TODO complete
-        }
+		public void actionPerformed(ActionEvent e) {
+			SingleFilePropertiesForm.init(	selectedFiles[0], 
+											iconRegistry.getFileIcon(selectedFiles[0], IconSize.BIG), 
+											fileSystemHandler);
+		}
 	}
 	
-	private final Action propertiesAction = new AbstractAction() {
-		@Override 
-        public void actionPerformed(ActionEvent e) {
-			if(selectedFiles.length == 1) {
-				SingleFilePropertiesForm.init(selectedFiles[0], iconRegistry.get(selectedFiles[0]), fileSystemHandler);
-			}
-        }
-	};
-	
-//	private final PropertiesAction propertiesAction 
-//			= new PropertiesAction("Properties", null, "Show properties", KeyEvent.VK_ENTER); // change the icon later
+	private final ShowPropertiesAction showPropertiesAction = new ShowPropertiesAction();
 	
 	
 	/**
@@ -122,7 +120,7 @@ public class ListViewTest extends javax.swing.JFrame {
 		System.out.println("Info: Initializing FileSystemHandler..."); // TODO log info
 		fileSystemHandler = FileSystemHandler.getHandler(userHomeDirectoryPath);
 		
-		iconRegistry = SystemResources.IconRegistry.getIconRegistry();
+		iconRegistry = IconRegistry.getIconRegistry();
 		
 		System.out.println("Info: Setting bookmarks tree..."); // TODO log info
 		setBookmarks();
@@ -130,12 +128,13 @@ public class ListViewTest extends javax.swing.JFrame {
 		System.out.println("Info: Setting file list table..."); // TODO log info
 		setTable();
 		
-		// Setting Actions
-		menuProperties.setAction(propertiesAction);
+//		// Setting Actions
+		System.out.println("Info: Attaching Actions...");
+		menuProperties.setAction(showPropertiesAction);
 	}
 	
 	private void setBookmarks() {
-		bookmarkHandler = BookmarkHandler.getInstance();		
+		bookmarkHandler = BookmarkHandler.getInstance();
 		try {
 			for(FileAttributes file : fileSystemHandler.listRoots()) {
 				bookmarkHandler.add(	treeNodeDrives, 
@@ -187,7 +186,8 @@ public class ListViewTest extends javax.swing.JFrame {
 		
 		try {
 			fileSystemHandler.navigateTo(path);
-			((DefaultTableModel)tableFileList.getModel()).setRowCount(0);
+			tableModel.setRowCount(0);
+//			((DefaultTableModel)tableFileList.getModel()).setRowCount(0);
 			setTableRows(fileSystemHandler.listFiles(fileSystemHandler.getCurrentWorkingDirectory()));
 			txtPathAddress.setText(path);
 			lastVisitedPath = path;
@@ -329,7 +329,7 @@ public class ListViewTest extends javax.swing.JFrame {
         popupFileSelected.add(menuDelete);
         popupFileSelected.add(jSeparator5);
 
-        menuProperties.setText("Properties");
+        menuProperties.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_ENTER, java.awt.event.InputEvent.ALT_MASK | java.awt.event.InputEvent.CTRL_MASK));
         popupFileSelected.add(menuProperties);
 
         menuBookmarkOpen.setText("Open");
@@ -544,7 +544,7 @@ public class ListViewTest extends javax.swing.JFrame {
 			source.changeSelection(row, 0, false, false);
 		System.out.println("  // 	getSelectedRowCount()=" + source.getSelectedRowCount());
 		
-		TableModel tableModel = source.getModel();
+//		TableModel tableModel = source.getModel();
 		int[] selectedRows = source.getSelectedRows();
 		System.out.println("  // selected row indices: " + Arrays.toString(selectedRows));
 		selectedFiles = new FileAttributes[selectedRows.length];
@@ -554,7 +554,6 @@ public class ListViewTest extends javax.swing.JFrame {
 
 		if (evt.isPopupTrigger()) {
 			setPopupFileSelectedOptions();
-
 			popupFileSelected.show(evt.getComponent(), evt.getX(), evt.getY());
         } else if(evt.getClickCount() == 2) { // double clicked
 			System.out.println("  // double clicked");
@@ -599,20 +598,23 @@ public class ListViewTest extends javax.swing.JFrame {
         
     }//GEN-LAST:event_menuOpenActionPerformed
 
+	public static void setAppLookAndFeel() throws ClassNotFoundException, InstantiationException, IllegalAccessException, UnsupportedLookAndFeelException {
+		boolean lnfNameNotFound = true;
+		for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+			if (SystemResources.LOOKnFEEL_NAMES.contains(info.getName())) {
+				javax.swing.UIManager.setLookAndFeel(info.getClassName());
+				lnfNameNotFound = false;
+				break;
+			}
+		}
+		if(lnfNameNotFound)
+			System.err.println("Warning: Cannot set predefined L&F: " + SystemResources.LOOKnFEEL_NAMES); // log warning
+	}
 	
 	public static void main(String args[]) throws Exception {
 		/* Set the predefined look and feel */
 		try {
-			boolean lnfNameNotFound = true;
-			for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-				if (SystemResources.LOOKnFEEL_NAMES.contains(info.getName())) {
-					javax.swing.UIManager.setLookAndFeel(info.getClassName());
-					lnfNameNotFound = false;
-					break;
-				}
-			}
-			if(lnfNameNotFound)
-				System.err.println("Warning: Cannot set predefined L&F: " + SystemResources.LOOKnFEEL_NAMES); // log error
+			setAppLookAndFeel();
 		} catch (Exception exc) {
 			System.err.println("Error: Cannot set L&F: " + exc); // Log error
 		}
@@ -679,7 +681,7 @@ public class ListViewTest extends javax.swing.JFrame {
 	private void setTableRows(final FileAttributes[] files) {
 		for(FileAttributes file : files) {
 			tableModel.addRow(new Object[] {
-				iconRegistry.get(file), // file icon
+				iconRegistry.getFileIcon(file, IconSize.SMALL), // file icon
 				file, // file name, stored as FileAttributes object for later retrieval
 				file.size, // file size
 				file.type, // file type
