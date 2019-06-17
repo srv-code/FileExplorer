@@ -28,6 +28,7 @@ public class BookmarkHandler {
 
 	public BookmarkHandler add(	final DefaultMutableTreeNode treeNode, 
 								final BookmarkedItem item) {
+//		System.out.println("  // treeNode=" + treeNode);
 		treeNode.add(new DefaultMutableTreeNode(item));
 		return this;
 	}

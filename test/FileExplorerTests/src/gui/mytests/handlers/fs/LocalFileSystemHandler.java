@@ -44,6 +44,7 @@ public class LocalFileSystemHandler extends FileSystemHandler {
 						file.canExecute(),
 						file.isDirectory(),
 						file.isHidden(),
+						Files.isSymbolicLink(file.toPath()),
 						true,
 						file.getName(),
 						file.getAbsolutePath(),

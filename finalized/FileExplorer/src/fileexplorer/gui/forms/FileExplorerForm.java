@@ -290,11 +290,10 @@ public class FileExplorerForm extends javax.swing.JFrame {
 
 	private AboutForm aboutForm = null;
     private void aboutMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_aboutMenuItemActionPerformed
-        if(aboutForm == null) {
-			this.setEnabled(false);
+        this.setEnabled(false);
+		if(aboutForm == null) {
 			aboutForm = AboutForm.init();
 		} else {
-			this.setEnabled(false);
 			aboutForm.setVisible(true);
 		}
     }//GEN-LAST:event_aboutMenuItemActionPerformed

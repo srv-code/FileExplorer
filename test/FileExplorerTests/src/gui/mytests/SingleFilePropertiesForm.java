@@ -5,18 +5,40 @@
  */
 package gui.mytests;
 
-/**
- *
- * @author soura
- */
-public class PropertiesForm extends javax.swing.JFrame {
+import gui.mytests.handlers.fs.FileAttributes;
+import gui.mytests.handlers.fs.FileSystemHandler;
+import gui.mytests.handlers.fs.LocalFileSystemHandler;
+import javax.swing.Icon;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 
+
+public class SingleFilePropertiesForm extends javax.swing.JFrame {
+
+	private FileAttributes file;
+	private FileSystemHandler fileSystemHandler;
+	
 	/**
 	 * Creates new form PropertiesForm
 	 */
-	public PropertiesForm() {
+	public SingleFilePropertiesForm(final FileAttributes file, final Icon icon, final FileSystemHandler fsHandler) {
+		this.file = file;
+		this.fileSystemHandler = fsHandler;
 		initComponents();
-	}
+		
+		// set values to GUI components
+		lblTypeIcon.setIcon(icon);
+		txtName.setText(file.name);
+		txtPath.setText(file.absolutePath);
+		txtType.setText(file.type);
+		txtLocation.setText(file.isLocal ? "Local" : "Remote");
+		txtSize.setText(file.sizeInWords + " (" + file.size + " B)");
+		txtLastModified.setText(file.lastModifiedDateString);
+		chkReadable.setSelected(file.isReadable);
+		chkWritable.setSelected(file.isWritable);
+		chkExecutable.setSelected(file.isExecutable);
+		chkHidden.setSelected(file.isHidden);
+ 	}
 
 	/**
 	 * This method is called from within the constructor to initialize the form.
@@ -40,7 +62,7 @@ public class PropertiesForm extends javax.swing.JFrame {
         chkReadable = new javax.swing.JCheckBox();
         chkWritable = new javax.swing.JCheckBox();
         chkExecutable = new javax.swing.JCheckBox();
-        txtHidden = new javax.swing.JCheckBox();
+        chkHidden = new javax.swing.JCheckBox();
         btnCancel = new javax.swing.JButton();
         btnApply = new javax.swing.JButton();
         btnOK = new javax.swing.JButton();
@@ -54,7 +76,6 @@ public class PropertiesForm extends javax.swing.JFrame {
         setTitle("Properties");
         setAlwaysOnTop(true);
         setResizable(false);
-        setType(java.awt.Window.Type.UTILITY);
 
         jLabel1.setText("Name:");
 
@@ -76,22 +97,34 @@ public class PropertiesForm extends javax.swing.JFrame {
 
         chkExecutable.setText("Executable");
 
-        txtHidden.setText("Hidden");
+        chkHidden.setText("Hidden");
 
         btnCancel.setText("Cancel");
-        btnCancel.setMaximumSize(new java.awt.Dimension(65, 23));
-        btnCancel.setMinimumSize(new java.awt.Dimension(65, 23));
-        btnCancel.setPreferredSize(new java.awt.Dimension(65, 23));
+        btnCancel.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnCancelActionPerformed(evt);
+            }
+        });
 
         btnApply.setText("Apply");
         btnApply.setMaximumSize(new java.awt.Dimension(65, 23));
         btnApply.setMinimumSize(new java.awt.Dimension(65, 23));
         btnApply.setPreferredSize(new java.awt.Dimension(65, 23));
+        btnApply.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnApplyActionPerformed(evt);
+            }
+        });
 
         btnOK.setText("OK");
         btnOK.setMaximumSize(new java.awt.Dimension(65, 23));
         btnOK.setMinimumSize(new java.awt.Dimension(65, 23));
         btnOK.setPreferredSize(new java.awt.Dimension(65, 23));
+        btnOK.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnOKActionPerformed(evt);
+            }
+        });
 
         txtType.setEditable(false);
 
@@ -111,7 +144,7 @@ public class PropertiesForm extends javax.swing.JFrame {
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(lblTypeIcon, javax.swing.GroupLayout.PREFERRED_SIZE, 68, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(lblTypeIcon, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(32, 32, 32)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
@@ -139,7 +172,7 @@ public class PropertiesForm extends javax.swing.JFrame {
                         .addGap(0, 0, Short.MAX_VALUE)
                         .addComponent(btnOK, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(btnCancel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(btnCancel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(btnApply, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(12, 12, 12))
@@ -154,7 +187,7 @@ public class PropertiesForm extends javax.swing.JFrame {
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .addComponent(chkExecutable)
                                 .addGap(18, 18, 18)
-                                .addComponent(txtHidden)
+                                .addComponent(chkHidden)
                                 .addGap(2, 2, 2))
                             .addComponent(jSeparator1)
                             .addGroup(layout.createSequentialGroup()
@@ -174,7 +207,7 @@ public class PropertiesForm extends javax.swing.JFrame {
                         .addComponent(txtName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
                         .addContainerGap()
-                        .addComponent(lblTypeIcon, javax.swing.GroupLayout.PREFERRED_SIZE, 81, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(lblTypeIcon, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addGap(14, 14, 14)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel2)
@@ -203,58 +236,111 @@ public class PropertiesForm extends javax.swing.JFrame {
                     .addComponent(chkReadable)
                     .addComponent(chkWritable)
                     .addComponent(chkExecutable)
-                    .addComponent(txtHidden))
+                    .addComponent(chkHidden))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 16, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnApply, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btnCancel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnCancel)
                     .addComponent(btnOK, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap())
         );
 
+        lblTypeIcon.getAccessibleContext().setAccessibleDescription("");
+
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-	/**
-	 * @param args the command line arguments
-	 */
-	public static void main(String args[]) {
-		/* Set the Nimbus look and feel */
-		//<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-		/* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-		 */
+    private void btnOKActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnOKActionPerformed
+		if(saveValues())
+			form.dispose();
+    }//GEN-LAST:event_btnOKActionPerformed
+
+    private void btnCancelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelActionPerformed
+		form.dispose();
+    }//GEN-LAST:event_btnCancelActionPerformed
+
+    private void btnApplyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnApplyActionPerformed
+		saveValues();
+    }//GEN-LAST:event_btnApplyActionPerformed
+
+	private boolean saveValues() throws IllegalArgumentException {
+		String attributeToChange = null;
+		boolean successful = true;
+		
 		try {
+			attributeToChange = "name";
+			String name = txtName.getText().trim();
+			if(!name.equals(file.name)) {
+//				fileSystemHandler.rename(file, name);
+			}
+
+			attributeToChange = "read bit";
+			if(file.isReadable != chkReadable.isSelected()) {
+//				fileSystemHandler.setReadable(chkReadable.isSelected());
+			}
+
+			attributeToChange = "write bit";
+			if(file.isReadable != chkWritable.isSelected()) {
+//				fileSystemHandler.setReadable(chkWritable.isSelected());
+			}
+
+			attributeToChange = "execute bit";
+			if(file.isReadable != chkExecutable.isSelected()) {
+//				fileSystemHandler.setReadable(chkExecutable.isSelected());
+			}
+
+			attributeToChange = "hidden bit";
+			if(file.isReadable != chkHidden.isSelected()) {
+//				fileSystemHandler.setReadable(txtHidden.isSelected());
+			}
+		} catch(Exception e) {
+			if(JOptionPane.showConfirmDialog(this,
+					"Cannot save attributes: " + attributeToChange + "\nRetry?", "Error changing attributes",
+					JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+				successful = false;
+			}
+		}
+		
+		return successful;
+	}
+	
+	private static SingleFilePropertiesForm form = null;
+	
+	static SingleFilePropertiesForm init(final FileAttributes file, final Icon icon, final FileSystemHandler fsHandler) {
+		/* Set the predefined look and feel */ /*
+		try {
+			boolean lnfNameNotFound = true;
 			for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-				if ("Windows".equals(info.getName())) {
+				if (SystemResources.LOOKnFEEL_NAMES.contains(info.getName())) {
 					javax.swing.UIManager.setLookAndFeel(info.getClassName());
+					lnfNameNotFound = false;
 					break;
 				}
 			}
-		} catch (ClassNotFoundException ex) {
-			java.util.logging.Logger.getLogger(PropertiesForm.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-		} catch (InstantiationException ex) {
-			java.util.logging.Logger.getLogger(PropertiesForm.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-		} catch (IllegalAccessException ex) {
-			java.util.logging.Logger.getLogger(PropertiesForm.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-		} catch (javax.swing.UnsupportedLookAndFeelException ex) {
-			java.util.logging.Logger.getLogger(PropertiesForm.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+			if(lnfNameNotFound)
+				System.err.println("Warning: Cannot set predefined L&F: " + SystemResources.LOOKnFEEL_NAMES); // log error
+		} catch (Exception exc) {
+			System.err.println("Error: Cannot set L&F: " + exc); // Log error
 		}
-		//</editor-fold>
-
+		*/
+		
 		/* Create and display the form */
 		java.awt.EventQueue.invokeLater(new Runnable() {
 			public void run() {
-				new PropertiesForm().setVisible(true);
+				form = new SingleFilePropertiesForm(file, icon, fsHandler);
+				form.setVisible(true);
 			}
 		});
+		
+		return form;
 	}
-
+	
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnApply;
     private javax.swing.JButton btnCancel;
     private javax.swing.JButton btnOK;
     private javax.swing.JCheckBox chkExecutable;
+    private javax.swing.JCheckBox chkHidden;
     private javax.swing.JCheckBox chkReadable;
     private javax.swing.JCheckBox chkWritable;
     private javax.swing.JLabel jLabel1;
@@ -266,7 +352,6 @@ public class PropertiesForm extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel7;
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JLabel lblTypeIcon;
-    private javax.swing.JCheckBox txtHidden;
     private javax.swing.JTextField txtLastModified;
     private javax.swing.JTextField txtLocation;
     private javax.swing.JTextField txtName;

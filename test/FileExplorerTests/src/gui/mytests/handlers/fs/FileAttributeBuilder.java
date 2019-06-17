@@ -7,13 +7,13 @@ package gui.mytests.handlers.fs;
  */
 @Deprecated
 class FileAttributeBuilder {
-	public boolean isReadable, isWritable, isExecutable, isDirectory, isHidden, isLocal;
+	public boolean isReadable, isWritable, isExecutable, isDirectory, isHidden, isLocal, isLink;
 	public String name, absolutePath;
 	long lastModified, length;
 	
 	FileAttributes build() {
 		return new FileAttributes(	isReadable, isWritable, isExecutable, 
-									isDirectory, isHidden, 
+									isDirectory, isHidden, isLink,
 									isLocal,
 									name, absolutePath, lastModified, length);
 	}

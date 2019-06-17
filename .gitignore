@@ -11,7 +11,7 @@
 .mtj.tmp/
 
 # Package Files #
-# *.jar # necessary for built artifacts
+*.jar
 *.war
 *.nar
 *.ear
@@ -24,3 +24,11 @@ hs_err_pid*
 /test/FileExplorerTests/nbproject/private/
 /test/FileExplorerTests/build/
 /test/challenges/nbproject/private/
+
+.idea/
+
+build/
+resources/
+dist/
+lib/
+tmp/

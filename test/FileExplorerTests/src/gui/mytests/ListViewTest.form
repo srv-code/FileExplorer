@@ -2,13 +2,6 @@
 
 <Form version="1.8" maxVersion="1.9" type="org.netbeans.modules.form.forminfo.JFrameFormInfo">
   <NonVisualComponents>
-    <Container class="javax.swing.JDialog" name="dialogInfo">
-      <Properties>
-        <Property name="title" type="java.lang.String" value="About"/>
-      </Properties>
-
-      <Layout class="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout"/>
-    </Container>
     <Container class="javax.swing.JPopupMenu" name="popupFileSelected">
 
       <Layout class="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout">
@@ -19,15 +12,23 @@
           <Properties>
             <Property name="text" type="java.lang.String" value="Open"/>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="menuOpenActionPerformed"/>
+          </Events>
         </MenuItem>
         <MenuItem class="javax.swing.JMenuItem" name="menuOpenWith">
           <Properties>
             <Property name="text" type="java.lang.String" value="Open with..."/>
           </Properties>
         </MenuItem>
-        <MenuItem class="javax.swing.JMenuItem" name="menuOpenInSystemBrowser">
+        <MenuItem class="javax.swing.JMenuItem" name="menuPrint">
           <Properties>
-            <Property name="text" type="java.lang.String" value="Open in system browser..."/>
+            <Property name="text" type="java.lang.String" value="Print"/>
+          </Properties>
+        </MenuItem>
+        <MenuItem class="javax.swing.JMenuItem" name="menuOpenUsingSystem">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Open using system..."/>
           </Properties>
         </MenuItem>
         <MenuItem class="javax.swing.JMenuItem" name="menuOpenInNewTab">
@@ -80,9 +81,6 @@
           <Properties>
             <Property name="text" type="java.lang.String" value="Properties"/>
           </Properties>
-          <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="menuPropertiesActionPerformed"/>
-          </Events>
         </MenuItem>
       </SubComponents>
     </Container>
@@ -249,6 +247,15 @@
       </SubComponents>
     </Container>
     <Container class="javax.swing.JSplitPane" name="jSplitPane1">
+      <Properties>
+        <Property name="dividerLocation" type="int" value="150"/>
+        <Property name="dividerSize" type="int" value="3"/>
+        <Property name="autoscrolls" type="boolean" value="true"/>
+        <Property name="minimumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+          <Dimension value="[150, 25]"/>
+        </Property>
+        <Property name="oneTouchExpandable" type="boolean" value="true"/>
+      </Properties>
       <Constraints>
         <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout" value="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout$BorderConstraintsDescription">
           <BorderConstraints direction="Center"/>
@@ -278,6 +285,12 @@
               <Events>
                 <EventHandler event="mouseReleased" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="treeQuickAccessMouseReleased"/>
               </Events>
+              <AuxValues>
+                <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new javax.swing.JTree()"/>
+                <AuxValue name="JavaCodeGenerator_CreateCodePre" type="java.lang.String" value="/* Custom code */"/>
+                <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="*/&#xa;&#xa;/* Custom code */&#xa;// Adding nodes to JTree&#xa;treeNodeQuickAccess = new javax.swing.tree.DefaultMutableTreeNode(&quot;Quick access&quot;);&#xa;&#xa;treeNodeDrives = new javax.swing.tree.DefaultMutableTreeNode(&quot;Drives&quot;);&#xa;treeNodeQuickAccess.add(treeNodeDrives);&#xa;&#xa;treeNodeLibrary = new javax.swing.tree.DefaultMutableTreeNode(&quot;Library&quot;);&#xa;treeNodeQuickAccess.add(treeNodeLibrary);&#xa;&#xa;treeNodeBookmarks = new javax.swing.tree.DefaultMutableTreeNode(&quot;Bookmarks&quot;);&#xa;treeNodeQuickAccess.add(treeNodeBookmarks);&#xa;&#xa;treeNodeRemoteServers = new javax.swing.tree.DefaultMutableTreeNode(&quot;Remote servers&quot;);&#xa;treeNodeQuickAccess.add(treeNodeRemoteServers);&#xa;&#xa;treeQuickAccess.setModel(new javax.swing.tree.DefaultTreeModel(treeNodeQuickAccess));"/>
+                <AuxValue name="JavaCodeGenerator_InitCodePre" type="java.lang.String" value="/*"/>
+              </AuxValues>
             </Component>
           </SubComponents>
         </Container>
@@ -299,11 +312,11 @@
                 <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.editors2.TableModelEditor">
                   <Table columnCount="6" rowCount="0">
                     <Column editable="false" title="" type="java.lang.Object"/>
-                    <Column editable="true" title="Name" type="java.lang.String"/>
-                    <Column editable="false" title="Size" type="java.lang.String"/>
+                    <Column editable="false" title="Name" type="java.lang.Object"/>
+                    <Column editable="false" title="Size" type="java.lang.Long"/>
                     <Column editable="false" title="Type" type="java.lang.String"/>
                     <Column editable="false" title="Modified" type="java.lang.String"/>
-                    <Column editable="false" title="Path" type="java.lang.Object"/>
+                    <Column editable="false" title="Path" type="java.lang.String"/>
                   </Table>
                 </Property>
                 <Property name="columnModel" type="javax.swing.table.TableColumnModel" editor="org.netbeans.modules.form.editors2.TableColumnModelEditor">
@@ -353,6 +366,10 @@
               <Events>
                 <EventHandler event="mouseReleased" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="tableFileListMouseReleased"/>
               </Events>
+              <AuxValues>
+                <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new JTable(){&#xa;    //Implement table cell tool tips.&#xa;    @Override&#xa;    public String getToolTipText(MouseEvent e) {&#xa;        String tipText = null;&#xa;        java.awt.Point p = e.getPoint();&#xa;        int rowIndex = rowAtPoint(p);&#xa;        //                int colIndex = columnAtPoint(p);&#xa;&#xa;        try {&#xa;//          if(rowIndex != 0) // exclude heading&#xa;            tipText = getFileToolTipText((FileAttributes)getValueAt(rowIndex, FILE_OBJECT_COLUMN_INDEX));&#xa;        } catch (RuntimeException e1) {&#xa;            //catch null pointer exception if mouse is over an empty line&#xa;        }&#xa;        //        System.out.println(&quot;  // tipText=&quot; + tipText);&#xa;        return tipText;&#xa;    }&#xa;}"/>
+                <AuxValue name="JavaCodeGenerator_CreateCodePre" type="java.lang.String" value="/* Custom code */"/>
+              </AuxValues>
             </Component>
           </SubComponents>
         </Container>

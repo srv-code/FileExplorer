@@ -2,14 +2,22 @@ package gui.mytests;
 
 import gui.mytests.handlers.BookmarkHandler;
 import gui.mytests.handlers.BookmarkedItem;
+import gui.mytests.handlers.fs.EndInNavigationHistoryException;
 import gui.mytests.handlers.fs.FileAttributes;
 import gui.mytests.handlers.fs.FileSystemHandler;
 import java.awt.Component;
+import java.awt.Desktop;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import javax.swing.*;
 import java.io.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.tree.*;
+import java.awt.event.MouseEvent;
+import java.nio.file.InvalidPathException;
+import java.util.Arrays;
+import javax.swing.table.TableModel;
 
 
 public class ListViewTest extends javax.swing.JFrame {
@@ -22,29 +30,108 @@ public class ListViewTest extends javax.swing.JFrame {
 	private FileSystemHandler fileSystemHandler = null;
 	private SystemResources.IconRegistry iconRegistry = null;
 	private DefaultTableModel tableModel = null;
+	private String lastVisitedPath = null;
 	
 	private final String userHomeDirectoryPath, systemTempDirPath;
+	private final int FILE_OBJECT_COLUMN_INDEX = 1;
+	private final int ICON_COLUMN_INDEX = 0;
+	
+	/* Other frame instances */
+	private JFrame propertiesForm = null;
+
+	private void setPopupFileSelectedOptions() {
+		// reset all options
+		menuOpen.setVisible(true);
+		menuOpenWith.setVisible(true);
+        menuPrint.setVisible(true);
+		menuOpenUsingSystem.setVisible(true);
+		menuOpenInNewTab.setVisible(true);
+        jSeparator1.setVisible(true);
+		menuBookmark.setVisible(true);
+		menuCreateLink.setVisible(true);
+        jSeparator2.setVisible(true);
+		menuCut.setVisible(true);
+		menuCopy.setVisible(true);
+		menuPaste.setVisible(pasteOperation != PasteOperation.NONE);
+		menuRename.setVisible(true);
+		menuDelete.setVisible(true);
+        jSeparator5.setVisible(true);
+		menuProperties.setVisible(true);
+		
+        // set appropriate options
+		if(selectedFiles.length == 1) {
+			if(selectedFiles[0].isDirectory) {
+				menuOpenWith.setVisible(false);
+                menuPrint.setVisible(false);
+			} else if(selectedFiles[0].isLink) {
+				menuCreateLink.setVisible(false);
+				menuOpenUsingSystem.setVisible(false);
+                menuPrint.setVisible(false);
+			} else { // for files
+				menuOpenInNewTab.setVisible(false);
+				menuOpenUsingSystem.setVisible(false);
+			}
+		} else {
+            menuPrint.setVisible(false);
+            menuOpen.setVisible(false);
+			menuOpenWith.setVisible(false);
+            menuOpenUsingSystem.setVisible(false);
+			menuOpenInNewTab.setVisible(false);
+			jSeparator1.setVisible(false);
+			menuRename.setVisible(false);
+		}
+	}
+	
+	/* Action subclasses */
+	private class PasteAction extends AbstractAction {
+		PasteAction(String text, ImageIcon icon, String desc, Integer mnemonic) {
+            super(text, icon);
+            putValue(SHORT_DESCRIPTION, desc);
+            putValue(MNEMONIC_KEY, mnemonic);
+        }
+		
+		@Override 
+        public void actionPerformed(ActionEvent e) {
+            System.out.println("  // PasteAction.actionPerformed() not yet written"); // TODO complete
+        }
+	}
+	
+	private final Action propertiesAction = new AbstractAction() {
+		@Override 
+        public void actionPerformed(ActionEvent e) {
+			if(selectedFiles.length == 1) {
+				SingleFilePropertiesForm.init(selectedFiles[0], iconRegistry.get(selectedFiles[0]), fileSystemHandler);
+			}
+        }
+	};
+	
+//	private final PropertiesAction propertiesAction 
+//			= new PropertiesAction("Properties", null, "Show properties", KeyEvent.VK_ENTER); // change the icon later
+	
 	
 	/**
 	 * Creates new form ListViewTest
 	 */
 	public ListViewTest() throws FileNotFoundException {
-		System.out.println("Initializing form UI components..."); // TODO log info
+		System.out.println("Info: Initializing form UI components..."); // TODO log info
 		initComponents();
 		
 		userHomeDirectoryPath = System.getProperty("user.home");
 		systemTempDirPath = System.getProperty("java.io.tmpdir");
 		
-		System.out.println("Initializing FileSystemHandler..."); // TODO log info
+		System.out.println("Info: Initializing FileSystemHandler..."); // TODO log info
 		fileSystemHandler = FileSystemHandler.getHandler(userHomeDirectoryPath);
 		
 		iconRegistry = SystemResources.IconRegistry.getIconRegistry();
 		
-		System.out.println("Setting bookmarks tree..."); // TODO log info
+		System.out.println("Info: Setting bookmarks tree..."); // TODO log info
 		setBookmarks();
 		
-		System.out.println("Setting file list table..."); // TODO log info
+		System.out.println("Info: Setting file list table..."); // TODO log info
 		setTable();
+		
+		// Setting Actions
+		menuProperties.setAction(propertiesAction);
 	}
 	
 	private void setBookmarks() {
@@ -55,7 +142,7 @@ public class ListViewTest extends javax.swing.JFrame {
 										new BookmarkedItem(file.absolutePath, BookmarkedItem.ItemType.SYS_DRIVE, file.absolutePath));
 			}
 		} catch(FileNotFoundException e) {
-			System.out.println("Err: Cannot add system roots to bookmark tree node: " + e); // TODO Log in logger 
+			System.err.println("Err: Cannot add system roots to bookmark tree node: " + e); // TODO Log in logger 
 			e.printStackTrace(System.err);
 		}
 		
@@ -83,10 +170,37 @@ public class ListViewTest extends javax.swing.JFrame {
 		
 		DefaultTableCellRenderer centerJustifiedCellRenderer = new DefaultTableCellRenderer();
 		centerJustifiedCellRenderer.setHorizontalAlignment(JLabel.CENTER);
-		
-		tableFileList.getColumnModel().getColumn(2).setCellRenderer(rightJustifiedCellRenderer);
+
 		tableFileList.getColumnModel().getColumn(3).setCellRenderer(rightJustifiedCellRenderer);
 		tableFileList.getColumnModel().getColumn(4).setCellRenderer(centerJustifiedCellRenderer);
+		
+		navigateTo(userHomeDirectoryPath);
+	}
+	
+	private void navigateTo(final FileAttributes path) {
+		navigateTo(path.absolutePath);
+	}
+	
+	private void navigateTo(final String path) {
+		if(path.equals(lastVisitedPath)) // save from irrelevant processing
+			return;
+		
+		try {
+			fileSystemHandler.navigateTo(path);
+			((DefaultTableModel)tableFileList.getModel()).setRowCount(0);
+			setTableRows(fileSystemHandler.listFiles(fileSystemHandler.getCurrentWorkingDirectory()));
+			txtPathAddress.setText(path);
+			lastVisitedPath = path;
+//			System.out.println("  // path loaded: " + path);
+		} catch(InvalidPathException|FileNotFoundException e) {
+			JOptionPane.showMessageDialog(this,
+				"Invalid path: " + path,
+				"Path error",
+				JOptionPane.ERROR_MESSAGE);
+			txtPathAddress.setText(lastVisitedPath);
+		} catch(NullPointerException e) {
+			System.out.println("Err: Cannot visit directory: " + path); // TODO log error
+		}
 	}
 	
 	class ImageRenderer extends DefaultTableCellRenderer {
@@ -94,9 +208,9 @@ public class ListViewTest extends javax.swing.JFrame {
 
 	  public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
 	      boolean hasFocus, int row, int column) {
-	    // lbl.setText((String) value);
-		lbl.setIcon((Icon)value);
-	    return lbl;
+			// lbl.setText((String) value);
+			lbl.setIcon((Icon)value);
+			return lbl;
 	  }
 	}
 
@@ -109,11 +223,11 @@ public class ListViewTest extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        dialogInfo = new javax.swing.JDialog();
         popupFileSelected = new javax.swing.JPopupMenu();
         menuOpen = new javax.swing.JMenuItem();
         menuOpenWith = new javax.swing.JMenuItem();
-        menuOpenInSystemBrowser = new javax.swing.JMenuItem();
+        menuPrint = new javax.swing.JMenuItem();
+        menuOpenUsingSystem = new javax.swing.JMenuItem();
         menuOpenInNewTab = new javax.swing.JMenuItem();
         jSeparator1 = new javax.swing.JPopupMenu.Separator();
         menuBookmark = new javax.swing.JMenuItem();
@@ -147,20 +261,46 @@ public class ListViewTest extends javax.swing.JFrame {
         txtSearchFiles = new javax.swing.JTextField();
         jSplitPane1 = new javax.swing.JSplitPane();
         scrollPane_treeQuickAccess = new javax.swing.JScrollPane();
+        /* Custom code */
         treeQuickAccess = new javax.swing.JTree();
         scrollPane_tableFileList = new javax.swing.JScrollPane();
-        tableFileList = new javax.swing.JTable();
+        /* Custom code */
+        tableFileList = new JTable(){
+            //Implement table cell tool tips.
+            @Override
+            public String getToolTipText(MouseEvent e) {
+                String tipText = null;
+                java.awt.Point p = e.getPoint();
+                int rowIndex = rowAtPoint(p);
+                //                int colIndex = columnAtPoint(p);
 
-        dialogInfo.setTitle("About");
+                try {
+                    //          if(rowIndex != 0) // exclude heading
+                    tipText = getFileToolTipText((FileAttributes)getValueAt(rowIndex, FILE_OBJECT_COLUMN_INDEX));
+                } catch (RuntimeException e1) {
+                    //catch null pointer exception if mouse is over an empty line
+                }
+                //        System.out.println("  // tipText=" + tipText);
+                return tipText;
+            }
+        };
 
         menuOpen.setText("Open");
+        menuOpen.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                menuOpenActionPerformed(evt);
+            }
+        });
         popupFileSelected.add(menuOpen);
 
         menuOpenWith.setText("Open with...");
         popupFileSelected.add(menuOpenWith);
 
-        menuOpenInSystemBrowser.setText("Open in system browser...");
-        popupFileSelected.add(menuOpenInSystemBrowser);
+        menuPrint.setText("Print");
+        popupFileSelected.add(menuPrint);
+
+        menuOpenUsingSystem.setText("Open using system...");
+        popupFileSelected.add(menuOpenUsingSystem);
 
         menuOpenInNewTab.setText("Open in new tab");
         popupFileSelected.add(menuOpenInNewTab);
@@ -190,11 +330,6 @@ public class ListViewTest extends javax.swing.JFrame {
         popupFileSelected.add(jSeparator5);
 
         menuProperties.setText("Properties");
-        menuProperties.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                menuPropertiesActionPerformed(evt);
-            }
-        });
         popupFileSelected.add(menuProperties);
 
         menuBookmarkOpen.setText("Open");
@@ -286,15 +421,41 @@ public class ListViewTest extends javax.swing.JFrame {
 
         getContentPane().add(toolbarOptions, java.awt.BorderLayout.NORTH);
 
-        treeNodeQuickAccess = new javax.swing.tree.DefaultMutableTreeNode("Quick access");        
+        jSplitPane1.setDividerLocation(150);
+        jSplitPane1.setDividerSize(3);
+        jSplitPane1.setAutoscrolls(true);
+        jSplitPane1.setMinimumSize(new java.awt.Dimension(150, 25));
+        jSplitPane1.setOneTouchExpandable(true);
+
+        /*
+        javax.swing.tree.DefaultMutableTreeNode treeNode1 = new javax.swing.tree.DefaultMutableTreeNode("Quick access");
+        javax.swing.tree.DefaultMutableTreeNode treeNode2 = new javax.swing.tree.DefaultMutableTreeNode("Drives");
+        treeNode1.add(treeNode2);
+        treeNode2 = new javax.swing.tree.DefaultMutableTreeNode("Library");
+        treeNode1.add(treeNode2);
+        treeNode2 = new javax.swing.tree.DefaultMutableTreeNode("Bookmarks");
+        treeNode1.add(treeNode2);
+        treeNode2 = new javax.swing.tree.DefaultMutableTreeNode("Remote servers");
+        treeNode1.add(treeNode2);
+        treeQuickAccess.setModel(new javax.swing.tree.DefaultTreeModel(treeNode1));
+        */
+
+        /* Custom code */
+        // Adding nodes to JTree
+        treeNodeQuickAccess = new javax.swing.tree.DefaultMutableTreeNode("Quick access");
+
         treeNodeDrives = new javax.swing.tree.DefaultMutableTreeNode("Drives");
         treeNodeQuickAccess.add(treeNodeDrives);
+
         treeNodeLibrary = new javax.swing.tree.DefaultMutableTreeNode("Library");
         treeNodeQuickAccess.add(treeNodeLibrary);
+
         treeNodeBookmarks = new javax.swing.tree.DefaultMutableTreeNode("Bookmarks");
         treeNodeQuickAccess.add(treeNodeBookmarks);
+
         treeNodeRemoteServers = new javax.swing.tree.DefaultMutableTreeNode("Remote servers");
         treeNodeQuickAccess.add(treeNodeRemoteServers);
+
         treeQuickAccess.setModel(new javax.swing.tree.DefaultTreeModel(treeNodeQuickAccess));
         treeQuickAccess.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseReleased(java.awt.event.MouseEvent evt) {
@@ -315,10 +476,10 @@ public class ListViewTest extends javax.swing.JFrame {
             }
         ) {
             Class[] types = new Class [] {
-                java.lang.Object.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.Object.class
+                java.lang.Object.class, java.lang.Object.class, java.lang.Long.class, java.lang.String.class, java.lang.String.class, java.lang.String.class
             };
             boolean[] canEdit = new boolean [] {
-                false, true, false, false, false, false
+                false, false, false, false, false, false
             };
 
             public Class getColumnClass(int columnIndex) {
@@ -362,44 +523,51 @@ public class ListViewTest extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 		
     private void btnGoToParentDirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGoToParentDirActionPerformed
-		setTableRow(new File("a/b/google.png"));
+//		setTableRow(new File("a/b/google.png"));
     }//GEN-LAST:event_btnGoToParentDirActionPerformed
-
+	
     private void txtPathAddressActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtPathAddressActionPerformed
-        // TODO add your handling code here:
+        navigateTo(txtPathAddress.getText().trim());
     }//GEN-LAST:event_txtPathAddressActionPerformed
 
     private void formComponentResized(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_formComponentResized
         
     }//GEN-LAST:event_formComponentResized
-
-    private void menuPropertiesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuPropertiesActionPerformed
-
-    }//GEN-LAST:event_menuPropertiesActionPerformed
-
-	private File[] selectedFiles = null;
+	
+	private FileAttributes[] selectedFiles = null;
 	
     private void tableFileListMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tableFileListMouseReleased
-         if (evt.isPopupTrigger()) {
-			JTable source = (JTable)evt.getSource();
-			int row = source.rowAtPoint( evt.getPoint() );
+        JTable source = (JTable)evt.getSource();
+		
+		int row = source.rowAtPoint(evt.getPoint());
+		if (!source.isRowSelected(row))
+			source.changeSelection(row, 0, false, false);
+		System.out.println("  // 	getSelectedRowCount()=" + source.getSelectedRowCount());
+		
+		TableModel tableModel = source.getModel();
+		int[] selectedRows = source.getSelectedRows();
+		System.out.println("  // selected row indices: " + Arrays.toString(selectedRows));
+		selectedFiles = new FileAttributes[selectedRows.length];
+		for(int i=0; i<selectedRows.length; i++) {
+			selectedFiles[i] = (FileAttributes)tableModel.getValueAt(selectedRows[i], FILE_OBJECT_COLUMN_INDEX);
+		}
 
-			if (! source.isRowSelected(row))
-				source.changeSelection(row, 0, false, false);
-
-			File fileSelected = (File) source.getModel().getValueAt(row, 5);
-			System.out.println("  // selected file: " + fileSelected);
-			/*
-			if(!fileSelected.isDirectory()) {
-//				menuFollowLink.setEnabled(false);
-				menuFollowLink.setVisible(false);
-			}
-			*/
+		if (evt.isPopupTrigger()) {
+			setPopupFileSelectedOptions();
 
 			popupFileSelected.show(evt.getComponent(), evt.getX(), evt.getY());
-        }
+        } else if(evt.getClickCount() == 2) { // double clicked
+			System.out.println("  // double clicked");
+			if(selectedFiles[0].isDirectory) 
+				navigateTo(selectedFiles[0].absolutePath);
+			// TODO else open file 
+		}
     }//GEN-LAST:event_tableFileListMouseReleased
 
+	private FileAttributes filetoPaste = null;
+	private enum PasteOperation { CUT, COPY, NONE }
+	private PasteOperation pasteOperation = PasteOperation.NONE;
+	
     private void treeQuickAccessMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_treeQuickAccessMouseReleased
 		int row = treeQuickAccess.getRowForLocation(evt.getX(), evt.getY());
 		if(row == -1) // a parent node is expanded, so no row selected
@@ -412,8 +580,8 @@ public class ListViewTest extends javax.swing.JFrame {
 			Object[] nodes = selectedPath.getPath();
 			DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode)nodes[nodes.length-1];
 		
-			System.out.printf("  // selected item: class=%s, value=%s\n",
-				selectedNode.getUserObject().getClass().getName(), selectedNode.getUserObject());
+//			System.out.printf("  // selected item: class=%s, value=%s\n",
+//				selectedNode.getUserObject().getClass().getName(), selectedNode.getUserObject());
 			
 			if(SwingUtilities.isRightMouseButton(evt)) { // do right-click action				
 				popupBookmarkedItems.show(evt.getComponent(), evt.getX(), evt.getY());
@@ -427,16 +595,28 @@ public class ListViewTest extends javax.swing.JFrame {
 		}
     }//GEN-LAST:event_treeQuickAccessMouseReleased
 
+    private void menuOpenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuOpenActionPerformed
+        
+    }//GEN-LAST:event_menuOpenActionPerformed
+
 	
 	public static void main(String args[]) throws Exception {
-		/* Set the Windows look and feel */
+		/* Set the predefined look and feel */
 		try {
-            javax.swing.UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
-		} catch (Exception e) {
-			System.err.println("Cannot set L&F to Nimbus: " + e);
+			boolean lnfNameNotFound = true;
+			for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+				if (SystemResources.LOOKnFEEL_NAMES.contains(info.getName())) {
+					javax.swing.UIManager.setLookAndFeel(info.getClassName());
+					lnfNameNotFound = false;
+					break;
+				}
+			}
+			if(lnfNameNotFound)
+				System.err.println("Warning: Cannot set predefined L&F: " + SystemResources.LOOKnFEEL_NAMES); // log error
+		} catch (Exception exc) {
+			System.err.println("Error: Cannot set L&F: " + exc); // Log error
 		}
         
-
 		/* Create and display the form */
 		java.awt.EventQueue.invokeLater(new Runnable() {
 			public void run() {
@@ -457,7 +637,6 @@ public class ListViewTest extends javax.swing.JFrame {
     private javax.swing.JButton btnGoForwardInHistory;
     private javax.swing.JButton btnGoToParentDir;
     private javax.swing.JButton btnReloadPath;
-    private javax.swing.JDialog dialogInfo;
     private javax.swing.JPopupMenu.Separator jSeparator1;
     private javax.swing.JPopupMenu.Separator jSeparator2;
     private javax.swing.JToolBar.Separator jSeparator3;
@@ -479,9 +658,10 @@ public class ListViewTest extends javax.swing.JFrame {
     private javax.swing.JMenuItem menuDelete;
     private javax.swing.JMenuItem menuOpen;
     private javax.swing.JMenuItem menuOpenInNewTab;
-    private javax.swing.JMenuItem menuOpenInSystemBrowser;
+    private javax.swing.JMenuItem menuOpenUsingSystem;
     private javax.swing.JMenuItem menuOpenWith;
     private javax.swing.JMenuItem menuPaste;
+    private javax.swing.JMenuItem menuPrint;
     private javax.swing.JMenuItem menuProperties;
     private javax.swing.JMenuItem menuRename;
     private javax.swing.JPopupMenu popupBookmarkedItems;
@@ -496,43 +676,23 @@ public class ListViewTest extends javax.swing.JFrame {
     private javax.swing.JTextField txtSearchFiles;
     // End of variables declaration//GEN-END:variables
 
-	private String getFileType(final File file) {
-		if(file.isDirectory()) 
-			return "folder";
-		else {
-			int dotIdx = file.getPath().lastIndexOf('.');
-			if(dotIdx == -1) 
-				return "file";
-			else 
-				return file.getPath().substring(dotIdx+1).toLowerCase();
-		}	
+	private void setTableRows(final FileAttributes[] files) {
+		for(FileAttributes file : files) {
+			tableModel.addRow(new Object[] {
+				iconRegistry.get(file), // file icon
+				file, // file name, stored as FileAttributes object for later retrieval
+				file.size, // file size
+				file.type, // file type
+				file.lastModifiedDateString, // modified date & time
+				file.absolutePath // file path
+			});
+		}
 	}
 	
-	final double KB = Math.pow(1024.0, 1.0);
-	final double MB = Math.pow(1024.0, 2.0);
-	final double GB = Math.pow(1024.0, 3.0);
-	
-	private String getFileSize(final long size) {
-		final double s = (double)size;
-		if		(s < KB)	return String.format("%d B", size);
-		else if	(s < MB)	return String.format("%.2f K", s/KB);
-		else if	(s < GB)	return String.format("%.2f M", s/MB);
-		else				return String.format("%.2f G", s/GB);
+	private String getFileToolTipText(final FileAttributes file) {
+		return String.format(
+			"<html><style>table{border-collapse: collapse;} td{padding: 0px;} .attr{color: green;} .value{color: blue;}</style> <table><tr><td class='attr'>Name:</td><td class='value'>%s</td></tr><tr><td class='attr'>Type:</td><td class='value'>%s</td></tr><tr><td class='attr'>Size:</td><td class='value'>%s</td></tr><tr><td class='attr'>Modified:</td><td class='value'>%s</td></tr></table></html>",
+			file.name, file.type, file.sizeInWords, file.lastModifiedDateString);
 	}
-	
-	private String getFileModTime(final long time) {
-		return String.format("%tY/%<tm/%<td %<tI:%<tM:%<tS %<Tp", time);
-	}
-	
-	private void setTableRow(final File file) {
-		// "Icon", "Name", "Path", "Type", "Modified", "Size"		
-		tableModel.addRow(new Object[] {
-			iconRegistry.get(file), // file icon
-			file.getName(), // file name
-			getFileSize(file.length()), // file size in highest unit
-			getFileType(file), // file type
-			getFileModTime(file.lastModified()), // modified date & time
-			file // file path: as data type kept as Object to store File object for future use
-		});
-	}
+
 }
