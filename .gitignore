@@ -11,7 +11,7 @@
 .mtj.tmp/
 
 # Package Files #
-# *.jar # necessary for built artifacts
+*.jar
 *.war
 *.nar
 *.ear
@@ -21,3 +21,14 @@
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
+/test/FileExplorerTests/nbproject/private/
+/test/FileExplorerTests/build/
+/test/challenges/nbproject/private/
+
+.idea/
+
+build/
+resources/
+dist/
+lib/
+tmp/
