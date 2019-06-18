@@ -30,7 +30,7 @@ public class SystemResources {
 				new ImageIcon("D:/Projects/Java/NetBeans/Projects/project/Summer-Project/finalized/FileExplorer/resources/images/folder_big.png");		
 		
 		private final Icon fileIcon_small = 
-				new ImageIcon("D:/Projects/Java/NetBeans/Projects/project/Summer-Project/finalized/FileExplorer/resources/images/file.png");		
+				new ImageIcon("D:/Projects/Java/NetBeans/Projects/project/Summer-Project/finalized/FileExplorer/resources/images/file_small.png");		
 		private final Icon fileIcon_big = 
 				new ImageIcon("D:/Projects/Java/NetBeans/Projects/project/Summer-Project/finalized/FileExplorer/resources/images/file_big.png");
 		
@@ -54,16 +54,19 @@ public class SystemResources {
 		private final Icon sourceCodeIcon_big = 
 				new ImageIcon("D:/Projects/Java/NetBeans/Projects/project/Summer-Project/finalized/FileExplorer/resources/images/src_big.png");
 		
+		/* static icons */
 		public static final Icon propertiesIcon_small = 
 				new ImageIcon("D:/Projects/Java/NetBeans/Projects/project/Summer-Project/finalized/FileExplorer/resources/images/about_small.png");
+		public static final Icon multipleFilesIcon_big =
+				new ImageIcon("D:/Projects/Java/NetBeans/Projects/project/Summer-Project/finalized/FileExplorer/resources/images/multiples_big.png");
 		
 		public static enum IconSize { SMALL, BIG };
 		
 		private Object[][] registry = new Object[][] {
-			new Object[] { Arrays.asList("png", "gif", "png", "jpg", "jpeg"), imageIcon_small, imageIcon_big }, // TODO update
-			new Object[] { Arrays.asList("c", "cpp", "py", "java", "cs"), sourceCodeIcon_small, sourceCodeIcon_big }, // TODO update
-			new Object[] { Arrays.asList("gitconfig", "ini", "cfg", "config", "db"), configIcon_small, configIcon_big }, // TODO update
-			new Object[] { Arrays.asList("txt", "log"), textIcon_small, textIcon_big } // TODO update
+			new Object[] { Arrays.asList("png", "gif", "png", "jpg", "jpeg"), imageIcon_small, imageIcon_big },
+			new Object[] { Arrays.asList("c", "cpp", "py", "java", "cs", "xml"), sourceCodeIcon_small, sourceCodeIcon_big },
+			new Object[] { Arrays.asList("gitconfig", "ini", "cfg", "config", "db"), configIcon_small, configIcon_big },
+			new Object[] { Arrays.asList("txt", "log"), textIcon_small, textIcon_big }
 		};
 		
 		public Icon getFileIcon(final FileAttributes file, final IconSize size) {

@@ -98,9 +98,9 @@ public class ListViewTest extends javax.swing.JFrame {
 		
 		@Override 
 		public void actionPerformed(ActionEvent e) {
-			SingleFilePropertiesForm.init(	selectedFiles[0], 
-											iconRegistry.getFileIcon(selectedFiles[0], IconSize.BIG), 
-											fileSystemHandler);
+			FilePropertiesForm.init(	selectedFiles, 
+										iconRegistry.getFileIcon(selectedFiles[0], IconSize.BIG), 
+										fileSystemHandler);
 		}
 	}
 	
@@ -185,6 +185,7 @@ public class ListViewTest extends javax.swing.JFrame {
 			return;
 		
 		try {
+			System.out.println("Info: Loading..."); // TODO log info
 			fileSystemHandler.navigateTo(path);
 			tableModel.setRowCount(0);
 //			((DefaultTableModel)tableFileList.getModel()).setRowCount(0);
@@ -490,7 +491,7 @@ public class ListViewTest extends javax.swing.JFrame {
                 return canEdit [columnIndex];
             }
         });
-        tableFileList.setRowHeight(20);
+        tableFileList.setRowHeight(22);
         tableFileList.setSelectionMode(javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
         tableFileList.setShowHorizontalLines(false);
         tableFileList.setShowVerticalLines(false);
@@ -523,7 +524,7 @@ public class ListViewTest extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 		
     private void btnGoToParentDirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGoToParentDirActionPerformed
-//		setTableRow(new File("a/b/google.png"));
+		
     }//GEN-LAST:event_btnGoToParentDirActionPerformed
 	
     private void txtPathAddressActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtPathAddressActionPerformed
@@ -537,20 +538,23 @@ public class ListViewTest extends javax.swing.JFrame {
 	private FileAttributes[] selectedFiles = null;
 	
     private void tableFileListMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tableFileListMouseReleased
-        JTable source = (JTable)evt.getSource();
+//        JTable source = (JTable)evt.getSource();
 		
-		int row = source.rowAtPoint(evt.getPoint());
-		if (!source.isRowSelected(row))
-			source.changeSelection(row, 0, false, false);
-		System.out.println("  // 	getSelectedRowCount()=" + source.getSelectedRowCount());
+		int row = tableFileList.rowAtPoint(evt.getPoint());
+		if (!tableFileList.isRowSelected(row))
+			tableFileList.changeSelection(row, 0, false, false);
 		
 //		TableModel tableModel = source.getModel();
-		int[] selectedRows = source.getSelectedRows();
-		System.out.println("  // selected row indices: " + Arrays.toString(selectedRows));
+		System.out.printf("  // getSelectedRowCount()=%d, selected row indices=[", tableFileList.getSelectedRowCount());
+		int[] selectedRows = tableFileList.getSelectedRows();
+		for(int viewRow : selectedRows)
+			System.out.printf("{v=%d,m=%d} ", viewRow, tableFileList.convertRowIndexToModel(viewRow));
+		
 		selectedFiles = new FileAttributes[selectedRows.length];
 		for(int i=0; i<selectedRows.length; i++) {
-			selectedFiles[i] = (FileAttributes)tableModel.getValueAt(selectedRows[i], FILE_OBJECT_COLUMN_INDEX);
+			selectedFiles[i] = (FileAttributes)tableModel.getValueAt(tableFileList.convertRowIndexToModel(selectedRows[i]), FILE_OBJECT_COLUMN_INDEX);
 		}
+		System.out.println(", selectedFiles updated");
 
 		if (evt.isPopupTrigger()) {
 			setPopupFileSelectedOptions();

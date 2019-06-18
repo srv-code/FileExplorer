@@ -5,39 +5,75 @@
  */
 package gui.mytests;
 
+import gui.mytests.SystemResources.IconRegistry;
 import gui.mytests.handlers.fs.FileAttributes;
 import gui.mytests.handlers.fs.FileSystemHandler;
 import gui.mytests.handlers.fs.LocalFileSystemHandler;
+import java.util.ArrayList;
+import java.util.List;
 import javax.swing.Icon;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
 
-public class SingleFilePropertiesForm extends javax.swing.JFrame {
+public class FilePropertiesForm extends javax.swing.JFrame {
 
-	private FileAttributes file;
+	private FileAttributes[] files;
 	private FileSystemHandler fileSystemHandler;
 	
 	/**
 	 * Creates new form PropertiesForm
+	 * @param icon If multiples files are specified then this parameter has no 
+	 *		significance as the constant icon will be used.
 	 */
-	public SingleFilePropertiesForm(final FileAttributes file, final Icon icon, final FileSystemHandler fsHandler) {
-		this.file = file;
+	public FilePropertiesForm(final FileAttributes[] files, final Icon icon, final FileSystemHandler fsHandler) {
+		this.files = files;
 		this.fileSystemHandler = fsHandler;
 		initComponents();
 		
 		// set values to GUI components
-		lblTypeIcon.setIcon(icon);
-		txtName.setText(file.name);
-		txtPath.setText(file.absolutePath);
-		txtType.setText(file.type);
-		txtLocation.setText(file.isLocal ? "Local" : "Remote");
-		txtSize.setText(file.sizeInWords + " (" + file.size + " B)");
-		txtLastModified.setText(file.lastModifiedDateString);
-		chkReadable.setSelected(file.isReadable);
-		chkWritable.setSelected(file.isWritable);
-		chkExecutable.setSelected(file.isExecutable);
-		chkHidden.setSelected(file.isHidden);
+		if(files.length == 1) {
+			lblTypeIcon.setIcon(icon);
+			txtName.setText(files[0].name); txtName.setCaretPosition(0);			
+			txtType.setText(files[0].type); txtType.setCaretPosition(0);			
+			txtSize.setText(files[0].sizeInWords + " (" + files[0].size + " B)"); txtSize.setCaretPosition(0);
+			txtLastModified.setText(files[0].lastModifiedDateString); txtLastModified.setCaretPosition(0);
+			chkReadable.setSelected(files[0].isReadable);
+			chkWritable.setSelected(files[0].isWritable);
+			chkExecutable.setSelected(files[0].isExecutable);
+			chkHidden.setSelected(files[0].isHidden);
+		} else {
+			lblTypeIcon.setIcon(IconRegistry.multipleFilesIcon_big);
+			
+			StringBuilder names = new StringBuilder();
+			List<String> types = new ArrayList<>();
+			long totalSize = 0L;
+			long minLastModified = files[0].lastModified, maxLastModified = files[0].lastModified;
+			for(FileAttributes file : files) {
+				names.append(file.name).append("; ");
+				if(!types.contains(file.type))
+					types.add(file.type);
+				totalSize += file.size;
+				minLastModified = Math.min(file.lastModified, minLastModified);
+				maxLastModified = Math.max(file.lastModified, maxLastModified);
+			}
+			
+			txtName.setText(names.toString()); txtName.setCaretPosition(0);
+			StringBuilder tmpTypes = new StringBuilder();
+			for(String type : types)
+				tmpTypes.append(type).append("; ");
+			txtType.setText(tmpTypes.toString());
+			txtType.setCaretPosition(0);
+			txtSize.setText(FileAttributes.getSizeInWords(totalSize) + " (" + totalSize + " B)"); txtSize.setCaretPosition(0);
+			txtLastModified.setText(	FileAttributes.getlastModifiedDateString(minLastModified) + 
+										" - " + 
+										FileAttributes.getlastModifiedDateString(maxLastModified)); 
+			txtLastModified.setCaretPosition(0);
+		}
+		
+		// global values
+		txtPath.setText(files[0].absolutePath); txtPath.setCaretPosition(0);
+		txtLocation.setText(files[0].isLocal ? "Local" : "Remote"); txtLocation.setCaretPosition(0);
  	}
 
 	/**
@@ -264,6 +300,7 @@ public class SingleFilePropertiesForm extends javax.swing.JFrame {
     }//GEN-LAST:event_btnApplyActionPerformed
 
 	private boolean saveValues() throws IllegalArgumentException {
+		/*
 		String attributeToChange = null;
 		boolean successful = true;
 		
@@ -302,11 +339,13 @@ public class SingleFilePropertiesForm extends javax.swing.JFrame {
 		}
 		
 		return successful;
+		*/
+		throw new UnsupportedOperationException("not yet designed");
 	}
 	
-	private static SingleFilePropertiesForm form = null;
+	private static FilePropertiesForm form = null;
 	
-	static SingleFilePropertiesForm init(final FileAttributes file, final Icon icon, final FileSystemHandler fsHandler) {
+	static FilePropertiesForm init(final FileAttributes[] files, final Icon icon, final FileSystemHandler fsHandler) {
 		/* Set the predefined look and feel */ /*
 		try {
 			boolean lnfNameNotFound = true;
@@ -327,7 +366,7 @@ public class SingleFilePropertiesForm extends javax.swing.JFrame {
 		/* Create and display the form */
 		java.awt.EventQueue.invokeLater(new Runnable() {
 			public void run() {
-				form = new SingleFilePropertiesForm(file, icon, fsHandler);
+				form = new FilePropertiesForm(files, icon, fsHandler);
 				form.setVisible(true);
 			}
 		});

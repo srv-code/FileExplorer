@@ -35,12 +35,12 @@ public final class FileAttributes {
 		this.size = size;
 		this.isLink = isLink;
 		setType();
-		setSizeInWords();
-		setlastModifiedDateString();
+		lastModifiedDateString = getlastModifiedDateString(lastModified);
+		sizeInWords = getSizeInWords(size);
 	}
 	
-	private void setlastModifiedDateString() {
-		lastModifiedDateString = String.format("%tY/%<tm/%<td %<tI:%<tM:%<tS %<Tp", lastModified);
+	public static String getlastModifiedDateString(final long lastModifiedTime) {
+		return String.format("%tY/%<tm/%<td %<tI:%<tM:%<tS %<Tp", lastModifiedTime);
 	}
 	
 	private void setType() {
@@ -54,16 +54,16 @@ public final class FileAttributes {
 		}
 	}
 	
-	private final double KB = Math.pow(1024.0, 1.0);
-	private final double MB = Math.pow(1024.0, 2.0);
-	private final double GB = Math.pow(1024.0, 3.0);
+	private static final double KB = Math.pow(1024.0, 1.0);
+	private static final double MB = Math.pow(1024.0, 2.0);
+	private static final double GB = Math.pow(1024.0, 3.0);
 	
-	private void setSizeInWords() {
+	public static String getSizeInWords(final long size) {
 		final double s = (double)size;
-		if		(s < KB)	sizeInWords = String.format("%d B", size);
-		else if	(s < MB)	sizeInWords = String.format("%.2f K", s/KB);
-		else if	(s < GB)	sizeInWords = String.format("%.2f M", s/MB);
-		else				sizeInWords = String.format("%.2f G", s/GB);
+		if		(s < KB)	return String.format("%d B", size);
+		else if	(s < MB)	return String.format("%.2f K", s/KB);
+		else if	(s < GB)	return String.format("%.2f M", s/MB);
+		else				return String.format("%.2f G", s/GB);
 	}
 	
 	@Override 
