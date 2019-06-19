@@ -6,6 +6,7 @@
 package gui.mytests;
 
 import gui.mytests.SystemResources.IconRegistry;
+import gui.mytests.handlers.BookmarkedItem;
 import gui.mytests.handlers.fs.FileAttributes;
 import gui.mytests.handlers.fs.FileSystemHandler;
 import gui.mytests.handlers.fs.LocalFileSystemHandler;
@@ -24,9 +25,11 @@ public class FilePropertiesForm extends javax.swing.JFrame {
 	/**
 	 * Creates new form PropertiesForm
 	 * @param icon If multiples files are specified then this parameter has no 
-	 *		significance as the constant icon will be used.
+	 *		significance as a constant icon will be used.
+	 * @param type If multiples files are specified then this parameter has no 
+	 *		significance as a constant icon will be used.
 	 */
-	public FilePropertiesForm(final FileAttributes[] files, final Icon icon, final FileSystemHandler fsHandler) {
+	public FilePropertiesForm(final FileAttributes[] files, final Icon icon, final String type, final FileSystemHandler fsHandler) {
 		this.files = files;
 		this.fileSystemHandler = fsHandler;
 		initComponents();
@@ -34,10 +37,14 @@ public class FilePropertiesForm extends javax.swing.JFrame {
 		// set values to GUI components
 		if(files.length == 1) {
 			lblTypeIcon.setIcon(icon);
-			txtName.setText(files[0].name); txtName.setCaretPosition(0);			
-			txtType.setText(files[0].type); txtType.setCaretPosition(0);			
-			txtSize.setText(files[0].sizeInWords + " (" + files[0].size + " B)"); txtSize.setCaretPosition(0);
-			txtLastModified.setText(files[0].lastModifiedDateString); txtLastModified.setCaretPosition(0);
+			txtName.setText(type.equals(BookmarkedItem.ItemType.SYS_DRIVE.toString()) ? files[0].absolutePath : files[0].name); 
+				txtName.setCaretPosition(0);			
+			txtType.setText(type); 
+				txtType.setCaretPosition(0);
+			txtSize.setText(files[0].sizeInWords + " (" + files[0].size + " B)"); 
+				txtSize.setCaretPosition(0);
+			txtLastModified.setText(files[0].lastModifiedDateString); 
+				txtLastModified.setCaretPosition(0);
 			chkReadable.setSelected(files[0].isReadable);
 			chkWritable.setSelected(files[0].isWritable);
 			chkExecutable.setSelected(files[0].isExecutable);
@@ -58,13 +65,15 @@ public class FilePropertiesForm extends javax.swing.JFrame {
 				maxLastModified = Math.max(file.lastModified, maxLastModified);
 			}
 			
-			txtName.setText(names.toString()); txtName.setCaretPosition(0);
+			txtName.setText(names.toString()); 
+				txtName.setCaretPosition(0);
 			StringBuilder tmpTypes = new StringBuilder();
-			for(String type : types)
-				tmpTypes.append(type).append("; ");
+			for(String ftype : types)
+				tmpTypes.append(ftype).append("; ");
 			txtType.setText(tmpTypes.toString());
-			txtType.setCaretPosition(0);
-			txtSize.setText(FileAttributes.getSizeInWords(totalSize) + " (" + totalSize + " B)"); txtSize.setCaretPosition(0);
+				txtType.setCaretPosition(0);
+			txtSize.setText(FileAttributes.getSizeInWords(totalSize) + " (" + totalSize + " B)"); 
+				txtSize.setCaretPosition(0);
 			txtLastModified.setText(	FileAttributes.getlastModifiedDateString(minLastModified) + 
 										" - " + 
 										FileAttributes.getlastModifiedDateString(maxLastModified)); 
@@ -72,8 +81,10 @@ public class FilePropertiesForm extends javax.swing.JFrame {
 		}
 		
 		// global values
-		txtPath.setText(files[0].absolutePath); txtPath.setCaretPosition(0);
-		txtLocation.setText(files[0].isLocal ? "Local" : "Remote"); txtLocation.setCaretPosition(0);
+		txtPath.setText(files[0].absolutePath); 
+			txtPath.setCaretPosition(0);
+		txtLocation.setText(files[0].isLocal ? "Local" : "Remote"); 
+			txtLocation.setCaretPosition(0);
  	}
 
 	/**
@@ -345,7 +356,7 @@ public class FilePropertiesForm extends javax.swing.JFrame {
 	
 	private static FilePropertiesForm form = null;
 	
-	static FilePropertiesForm init(final FileAttributes[] files, final Icon icon, final FileSystemHandler fsHandler) {
+	static FilePropertiesForm init(final FileAttributes[] files, final Icon icon, final String type, final FileSystemHandler fsHandler) {
 		/* Set the predefined look and feel */ /*
 		try {
 			boolean lnfNameNotFound = true;
@@ -366,7 +377,7 @@ public class FilePropertiesForm extends javax.swing.JFrame {
 		/* Create and display the form */
 		java.awt.EventQueue.invokeLater(new Runnable() {
 			public void run() {
-				form = new FilePropertiesForm(files, icon, fsHandler);
+				form = new FilePropertiesForm(files, icon, type, fsHandler);
 				form.setVisible(true);
 			}
 		});

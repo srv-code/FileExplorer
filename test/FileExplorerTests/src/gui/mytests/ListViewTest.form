@@ -82,7 +82,12 @@
             <Property name="accelerator" type="javax.swing.KeyStroke" editor="org.netbeans.modules.form.editors.KeyStrokeEditor">
               <KeyStroke key="Ctrl+Alt+ENTER"/>
             </Property>
+            <Property name="text" type="java.lang.String" value="Properties"/>
+            <Property name="actionCommand" type="java.lang.String" value="FileListProperties"/>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="menuPropertiesActionPerformed"/>
+          </Events>
         </MenuItem>
       </SubComponents>
     </Container>
@@ -119,7 +124,11 @@
         <MenuItem class="javax.swing.JMenuItem" name="menuBookmarkProperties">
           <Properties>
             <Property name="text" type="java.lang.String" value="Properties"/>
+            <Property name="actionCommand" type="java.lang.String" value="BookmarkedItemProperties"/>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="menuBookmarkPropertiesActionPerformed"/>
+          </Events>
         </MenuItem>
       </SubComponents>
     </Container>

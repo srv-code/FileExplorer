@@ -8,9 +8,9 @@ import java.io.File;
  * Final class. Needs FileAttributeBuilder object to build.
  */
 public final class FileAttributes {
-	public boolean isReadable, isWritable, isExecutable, isDirectory, isHidden, isLocal, isLink;
-	public String name, absolutePath, type, sizeInWords, lastModifiedDateString;
-	public long lastModified, size;
+	public final boolean isReadable, isWritable, isExecutable, isDirectory, isHidden, isLocal, isLink;
+	public final String name, absolutePath, type, sizeInWords, lastModifiedDateString;
+	public final long lastModified, size;
 	
 	public FileAttributes(	final boolean isReadable, 
 							final boolean isWritable, 
@@ -34,7 +34,7 @@ public final class FileAttributes {
 		this.lastModified = lastModified;
 		this.size = size;
 		this.isLink = isLink;
-		setType();
+		this.type = getType();
 		lastModifiedDateString = getlastModifiedDateString(lastModified);
 		sizeInWords = getSizeInWords(size);
 	}
@@ -43,14 +43,14 @@ public final class FileAttributes {
 		return String.format("%tY/%<tm/%<td %<tI:%<tM:%<tS %<Tp", lastModifiedTime);
 	}
 	
-	private void setType() {
+	private String getType() {
 		if(isDirectory)
-			type = "folder";
+			return "folder";
 		else if(isLink)
-			type = "link";
+			return "link";
 		else {
 			int dotIdx = absolutePath.lastIndexOf('.');
-			type = dotIdx == -1 ? "file" : absolutePath.substring(dotIdx+1).toLowerCase();
+			return dotIdx == -1 ? "file" : absolutePath.substring(dotIdx+1).toLowerCase();
 		}
 	}
 	

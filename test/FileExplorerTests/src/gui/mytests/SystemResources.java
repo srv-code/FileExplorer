@@ -24,41 +24,50 @@ public class SystemResources {
 			new ImageIcon(getClass().getResource("/images/file.png"));
 		*/
 		
-		private final Icon dirIcon_small = 
+		public static final Icon dirIcon_small = 
 				new ImageIcon("D:/Projects/Java/NetBeans/Projects/project/Summer-Project/finalized/FileExplorer/resources/images/folder_small.png");		
-		private final Icon dirIcon_big = 
+		public static final Icon dirIcon_big = 
 				new ImageIcon("D:/Projects/Java/NetBeans/Projects/project/Summer-Project/finalized/FileExplorer/resources/images/folder_big.png");		
 		
-		private final Icon fileIcon_small = 
+		public static final Icon fileIcon_small = 
 				new ImageIcon("D:/Projects/Java/NetBeans/Projects/project/Summer-Project/finalized/FileExplorer/resources/images/file_small.png");		
-		private final Icon fileIcon_big = 
+		public static final Icon fileIcon_big = 
 				new ImageIcon("D:/Projects/Java/NetBeans/Projects/project/Summer-Project/finalized/FileExplorer/resources/images/file_big.png");
 		
-		private final Icon imageIcon_small = 
+		public static final Icon imageIcon_small = 
 				new ImageIcon("D:/Projects/Java/NetBeans/Projects/project/Summer-Project/finalized/FileExplorer/resources/images/img_small.png");
-		private final Icon imageIcon_big = 
+		public static final Icon imageIcon_big = 
 				new ImageIcon("D:/Projects/Java/NetBeans/Projects/project/Summer-Project/finalized/FileExplorer/resources/images/img_big.png");
 		
-		private final Icon configIcon_small = 
+		public static final Icon configIcon_small = 
 				new ImageIcon("D:/Projects/Java/NetBeans/Projects/project/Summer-Project/finalized/FileExplorer/resources/images/config_small.png");
-		private final Icon configIcon_big = 
+		public static final Icon configIcon_big = 
 				new ImageIcon("D:/Projects/Java/NetBeans/Projects/project/Summer-Project/finalized/FileExplorer/resources/images/config_big.png");
 		
-		private final Icon textIcon_small = 
+		public static final Icon textIcon_small = 
 				new ImageIcon("D:/Projects/Java/NetBeans/Projects/project/Summer-Project/finalized/FileExplorer/resources/images/text_small.png");		
-		private final Icon textIcon_big = 
+		public static final Icon textIcon_big = 
 				new ImageIcon("D:/Projects/Java/NetBeans/Projects/project/Summer-Project/finalized/FileExplorer/resources/images/text_big.png");
 		
-		private final Icon sourceCodeIcon_small = 
+		public static final Icon sourceCodeIcon_small = 
 				new ImageIcon("D:/Projects/Java/NetBeans/Projects/project/Summer-Project/finalized/FileExplorer/resources/images/src_small.png");
-		private final Icon sourceCodeIcon_big = 
+		public static final Icon sourceCodeIcon_big = 
 				new ImageIcon("D:/Projects/Java/NetBeans/Projects/project/Summer-Project/finalized/FileExplorer/resources/images/src_big.png");
 		
-		/* static icons */
 		public static final Icon propertiesIcon_small = 
 				new ImageIcon("D:/Projects/Java/NetBeans/Projects/project/Summer-Project/finalized/FileExplorer/resources/images/about_small.png");
+		
 		public static final Icon multipleFilesIcon_big =
 				new ImageIcon("D:/Projects/Java/NetBeans/Projects/project/Summer-Project/finalized/FileExplorer/resources/images/multiples_big.png");
+		
+		public static final Icon driveIcon_big =
+				new ImageIcon("D:/Projects/Java/NetBeans/Projects/project/Summer-Project/finalized/FileExplorer/resources/images/drive_big.png");
+		
+		public static final Icon libraryIcon_big =
+				new ImageIcon("D:/Projects/Java/NetBeans/Projects/project/Summer-Project/finalized/FileExplorer/resources/images/lib_big.png");
+		
+		public static final Icon remoteServerIcon_big =
+				new ImageIcon("D:/Projects/Java/NetBeans/Projects/project/Summer-Project/finalized/FileExplorer/resources/images/remote_big.png");
 		
 		public static enum IconSize { SMALL, BIG };
 		
