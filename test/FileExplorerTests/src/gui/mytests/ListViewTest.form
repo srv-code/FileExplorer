@@ -165,6 +165,30 @@
 
       <Layout class="org.netbeans.modules.form.compat2.layouts.DesignBoxLayout"/>
       <SubComponents>
+        <Component class="javax.swing.JButton" name="btnGoBackInHistory">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="back"/>
+            <Property name="toolTipText" type="java.lang.String" value="Go back in history"/>
+            <Property name="focusable" type="boolean" value="false"/>
+            <Property name="horizontalTextPosition" type="int" value="0"/>
+            <Property name="verticalTextPosition" type="int" value="3"/>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnGoBackInHistoryActionPerformed"/>
+          </Events>
+        </Component>
+        <Component class="javax.swing.JButton" name="btnGoForwardInHistory">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="fwd"/>
+            <Property name="toolTipText" type="java.lang.String" value="Go forward in history"/>
+            <Property name="focusable" type="boolean" value="false"/>
+            <Property name="horizontalTextPosition" type="int" value="0"/>
+            <Property name="verticalTextPosition" type="int" value="3"/>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnGoForwardInHistoryActionPerformed"/>
+          </Events>
+        </Component>
         <Component class="javax.swing.JButton" name="btnGoToParentDir">
           <Properties>
             <Property name="text" type="java.lang.String" value="up"/>
@@ -185,24 +209,21 @@
             <Property name="horizontalTextPosition" type="int" value="0"/>
             <Property name="verticalTextPosition" type="int" value="3"/>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnReloadPathActionPerformed"/>
+          </Events>
         </Component>
-        <Component class="javax.swing.JButton" name="btnGoBackInHistory">
+        <Component class="javax.swing.JButton" name="btnGoToHometDir">
           <Properties>
-            <Property name="text" type="java.lang.String" value="back"/>
-            <Property name="toolTipText" type="java.lang.String" value="Go back in history"/>
+            <Property name="text" type="java.lang.String" value="home"/>
+            <Property name="toolTipText" type="java.lang.String" value="Go to parent folder"/>
             <Property name="focusable" type="boolean" value="false"/>
             <Property name="horizontalTextPosition" type="int" value="0"/>
             <Property name="verticalTextPosition" type="int" value="3"/>
           </Properties>
-        </Component>
-        <Component class="javax.swing.JButton" name="btnGoForwardInHistory">
-          <Properties>
-            <Property name="text" type="java.lang.String" value="fwd"/>
-            <Property name="toolTipText" type="java.lang.String" value="Go forward in history"/>
-            <Property name="focusable" type="boolean" value="false"/>
-            <Property name="horizontalTextPosition" type="int" value="0"/>
-            <Property name="verticalTextPosition" type="int" value="3"/>
-          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnGoToHometDirActionPerformed"/>
+          </Events>
         </Component>
         <Component class="javax.swing.JToolBar$Separator" name="jSeparator3">
         </Component>

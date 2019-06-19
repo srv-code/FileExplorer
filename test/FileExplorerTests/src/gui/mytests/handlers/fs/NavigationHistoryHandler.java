@@ -3,67 +3,102 @@ package gui.mytests.handlers.fs;
 import java.util.*;
 
 
-class NavigationHistoryHandler {
+public class NavigationHistoryHandler {
 	private final List<FileAttributes> list = new ArrayList<>();
-	private int position=0;
+	private int position=-1;
 	
-	public NavigationHistoryHandler() {}
+	NavigationHistoryHandler() {}
 	
-	void append(final FileAttributes dirPath) {
-		list.add(dirPath);
-		position=list.size()-1; // reset position to latest element
+	/* package-private methods */
+	void append(final FileAttributes dir) {
+		list.add(dir);
+		position=list.size()-1; // reset backPosition to latest element
+	}
+	
+	void clear() {
+		list.clear();
+		position=-1;
 	}
 	
 	/**
 	 * @return Previous visited path or null if 
 	 * no more backward path in history is present
 	 */
-	FileAttributes backward() {
-		return position==0 ? null : list.get(--position);
+	public FileAttributes backward() {
+		return canGoBackward() ? list.get(--position) : null;
+	}
+	
+	public boolean canGoBackward() {
+		return position>0;
 	}
 	
 	/**
 	 * @return Next visited path or null if 
 	 * no more forward path in history is present
 	 */
-	FileAttributes forward() {
-		return position==list.size()-1 ? null : list.get(++position);
+	public FileAttributes forward() {
+		return canGoForward() ? list.get(++position) : null;
+	}
+	
+	public boolean canGoForward() {
+		return position<list.size()-1;
 	}
 	
 	@Override 
 	public String toString() {
-		return String.format("history: {position=%d, paths=%s}", position, list);
+		return String.format("{position=%d, paths=%s}", position, list);
 	}
 	
 	/*
-	public static void main(FileAttributes[] args) {
-		NavigationHistoryHandler history = new NavigationHistoryHandler();
-		history.append("a/b/c");
-		history.append("a/b/c/d");
-		history.append("a/b/c/d/e");
+	public static void main(String[] args) throws Exception {
+		System.out.println("FileSystemHandler.<init>");
+		FileSystemHandler fsh = FileSystemHandler.getHandler("C:/Users/");
+		NavigationHistoryHandler history = fsh.historyHandler;
 		
-		System.out.println(history);
+		System.out.println("append:");
+		history.append(fsh.getFileAttributes("C:/Users/soura"));
+		System.out.println("  history=" + history + "\n");
 		
-		System.out.println("back=" + history.back());
-		System.out.println("back=" + history.back());
-		System.out.println("back=" + history.back());
-		System.out.println("back=" + history.back());
-		System.out.println("back=" + history.back());
-		System.out.println("forward=" + history.forward());
-		System.out.println("forward=" + history.forward());
-		System.out.println("forward=" + history.forward());
-		System.out.println("forward=" + history.forward());
-		System.out.println("forward=" + history.forward());
+		System.out.println("append:");
+		history.append(fsh.getFileAttributes("C:/Users/soura/Desktop"));
+		System.out.println("  history=" + history + "\n");
 		
-		history.append("p/q");
-		history.append("p/q/r");
+		System.out.println("append:");
+		history.append(fsh.getFileAttributes("C:/Users/soura/Desktop/Transfer to ext HDD"));
+		System.out.println("  history=" + history + "\n");
 		
-		System.out.println("back=" + history.back());
-		System.out.println("back=" + history.back());
-		System.out.println("forward=" + history.forward());
-		System.out.println("forward=" + history.forward());
+		System.out.println("back:");
+		System.out.println("  dir=" + history.backward());
+		System.out.println("  history=" + history + "\n");
 		
-		System.out.println(history);
+		System.out.println("back:");
+		System.out.println("  dir=" + history.backward());
+		System.out.println("  history=" + history + "\n");
+		
+		System.out.println("back:");
+		System.out.println("  dir=" + history.backward());
+		System.out.println("  history=" + history + "\n");
+		
+		System.out.println("back:");
+		System.out.println("  dir=" + history.backward());
+		System.out.println("  history=" + history + "\n");
+		
+		
+		System.out.println("forward:");
+		System.out.println("  dir=" + history.forward());
+		System.out.println("  history=" + history + "\n");
+		
+		System.out.println("forward:");
+		System.out.println("  dir=" + history.forward());
+		System.out.println("  history=" + history + "\n");
+		
+		System.out.println("forward:");
+		System.out.println("  dir=" + history.forward());
+		System.out.println("  history=" + history + "\n");
+		
+		System.out.println("forward:");
+		System.out.println("  dir=" + history.forward());
+		System.out.println("  history=" + history + "\n");
 	}
 	*/
 }

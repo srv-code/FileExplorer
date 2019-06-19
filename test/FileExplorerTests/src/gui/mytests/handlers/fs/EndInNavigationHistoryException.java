@@ -5,5 +5,6 @@
  */
 package gui.mytests.handlers.fs;
 
+@Deprecated 
 public class EndInNavigationHistoryException extends Exception {	
 }

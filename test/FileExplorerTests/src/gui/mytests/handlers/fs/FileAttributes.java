@@ -67,6 +67,17 @@ public final class FileAttributes {
 	}
 	
 	@Override 
+	public boolean equals(final Object other) {
+		if(other == this)
+			return true;
+		
+		if(!(other instanceof FileAttributes))
+			return false;
+		
+		return ((FileAttributes)other).absolutePath.equals(this.absolutePath); 
+	}
+	
+	@Override 
 	public String toString() {
 		return name;
 	}

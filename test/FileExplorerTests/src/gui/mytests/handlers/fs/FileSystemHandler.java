@@ -13,7 +13,7 @@ import java.util.List;
 public abstract class FileSystemHandler {
 	protected FileAttributes userHomeDirectory = null, defaultStartLocation = null;
 			
-	private final NavigationHistoryHandler history = new NavigationHistoryHandler();
+	public final NavigationHistoryHandler historyHandler = new NavigationHistoryHandler();
 	
 	protected FileAttributes currentWorkingDirectory = null;
 	
@@ -28,35 +28,46 @@ public abstract class FileSystemHandler {
 	}
 	
 	protected FileSystemHandler(final String absolutePath) throws FileNotFoundException, InvalidPathException {
-		navigateTo(absolutePath);
+		navigateTo(absolutePath, true);
+//		historyHandler.clear();
 	}
 	
 //	public abstract boolean isPathValid(final String absolutePath);
 	
 //	public abstract boolean isPathAbsolute(final String path);
 
-	public void navigateTo(final String path) throws FileNotFoundException, InvalidPathException {
-		navigateTo(getFileAttributes(path));
+	public FileAttributes navigateTo(final String path, final boolean registerInHistory) throws FileNotFoundException, InvalidPathException {
+		return navigateTo(getFileAttributes(path), registerInHistory);
 	}
 	
-	public void navigateTo(final FileAttributes file) throws FileNotFoundException, InvalidPathException {
+	public FileAttributes navigateTo(final FileAttributes file, final boolean registerInHistory) throws FileNotFoundException, InvalidPathException {		
 		currentWorkingDirectory = checkIfDirectory(file);
-		history.append(file);
+		if(registerInHistory) 
+			historyHandler.append(file);
+		System.out.printf("  // navigating to: %s, registerInHistory=%b, history=%s, canGoBackward=%b, canGoForward=%b\n", 
+				file, registerInHistory, historyHandler, historyHandler.canGoBackward(), historyHandler.canGoForward());
+		return currentWorkingDirectory;
 	}
 	
-	public void navigateForwardInHistory() throws EndInNavigationHistoryException {
-		FileAttributes dir = history.forward();
-		if(dir == null) 
-			throw new EndInNavigationHistoryException();
-		currentWorkingDirectory = dir;
-	}
+//	/** Consumes entry from history */
+//	public FileAttributes previousInHistory() throws EndInNavigationHistoryException {
+//		FileAttributes dir = history.forward();
+//		if(dir == null) 
+//			throw new EndInNavigationHistoryException();
+//		return dir;
+//	}
+//	
+//	/** Consumes entry from history */
+//	public FileAttributes nextInHistory() throws EndInNavigationHistoryException {
+//		FileAttributes dir = history.backward();
+//		if(dir == null) 
+//			throw new EndInNavigationHistoryException();
+//		return dir;
+//	}
 	
-	public void navigateBackwardInHistory() throws EndInNavigationHistoryException {
-		FileAttributes dir = history.backward();
-		if(dir == null) 
-			throw new EndInNavigationHistoryException();
-		currentWorkingDirectory = dir;
-	}
+	public abstract FileAttributes getParent() throws FileNotFoundException;
+	
+	public abstract boolean canGoToParent();
 	
 	public abstract boolean delete(final FileAttributes file);
 	

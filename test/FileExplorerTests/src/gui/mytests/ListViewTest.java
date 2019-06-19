@@ -26,7 +26,6 @@ import static gui.mytests.SystemResources.IconRegistry;
 import static gui.mytests.SystemResources.IconRegistry.IconSize;
 
 
-
 public class ListViewTest extends javax.swing.JFrame {
 	private BookmarkHandler bookmarkHandler = null;
     private javax.swing.tree.DefaultMutableTreeNode treeNodeQuickAccess;
@@ -173,36 +172,97 @@ public class ListViewTest extends javax.swing.JFrame {
 		tableFileList.getColumnModel().getColumn(3).setCellRenderer(rightJustifiedCellRenderer);
 		tableFileList.getColumnModel().getColumn(4).setCellRenderer(centerJustifiedCellRenderer);
 		
-		navigateTo(userHomeDirectoryPath);
+		updateTableList();
+		
+		// initially no history
+		btnGoBackInHistory.setEnabled(false); 
+		btnGoForwardInHistory.setEnabled(false);
 	}
 	
+	/* calls updateTableList() & navigateTo() */ 
+	private void loadPath(final String dirPath, final boolean registerInHistory) {
+		try {
+			loadPath(fileSystemHandler.getFileAttributes(dirPath), registerInHistory);
+		} catch(Exception e) {
+			System.err.println("Err: Cannot load directory: " + dirPath); // log error
+		}
+	}
+
+	private void loadPath(final FileAttributes dir, final boolean registerInHistory) {
+		System.out.println("Info: Loading path " + dir.absolutePath + "...");
+		if(!dir.equals(fileSystemHandler.getCurrentWorkingDirectory())) // eliminate redundant loading for same path
+			navigateTo(dir, registerInHistory);
+		updateTableList();
+	} 
+
+	/** Updates with currentWorkingDirectory */
+	private void updateTableList() {		
+		System.out.println("Info: Updating table list for " + fileSystemHandler.getCurrentWorkingDirectory().absolutePath); // TODO log info & show in status
+		try {
+			tableModel.setRowCount(0);
+			setTableRows(fileSystemHandler.listFiles(fileSystemHandler.getCurrentWorkingDirectory()));
+
+			System.out.println("Info: Folder listing updated"); // TODO show in status bar
+		} catch(FileNotFoundException e) {
+			JOptionPane.showMessageDialog(	this,
+											String.format("Cannot update table list!\n  Path: %s\n  Reason: %s",
+													fileSystemHandler.getCurrentWorkingDirectory().absolutePath, e),
+											"Directory listing error",
+											JOptionPane.ERROR_MESSAGE);
+			System.err.println("Err: Cannot update table list: " +  e); // log error
+		}
+	}
+
+	/* Only change the currentWorkingDirectory */
+	private void navigateTo(final FileAttributes dir, final boolean registerInHistory) {
+		System.out.println("Info: Navigating to " + dir.absolutePath);  // TODO log info
+		try {
+			fileSystemHandler.navigateTo(dir, registerInHistory);
+			
+			// set navigation buttons status 
+			btnGoBackInHistory.setEnabled(fileSystemHandler.historyHandler.canGoBackward());
+			btnGoForwardInHistory.setEnabled(fileSystemHandler.historyHandler.canGoForward());
+			btnGoToParentDir.setEnabled(fileSystemHandler.canGoToParent());
+			
+			txtPathAddress.setText(dir.absolutePath);
+			lastVisitedPath = dir.absolutePath;
+		} catch(FileNotFoundException|InvalidPathException e) {
+			JOptionPane.showMessageDialog(	this,
+											String.format("Cannot navigate to path!\n  Path: %s\n  Reason: %s", 
+													dir.absolutePath, e),
+											"Navigation error",
+											JOptionPane.ERROR_MESSAGE);
+			System.err.printf("Err: Cannot navigate to path %s (%s)\n", dir.absolutePath, e); // log error
+		}
+	}
+	
+	/*
 	private void navigateTo(final FileAttributes path) {
 		navigateTo(path.absolutePath);
 	}
 	
 	private void navigateTo(final String path) {
-		if(path.equals(lastVisitedPath)) // save from irrelevant processing
-			return;
+//		if(path.equals(lastVisitedPath)) // save from irrelevant processing
+//			return;
 		
 		try {
-			System.out.println("Info: Loading..."); // TODO log info
-			fileSystemHandler.navigateTo(path);
-			tableModel.setRowCount(0);
-//			((DefaultTableModel)tableFileList.getModel()).setRowCount(0);
-			setTableRows(fileSystemHandler.listFiles(fileSystemHandler.getCurrentWorkingDirectory()));
-			txtPathAddress.setText(path);
-			lastVisitedPath = path;
+			System.out.printf("Info: Loading folder listing of '%s'...\n", path); // TODO log info and show in status bar
+			
 //			System.out.println("  // path loaded: " + path);
+
+			// update navigation button status 
+			
 		} catch(InvalidPathException|FileNotFoundException e) {
-			JOptionPane.showMessageDialog(this,
-				"Invalid path: " + path,
-				"Path error",
-				JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(	this,
+											"Invalid path: " + path,
+											"Path error",
+											JOptionPane.ERROR_MESSAGE);
 			txtPathAddress.setText(lastVisitedPath);
 		} catch(NullPointerException e) {
 			System.out.println("Err: Cannot visit directory: " + path); // TODO log error
 		}
 	}
+	*/
 	
 	class ImageRenderer extends DefaultTableCellRenderer {
 	  JLabel lbl = new JLabel();
@@ -250,10 +310,11 @@ public class ListViewTest extends javax.swing.JFrame {
         jSeparator8 = new javax.swing.JPopupMenu.Separator();
         menuBookmarkProperties = new javax.swing.JMenuItem();
         toolbarOptions = new javax.swing.JToolBar();
-        btnGoToParentDir = new javax.swing.JButton();
-        btnReloadPath = new javax.swing.JButton();
         btnGoBackInHistory = new javax.swing.JButton();
         btnGoForwardInHistory = new javax.swing.JButton();
+        btnGoToParentDir = new javax.swing.JButton();
+        btnReloadPath = new javax.swing.JButton();
+        btnGoToHometDir = new javax.swing.JButton();
         jSeparator3 = new javax.swing.JToolBar.Separator();
         txtPathAddress = new javax.swing.JTextField();
         toggleButtonPathIsBookmarked = new javax.swing.JToggleButton();
@@ -361,6 +422,30 @@ public class ListViewTest extends javax.swing.JFrame {
         toolbarOptions.setFloatable(false);
         toolbarOptions.setRollover(true);
 
+        btnGoBackInHistory.setText("back");
+        btnGoBackInHistory.setToolTipText("Go back in history");
+        btnGoBackInHistory.setFocusable(false);
+        btnGoBackInHistory.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        btnGoBackInHistory.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        btnGoBackInHistory.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnGoBackInHistoryActionPerformed(evt);
+            }
+        });
+        toolbarOptions.add(btnGoBackInHistory);
+
+        btnGoForwardInHistory.setText("fwd");
+        btnGoForwardInHistory.setToolTipText("Go forward in history");
+        btnGoForwardInHistory.setFocusable(false);
+        btnGoForwardInHistory.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        btnGoForwardInHistory.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        btnGoForwardInHistory.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnGoForwardInHistoryActionPerformed(evt);
+            }
+        });
+        toolbarOptions.add(btnGoForwardInHistory);
+
         btnGoToParentDir.setText("up");
         btnGoToParentDir.setToolTipText("Go to parent folder");
         btnGoToParentDir.setFocusable(false);
@@ -378,21 +463,24 @@ public class ListViewTest extends javax.swing.JFrame {
         btnReloadPath.setFocusable(false);
         btnReloadPath.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         btnReloadPath.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        btnReloadPath.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnReloadPathActionPerformed(evt);
+            }
+        });
         toolbarOptions.add(btnReloadPath);
 
-        btnGoBackInHistory.setText("back");
-        btnGoBackInHistory.setToolTipText("Go back in history");
-        btnGoBackInHistory.setFocusable(false);
-        btnGoBackInHistory.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        btnGoBackInHistory.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        toolbarOptions.add(btnGoBackInHistory);
-
-        btnGoForwardInHistory.setText("fwd");
-        btnGoForwardInHistory.setToolTipText("Go forward in history");
-        btnGoForwardInHistory.setFocusable(false);
-        btnGoForwardInHistory.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        btnGoForwardInHistory.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        toolbarOptions.add(btnGoForwardInHistory);
+        btnGoToHometDir.setText("home");
+        btnGoToHometDir.setToolTipText("Go to parent folder");
+        btnGoToHometDir.setFocusable(false);
+        btnGoToHometDir.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        btnGoToHometDir.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        btnGoToHometDir.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnGoToHometDirActionPerformed(evt);
+            }
+        });
+        toolbarOptions.add(btnGoToHometDir);
         toolbarOptions.add(jSeparator3);
 
         txtPathAddress.setToolTipText("Address bar");
@@ -524,11 +612,23 @@ public class ListViewTest extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 		
     private void btnGoToParentDirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGoToParentDirActionPerformed
-		
+		FileAttributes parent = null;
+		try {
+			parent = fileSystemHandler.getParent();
+			System.out.println("  // up: " + (parent==null ? null : parent.absolutePath));
+		} catch(FileNotFoundException e) {
+			System.err.println("Err: (Logic) Cannot move parent directory: " + e); // log error
+			JOptionPane.showMessageDialog(	this,
+											"Cannot move to parent folder: " + e.getMessage(),
+											"Navigation error",
+											JOptionPane.ERROR_MESSAGE);
+			return;
+		}
+ 		loadPath(parent, true);
     }//GEN-LAST:event_btnGoToParentDirActionPerformed
 	
     private void txtPathAddressActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtPathAddressActionPerformed
-        navigateTo(txtPathAddress.getText().trim());
+        loadPath(txtPathAddress.getText().trim(), true);
     }//GEN-LAST:event_txtPathAddressActionPerformed
 
     private void formComponentResized(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_formComponentResized
@@ -561,12 +661,16 @@ public class ListViewTest extends javax.swing.JFrame {
 			popupFileSelected.show(evt.getComponent(), evt.getX(), evt.getY());
         } else if(evt.getClickCount() == 2) { // double clicked
 			System.out.println("  // double clicked");
-			if(selectedFiles[0].isDirectory) 
-				navigateTo(selectedFiles[0].absolutePath);
-			// TODO else open file 
+			openFile(selectedFiles[0]);
 		}
     }//GEN-LAST:event_tableFileListMouseReleased
 
+	private void openFile(final FileAttributes file) {
+		if(file.isDirectory) 
+			loadPath(file, true);
+		// TODO else open file 
+	}
+	
 	private FileAttributes filetoPaste = null;
 	private enum PasteOperation { CUT, COPY, NONE }
 	private PasteOperation pasteOperation = PasteOperation.NONE;
@@ -581,19 +685,32 @@ public class ListViewTest extends javax.swing.JFrame {
 		
 		if(selectedPath.getPathCount() > 2) { // only perform if folder entry is selected
 			Object[] nodes = selectedPath.getPath();
-			DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode)nodes[nodes.length-1];
+//			DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode)nodes[nodes.length-1];
+			String filePath = ((BookmarkedItem)((DefaultMutableTreeNode)nodes[nodes.length-1]).getUserObject()).absolutePath;
+			System.out.println("  // selected: " + filePath);
+			FileAttributes selectedFile = null;
+			try {
+				selectedFile = fileSystemHandler.getFileAttributes(filePath);
+			} catch(FileNotFoundException e) {
+				JOptionPane.showMessageDialog(	this,
+												"Cannot open bookmarked item: " + filePath,
+												"Bookmarked item error",
+												JOptionPane.ERROR_MESSAGE);
+				System.err.printf("Err: Cannot retrieve file: %s (%s)\n", filePath, e); // log error
+				return;
+			}
 		
 //			System.out.printf("  // selected item: class=%s, value=%s\n",
 //				selectedNode.getUserObject().getClass().getName(), selectedNode.getUserObject());
 			
 			if(SwingUtilities.isRightMouseButton(evt)) { // do right-click action				
 				popupBookmarkedItems.show(evt.getComponent(), evt.getX(), evt.getY());
-				System.out.println("right clicked");
+				System.out.println("  // right clicked");
 			} else {
 				if(evt.getClickCount() == 2) { // do double-click action
 					// do popupBookmarkedItems's Open action
-					System.out.println("double clicked");
-				}
+					System.out.println("  // double clicked");
+					openFile(selectedFile);				}
 			}
 		}
     }//GEN-LAST:event_treeQuickAccessMouseReleased
@@ -601,6 +718,52 @@ public class ListViewTest extends javax.swing.JFrame {
     private void menuOpenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuOpenActionPerformed
         
     }//GEN-LAST:event_menuOpenActionPerformed
+
+    private void btnReloadPathActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnReloadPathActionPerformed
+        System.out.println("  // reload: " + fileSystemHandler.getCurrentWorkingDirectory().absolutePath);
+		updateTableList();
+    }//GEN-LAST:event_btnReloadPathActionPerformed
+
+    private void btnGoBackInHistoryActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGoBackInHistoryActionPerformed
+        FileAttributes dir = fileSystemHandler.historyHandler.backward();
+		System.out.println("  // back: " + dir.absolutePath);
+		if(dir == null) {
+			System.err.println("Err: (Logic) Cannot move back in history: Navigation limit reached"); // log error
+			JOptionPane.showMessageDialog(	this,
+											"Cannot move back in history: Navigation limit reached",
+											"Navigation error",
+											JOptionPane.ERROR_MESSAGE);
+			return;
+		}
+		loadPath(dir, false);
+    }//GEN-LAST:event_btnGoBackInHistoryActionPerformed
+
+    private void btnGoToHometDirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGoToHometDirActionPerformed
+        try {
+			System.out.println("  // home: " + userHomeDirectoryPath);
+			loadPath(fileSystemHandler.getUserHomeDirectory(), true);
+		} catch(FileNotFoundException e) {
+			JOptionPane.showMessageDialog(	this,
+											"Cannot move to user home directory: " + e,
+											"Navigation error",
+											JOptionPane.ERROR_MESSAGE);
+			System.err.println("Err: Cannot move to user home directory: " + e);
+		}
+    }//GEN-LAST:event_btnGoToHometDirActionPerformed
+
+    private void btnGoForwardInHistoryActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGoForwardInHistoryActionPerformed
+        FileAttributes dir = fileSystemHandler.historyHandler.forward();
+		System.out.println("  // fwd: " + dir.absolutePath);
+		if(dir == null) {
+			System.err.println("Err: (Logic) Cannot move forward in history: Navigation limit reached"); // log error
+			JOptionPane.showMessageDialog(	this,
+											"Cannot move forward in history: Navigation limit reached",
+											"Navigation error",
+											JOptionPane.ERROR_MESSAGE);
+			return;
+		}
+		loadPath(dir, false);
+    }//GEN-LAST:event_btnGoForwardInHistoryActionPerformed
 
 	public static void setAppLookAndFeel() throws ClassNotFoundException, InstantiationException, IllegalAccessException, UnsupportedLookAndFeelException {
 		boolean lnfNameNotFound = true;
@@ -641,6 +804,7 @@ public class ListViewTest extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnGoBackInHistory;
     private javax.swing.JButton btnGoForwardInHistory;
+    private javax.swing.JButton btnGoToHometDir;
     private javax.swing.JButton btnGoToParentDir;
     private javax.swing.JButton btnReloadPath;
     private javax.swing.JPopupMenu.Separator jSeparator1;

@@ -16,7 +16,7 @@ public final class BookmarkedItem {
 	
 	public String name; // display name
 	public ItemType type;
-	public String absolutePath; // File object
+	public String absolutePath;
 //	public TreePath path; // path from JTree root
 	
 	public BookmarkedItem(final String name, final ItemType type, final String absolutePath) {

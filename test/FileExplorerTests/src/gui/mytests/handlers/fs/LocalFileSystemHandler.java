@@ -51,6 +51,19 @@ public class LocalFileSystemHandler extends FileSystemHandler {
 						file.lastModified(),
 						file.length());
 	}
+	
+	@Override 
+	public FileAttributes getParent() throws FileNotFoundException {
+		String parentPath = new File(currentWorkingDirectory.absolutePath).getParent();
+		if(parentPath == null)
+			throw new FileNotFoundException("reached root");
+		return getFileAttributes(parentPath);
+	}
+	
+	@Override 
+	public boolean canGoToParent() {
+		return new File(currentWorkingDirectory.absolutePath).getParent() != null;
+	}
 
 	/**
 	 * @return If created successfully then 
