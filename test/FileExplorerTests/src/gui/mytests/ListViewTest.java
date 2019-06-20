@@ -155,7 +155,7 @@ public class ListViewTest extends javax.swing.JFrame {
 			System.err.println("Err: Desktop not supported in this platform: Platform: " + platform);
 		}
 		
-		iconRegistry = IconRegistry.getIconRegistry();
+		iconRegistry = IconRegistry.getInstance();
 		
 		System.out.println("Info: Setting bookmarks tree..."); // TODO log info
 		setBookmarks();
@@ -233,18 +233,21 @@ public class ListViewTest extends javax.swing.JFrame {
 		System.out.println("Info: Loading path " + dir.absolutePath + "...");
 		FileAttributes cwd = fileSystemHandler.getCurrentWorkingDirectory();
 		if(!dir.equals(cwd)) { // eliminate redundant loading for same path
-			lastVisitedPath = cwd.absolutePath;
 			navigateTo(dir, registerInHistory);
 		}
 		updateTableList();
 	} 
 
+	private FileAttributes[] lastFileListing = null;
+	
 	/** Updates with currentWorkingDirectory */
 	private void updateTableList() {		
 		System.out.println("Info: Updating table list for " + fileSystemHandler.getCurrentWorkingDirectory().absolutePath); // TODO log info & show in status
 		try {
-			tableModel.setRowCount(0);
-			setTableRows(fileSystemHandler.listFiles(fileSystemHandler.getCurrentWorkingDirectory()));
+			FileAttributes cwd = fileSystemHandler.getCurrentWorkingDirectory();
+			lastFileListing = fileSystemHandler.listFiles(cwd);
+			setTableRows(lastFileListing);
+			txtPathAddress.setText(cwd.absolutePath);
 
 			System.out.println("Info: Folder listing updated"); // TODO show in status bar
 		} catch(Exception e) {
@@ -253,7 +256,17 @@ public class ListViewTest extends javax.swing.JFrame {
 													fileSystemHandler.getCurrentWorkingDirectory().absolutePath, e),
 											"Directory listing error",
 											JOptionPane.ERROR_MESSAGE);
-			System.err.println("Err: Cannot update table list: " +  e);
+			System.err.println("Err: Cannot update table list: " +  e); // TODO log error
+			System.out.println("  // before: cwd=" + fileSystemHandler.getCurrentWorkingDirectory() + 
+					", history=" + fileSystemHandler.historyHandler);
+			System.out.println("  // reverting...");
+			fileSystemHandler.revertLastNavigation();
+			System.out.println("  // after: cwd=" + fileSystemHandler.getCurrentWorkingDirectory() + 
+					", history=" + fileSystemHandler.historyHandler);
+			System.out.println("  // populating lastFileListing...");
+			setTableRows(lastFileListing); // populating with last successful file listing
+			System.out.println("  // done");
+			System.out.println("Info: Reverted to last folder listing"); // TODO log info
 		}
 	}
 
@@ -263,13 +276,14 @@ public class ListViewTest extends javax.swing.JFrame {
 		try {
 			fileSystemHandler.navigateTo(dir, registerInHistory);
 			
-			// set navigation buttons status 
+			// set navigation buttons status
 			btnGoBackInHistory.setEnabled(fileSystemHandler.historyHandler.canGoBackward());
 			btnGoForwardInHistory.setEnabled(fileSystemHandler.historyHandler.canGoForward());
 			btnGoToParentDir.setEnabled(fileSystemHandler.canGoToParent());
+			btnPathIsBookmarked.setSelected(bookmarkHandler.containsFile(treeNodeBookmarks, dir));
 			
-			txtPathAddress.setText(dir.absolutePath);
-			lastVisitedPath = dir.absolutePath;
+//			lastVisitedPath = dir.absolutePath;
+			System.out.println("Info: Navigated to folder: " + dir.absolutePath); // log Info
 		} catch(FileNotFoundException|InvalidPathException e) {
 			JOptionPane.showMessageDialog(	this,
 											String.format("Cannot navigate to path!\n  Path: %s\n  Reason: %s", 
@@ -363,7 +377,7 @@ public class ListViewTest extends javax.swing.JFrame {
         btnGoToHometDir = new javax.swing.JButton();
         jSeparator3 = new javax.swing.JToolBar.Separator();
         txtPathAddress = new javax.swing.JTextField();
-        toggleButtonPathIsBookmarked = new javax.swing.JToggleButton();
+        btnPathIsBookmarked = new javax.swing.JToggleButton();
         jSeparator4 = new javax.swing.JToolBar.Separator();
         lblSearchIcon = new javax.swing.JLabel();
         txtSearchFiles = new javax.swing.JTextField();
@@ -594,6 +608,7 @@ public class ListViewTest extends javax.swing.JFrame {
         toolbarOptions.add(jSeparator3);
 
         txtPathAddress.setToolTipText("Address bar");
+        txtPathAddress.setMinimumSize(new java.awt.Dimension(6, 28));
         txtPathAddress.setPreferredSize(new java.awt.Dimension(100, 28));
         txtPathAddress.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -602,11 +617,18 @@ public class ListViewTest extends javax.swing.JFrame {
         });
         toolbarOptions.add(txtPathAddress);
 
-        toggleButtonPathIsBookmarked.setText("*");
-        toggleButtonPathIsBookmarked.setFocusable(false);
-        toggleButtonPathIsBookmarked.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        toggleButtonPathIsBookmarked.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        toolbarOptions.add(toggleButtonPathIsBookmarked);
+        btnPathIsBookmarked.setIcon(IconRegistry.bookmarkOffIcon_small);
+        btnPathIsBookmarked.setFocusable(false);
+        btnPathIsBookmarked.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        btnPathIsBookmarked.setMaximumSize(new java.awt.Dimension(20, 20));
+        btnPathIsBookmarked.setMinimumSize(new java.awt.Dimension(20, 20));
+        btnPathIsBookmarked.setSelectedIcon(IconRegistry.bookmarkOnIcon_small);
+        btnPathIsBookmarked.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnPathIsBookmarkedActionPerformed(evt);
+            }
+        });
+        toolbarOptions.add(btnPathIsBookmarked);
         toolbarOptions.add(jSeparator4);
 
         lblSearchIcon.setText("search.icn");
@@ -707,8 +729,8 @@ public class ListViewTest extends javax.swing.JFrame {
             tableFileList.getColumnModel().getColumn(1).setMinWidth(250);
             tableFileList.getColumnModel().getColumn(1).setPreferredWidth(250);
             tableFileList.getColumnModel().getColumn(1).setMaxWidth(250);
-            tableFileList.getColumnModel().getColumn(2).setPreferredWidth(60);
-            tableFileList.getColumnModel().getColumn(2).setMaxWidth(60);
+            tableFileList.getColumnModel().getColumn(2).setPreferredWidth(80);
+            tableFileList.getColumnModel().getColumn(2).setMaxWidth(80);
             tableFileList.getColumnModel().getColumn(3).setPreferredWidth(80);
             tableFileList.getColumnModel().getColumn(3).setMaxWidth(80);
             tableFileList.getColumnModel().getColumn(4).setPreferredWidth(180);
@@ -780,7 +802,7 @@ public class ListViewTest extends javax.swing.JFrame {
 		try {
 			if(file.isDirectory) {
 				loadPath(file, true);
-				System.out.println("Info: Directory loaded: " + file.absolutePath);
+//				System.out.println("Info: Directory loaded: " + file.absolutePath);
 			} else {
 				fileSystemHandler.openFile(file);
 				System.out.println("Info: Opened file: " + file.absolutePath); // log Info
@@ -800,7 +822,7 @@ public class ListViewTest extends javax.swing.JFrame {
 	private FileAttributes filetoPaste = null;
 	private enum PasteOperation { CUT, COPY, NONE }
 	private PasteOperation pasteOperation = PasteOperation.NONE;
-	private DefaultMutableTreeNode selectedBookmarkedItem = null;
+	private DefaultMutableTreeNode selectedBookmarkNode = null;
 	
     private void treeQuickAccessMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_treeQuickAccessMouseReleased
 		int row = treeQuickAccess.getRowForLocation(evt.getX(), evt.getY());
@@ -811,13 +833,15 @@ public class ListViewTest extends javax.swing.JFrame {
 		TreePath selectedPath = treeQuickAccess.getPathForRow(row);
 		
 		if(selectedPath.getPathCount() > 2) { // only perform if folder entry is selected
-			Object[] nodes = selectedPath.getPath();
-			selectedBookmarkedItem = (DefaultMutableTreeNode)nodes[nodes.length-1];
+//			Object[] nodes = selectedPath.getPath();
+//			selectedBookmarkNode = (DefaultMutableTreeNode)nodes[nodes.length-1];
+			selectedBookmarkNode = (DefaultMutableTreeNode)selectedPath.getLastPathComponent(); // efficient approach
+			
 //			if(nodes[1] == treeNodeDrives) 
 //				bookmarkedItemSelected = treeNodeDrives;
 //			DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode)nodes[nodes.length-1];
-			String filePath = ((BookmarkedItem)selectedBookmarkedItem.getUserObject()).absolutePath;
-			System.out.println("  // selected: " + filePath);			
+			String filePath = ((BookmarkedItem)selectedBookmarkNode.getUserObject()).absolutePath;
+			System.out.println("  // selected: " + filePath);
 			try {
 				selectedFiles = new FileAttributes[] { fileSystemHandler.getFileAttributes(filePath) };
 			} catch(FileNotFoundException e) {
@@ -840,7 +864,7 @@ public class ListViewTest extends javax.swing.JFrame {
 			} else {
 				if(evt.getClickCount() == 2) { // do double-click action
 					// do popupBookmarkedItems's Open action
-					System.out.println("  // double clicked");
+//					System.out.println("  // double clicked");
 					openFile(selectedFiles[0]);
 				}
 			}
@@ -852,15 +876,21 @@ public class ListViewTest extends javax.swing.JFrame {
 		menuBookmarkOpenLocation.setVisible(true);
 		menuBookmarkRemove.setVisible(true);
 		menuBookmarkRemoveAll.setVisible(true);
+		menuBookmarkRename.setVisible(true);
+		jSeparator9.setVisible(true);
 			
-		TreeNode parent = selectedBookmarkedItem.getParent();
+		TreeNode parent = selectedBookmarkNode.getParent();
 		if(parent == treeNodeDrives) {
 			menuBookmarkOpenLocation.setVisible(false);
 			menuBookmarkRemove.setVisible(false);
 			menuBookmarkRemoveAll.setVisible(false);
+			jSeparator9.setVisible(false);
+			menuBookmarkRename.setVisible(false);
 		} else if(parent == treeNodeLibrary) {
 			menuBookmarkRemove.setVisible(false);
 			menuBookmarkRemoveAll.setVisible(false);
+			jSeparator9.setVisible(false);
+			menuBookmarkRename.setVisible(false);
 		} else if(parent == treeNodeRemoteServers) {
 			menuBookmarkOpenLocation.setVisible(false);
 		}
@@ -926,7 +956,7 @@ public class ListViewTest extends javax.swing.JFrame {
     }//GEN-LAST:event_btnGoForwardInHistoryActionPerformed
 
     private void menuBookmarkPropertiesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuBookmarkPropertiesActionPerformed
-		BookmarkedItem item = (BookmarkedItem)selectedBookmarkedItem.getUserObject();
+		BookmarkedItem item = (BookmarkedItem)selectedBookmarkNode.getUserObject();
 		FilePropertiesForm.init(selectedFiles, item.icon, selectedFiles[0].type, fileSystemHandler);
     }//GEN-LAST:event_menuBookmarkPropertiesActionPerformed
 
@@ -984,15 +1014,26 @@ public class ListViewTest extends javax.swing.JFrame {
     }//GEN-LAST:event_menuBookmarkOpenActionPerformed
 
     private void menuBookmarkRenameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuBookmarkRenameActionPerformed
-        
+		String newName = (String)JOptionPane.showInputDialog(	this, 
+																"Enter new name for bookmark:",
+																"Rename bookmark",
+																JOptionPane.QUESTION_MESSAGE,
+																null, null, ((BookmarkedItem)selectedBookmarkNode.getUserObject()).name);
+		if(newName != null)
+			bookmarkHandler.rename(selectedBookmarkNode, newName);
     }//GEN-LAST:event_menuBookmarkRenameActionPerformed
 
     private void menuBookmarkRemoveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuBookmarkRemoveActionPerformed
-        bookmarkHandler.remove(selectedBookmarkedItem);
+        bookmarkHandler.remove(selectedBookmarkNode);
     }//GEN-LAST:event_menuBookmarkRemoveActionPerformed
 
     private void menuBookmarkRemoveAllActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuBookmarkRemoveAllActionPerformed
-        bookmarkHandler.removeAllSiblings(selectedBookmarkedItem);
+        if(JOptionPane.showConfirmDialog(	this, 
+											"Sure to remove all these "+ selectedBookmarkNode.getParent().getChildCount() +" bookmarks?", 
+											"Delete confirmation", 
+											JOptionPane.YES_NO_OPTION,
+											JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION)
+			bookmarkHandler.removeAllSiblings(selectedBookmarkNode);
     }//GEN-LAST:event_menuBookmarkRemoveAllActionPerformed
 
 	private void findAndSelectInList(final FileAttributes file) {
@@ -1016,6 +1057,15 @@ public class ListViewTest extends javax.swing.JFrame {
 			System.err.println("Err: Cannot retieve parent folder of " + selectedFiles[0].absolutePath + "\nReason: " + e);
 		}
     }//GEN-LAST:event_menuBookmarkOpenLocationActionPerformed
+
+    private void btnPathIsBookmarkedActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPathIsBookmarkedActionPerformed
+		FileAttributes cwd = fileSystemHandler.getCurrentWorkingDirectory();
+		bookmarkHandler.add(treeNodeBookmarks,
+							new BookmarkedItem(	cwd.name, 
+												BookmarkedItem.ItemType.PATH, 
+												iconRegistry.getFileIcon(cwd, IconSize.BIG), 
+												cwd.absolutePath));
+    }//GEN-LAST:event_btnPathIsBookmarkedActionPerformed
 	
 	public static void setAppLookAndFeel() throws ClassNotFoundException, InstantiationException, IllegalAccessException, UnsupportedLookAndFeelException {
 		boolean lnfNameNotFound = true;
@@ -1058,6 +1108,7 @@ public class ListViewTest extends javax.swing.JFrame {
     private javax.swing.JButton btnGoForwardInHistory;
     private javax.swing.JButton btnGoToHometDir;
     private javax.swing.JButton btnGoToParentDir;
+    private javax.swing.JToggleButton btnPathIsBookmarked;
     private javax.swing.JButton btnReloadPath;
     private javax.swing.JPopupMenu.Separator jSeparator1;
     private javax.swing.JPopupMenu.Separator jSeparator2;
@@ -1093,7 +1144,6 @@ public class ListViewTest extends javax.swing.JFrame {
     private javax.swing.JScrollPane scrollPane_tableFileList;
     private javax.swing.JScrollPane scrollPane_treeQuickAccess;
     private javax.swing.JTable tableFileList;
-    private javax.swing.JToggleButton toggleButtonPathIsBookmarked;
     private javax.swing.JToolBar toolbarOptions;
     private javax.swing.JTree treeQuickAccess;
     private javax.swing.JTextField txtPathAddress;
@@ -1101,6 +1151,7 @@ public class ListViewTest extends javax.swing.JFrame {
     // End of variables declaration//GEN-END:variables
 
 	private void setTableRows(final FileAttributes[] files) {
+		tableModel.setRowCount(0);
 		for(FileAttributes file : files) {
 			tableModel.addRow(new Object[] {
 				iconRegistry.getFileIcon(file, IconSize.SMALL), // file icon

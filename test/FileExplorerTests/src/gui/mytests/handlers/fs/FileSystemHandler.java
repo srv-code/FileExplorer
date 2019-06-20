@@ -53,6 +53,12 @@ public abstract class FileSystemHandler {
 		return currentWorkingDirectory;
 	}
 	
+	public FileAttributes revertLastNavigation() {
+		currentWorkingDirectory = historyHandler.removeCurrent();
+		return currentWorkingDirectory;
+	}
+		
+	
 //	/** Consumes entry from history */
 //	public FileAttributes previousInHistory() throws EndInNavigationHistoryException {
 //		FileAttributes dir = history.forward();

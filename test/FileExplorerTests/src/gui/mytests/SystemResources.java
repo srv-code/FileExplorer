@@ -12,7 +12,7 @@ public class SystemResources {
 	public static class IconRegistry {
 		private static IconRegistry instance = null;
 			
-		public static IconRegistry getIconRegistry() {
+		public static IconRegistry getInstance() {
 			if(instance == null) {
 				instance = new IconRegistry();
 				System.out.println("Icon: IconRegistry instantiated");  // TODO log info
@@ -69,6 +69,13 @@ public class SystemResources {
 		public static final Icon remoteServerIcon_big =
 				new ImageIcon("D:/Projects/Java/NetBeans/Projects/project/Summer-Project/finalized/FileExplorer/resources/images/remote_big.png");
 		
+		public static final Icon bookmarkOnIcon_small = 
+				new ImageIcon("D:/Projects/Java/NetBeans/Projects/project/Summer-Project/finalized/FileExplorer/resources/images/bookmark - on.png");
+		
+		public static final Icon bookmarkOffIcon_small = 
+				new ImageIcon("D:/Projects/Java/NetBeans/Projects/project/Summer-Project/finalized/FileExplorer/resources/images/bookmark - off.png");
+		
+		
 		public static enum IconSize { SMALL, BIG };
 		
 		private Object[][] registry = new Object[][] {
@@ -88,7 +95,7 @@ public class SystemResources {
 						return (Icon)record[ size==IconSize.SMALL ? 1 : 2 ];
 					}
 				}
-				System.out.printf("Warning: No icon associated with type=%s, filename=%s\n", file.type, file.name); // TODO log warning
+				System.out.println("Warning: No icon associated with type=" + file.type); // TODO log warning
 			}
 		
 			return size==IconSize.SMALL ? fileIcon_small : fileIcon_big;

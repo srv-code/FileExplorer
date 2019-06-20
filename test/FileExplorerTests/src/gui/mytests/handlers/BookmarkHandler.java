@@ -42,7 +42,7 @@ public class BookmarkHandler {
 		return pathList;
 	}
 	
-	private void refreshTree(final DefaultMutableTreeNode node) {
+	private void refreshNode(final DefaultMutableTreeNode node) {
 		treeModel.reload(node);
 		expandAllNodes();
 	}
@@ -52,7 +52,7 @@ public class BookmarkHandler {
 		List<String> bookmarkedPathList = getExistingPathList(node);
 		if(!bookmarkedPathList.contains(item.absolutePath)) // check if already existing
 			node.add(new DefaultMutableTreeNode(item));
-		refreshTree(node);
+		refreshNode(node);
 		return this;
 	}
 	
@@ -63,13 +63,32 @@ public class BookmarkHandler {
 	
 	public BookmarkHandler remove(final DefaultMutableTreeNode node) {
 		treeModel.removeNodeFromParent(node);
-		refreshTree(node);
+		refreshNode(node);
 		return this;
 	}
 	
 	public BookmarkHandler removeAllSiblings(final DefaultMutableTreeNode childNode) {
-		((DefaultMutableTreeNode)childNode.getParent()).removeAllChildren();
-		refreshTree(childNode);
+		DefaultMutableTreeNode parentNode = (DefaultMutableTreeNode)childNode.getParent();
+		int childCount = parentNode.getChildCount();
+		parentNode.removeAllChildren();
+		refreshNode(childNode);
+		System.out.printf("Info: All %d sibling bookmark items removed from node '%s'\n", childCount, parentNode.getUserObject()); // TODO log info
 		return this;
+	}
+
+	public boolean containsFile(final DefaultMutableTreeNode parentNode, final FileAttributes file) {
+		Enumeration<DefaultMutableTreeNode> children = parentNode.children();
+		while(children.hasMoreElements()) {
+			if(((BookmarkedItem)children.nextElement().getUserObject()).absolutePath.equals(file.absolutePath))
+				return true;
+		}
+		return false;
+	}
+
+	public void rename(final DefaultMutableTreeNode node, final String newName) {
+		BookmarkedItem oldItem = (BookmarkedItem)node.getUserObject();
+		node.setUserObject(new BookmarkedItem(newName, oldItem.type, oldItem.icon, oldItem.absolutePath));
+		refreshNode(node);
+		System.out.printf("Info: Bookmark renamed from '%s' to '%s'\n", oldItem.name, newName); // log Info
 	}
 }

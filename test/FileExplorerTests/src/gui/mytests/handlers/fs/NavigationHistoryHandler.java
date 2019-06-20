@@ -15,6 +15,11 @@ public class NavigationHistoryHandler {
 		position=list.size()-1; // reset backPosition to latest element
 	}
 	
+	FileAttributes removeCurrent() {
+		list.remove(position--);
+		return list.get(position);
+	}
+	
 	void clear() {
 		list.clear();
 		position=-1;
