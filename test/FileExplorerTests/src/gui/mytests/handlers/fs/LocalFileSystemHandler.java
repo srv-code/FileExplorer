@@ -4,6 +4,7 @@ import java.io.*;
 import java.nio.file.*;
 import java.util.ArrayList;
 import java.util.List;
+import javax.swing.JOptionPane;
 
 
 public class LocalFileSystemHandler extends FileSystemHandler {
@@ -53,8 +54,8 @@ public class LocalFileSystemHandler extends FileSystemHandler {
 	}
 	
 	@Override 
-	public FileAttributes getParent() throws FileNotFoundException {
-		String parentPath = new File(currentWorkingDirectory.absolutePath).getParent();
+	public FileAttributes getParent(final FileAttributes file) throws FileNotFoundException {
+		String parentPath = new File(file.absolutePath).getParent();
 		if(parentPath == null)
 			throw new FileNotFoundException("reached root");
 		return getFileAttributes(parentPath);
@@ -84,9 +85,11 @@ public class LocalFileSystemHandler extends FileSystemHandler {
 	}
 
 	@Override
-	public FileAttributes[] listFiles(final FileAttributes dir) throws InvalidPathException, FileNotFoundException {
+	public FileAttributes[] listFiles(final FileAttributes dir) throws InvalidPathException, FileNotFoundException, AccessDeniedException {
 		File dirToList = new File(checkIfDirectory(dir).absolutePath);		
 		File[] fileList = dirToList.listFiles();
+		if(fileList == null) 
+			throw new AccessDeniedException(dir.absolutePath);
 		FileAttributes[] fileAttributesList = new FileAttributes[fileList.length];
 		for(int i=0; i<fileList.length; i++) {
 			fileAttributesList[i] = getFileAttributes(fileList[i].getAbsolutePath());
@@ -117,5 +120,30 @@ public class LocalFileSystemHandler extends FileSystemHandler {
 //	public FileAttributes getTrashBinDirectory() {
 //		
 //	}
+
+	@Override
+	public void openFile(FileAttributes file) throws UnsupportedOperationException, IOException {
+		if(isDesktopSupported) {
+			desktop.open(new File(file.absolutePath));
+		} else {
+			throw new UnsupportedOperationException("Opening file is not supported in this platform!");
+		}
+	}
+
+	@Override
+	public void printFile(FileAttributes file) throws IllegalArgumentException, IOException {
+		if(file.isDirectory) 
+			throw new IllegalArgumentException("Not a file");
+		else 
+			desktop.print(new File(file.absolutePath));
+	}
+
+	@Override
+	public void openDirectoryUsingSystem(final FileAttributes dir) throws IllegalArgumentException, IOException {
+		if(dir.isDirectory)
+			desktop.open(new File(dir.absolutePath));
+		else 
+			throw new IllegalArgumentException("Not a directory");
+	}
 	
 }

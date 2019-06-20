@@ -25,11 +25,17 @@
           <Properties>
             <Property name="text" type="java.lang.String" value="Print"/>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="menuPrintActionPerformed"/>
+          </Events>
         </MenuItem>
         <MenuItem class="javax.swing.JMenuItem" name="menuOpenUsingSystem">
           <Properties>
             <Property name="text" type="java.lang.String" value="Open using system..."/>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="menuOpenUsingSystemActionPerformed"/>
+          </Events>
         </MenuItem>
         <MenuItem class="javax.swing.JMenuItem" name="menuOpenInNewTab">
           <Properties>
@@ -42,11 +48,17 @@
           <Properties>
             <Property name="text" type="java.lang.String" value="Bookmark"/>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="menuBookmarkActionPerformed"/>
+          </Events>
         </MenuItem>
         <MenuItem class="javax.swing.JMenuItem" name="menuCreateLink">
           <Properties>
             <Property name="text" type="java.lang.String" value="Create link"/>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="menuCreateLinkActionPerformed"/>
+          </Events>
         </MenuItem>
         <Component class="javax.swing.JPopupMenu$Separator" name="jSeparator2">
         </Component>
@@ -101,11 +113,22 @@
           <Properties>
             <Property name="text" type="java.lang.String" value="Open"/>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="menuBookmarkOpenActionPerformed"/>
+          </Events>
         </MenuItem>
         <MenuItem class="javax.swing.JMenuItem" name="menuBookmarkOpenInNewTab">
           <Properties>
             <Property name="text" type="java.lang.String" value="Open in new tab"/>
           </Properties>
+        </MenuItem>
+        <MenuItem class="javax.swing.JMenuItem" name="menuBookmarkOpenLocation">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Open location"/>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="menuBookmarkOpenLocationActionPerformed"/>
+          </Events>
         </MenuItem>
         <Component class="javax.swing.JPopupMenu$Separator" name="jSeparator9">
         </Component>
@@ -113,11 +136,25 @@
           <Properties>
             <Property name="text" type="java.lang.String" value="Rename"/>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="menuBookmarkRenameActionPerformed"/>
+          </Events>
         </MenuItem>
         <MenuItem class="javax.swing.JMenuItem" name="menuBookmarkRemove">
           <Properties>
             <Property name="text" type="java.lang.String" value="Remove"/>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="menuBookmarkRemoveActionPerformed"/>
+          </Events>
+        </MenuItem>
+        <MenuItem class="javax.swing.JMenuItem" name="menuBookmarkRemoveAll">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Remove all"/>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="menuBookmarkRemoveAllActionPerformed"/>
+          </Events>
         </MenuItem>
         <Component class="javax.swing.JPopupMenu$Separator" name="jSeparator8">
         </Component>
@@ -320,7 +357,7 @@
               <AuxValues>
                 <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new javax.swing.JTree()"/>
                 <AuxValue name="JavaCodeGenerator_CreateCodePre" type="java.lang.String" value="/* Custom code */"/>
-                <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="*/&#xa;&#xa;/* Custom code */&#xa;// Adding nodes to JTree&#xa;treeNodeQuickAccess = new javax.swing.tree.DefaultMutableTreeNode(&quot;Quick access&quot;);&#xa;&#xa;treeNodeDrives = new javax.swing.tree.DefaultMutableTreeNode(&quot;Drives&quot;);&#xa;treeNodeQuickAccess.add(treeNodeDrives);&#xa;&#xa;treeNodeLibrary = new javax.swing.tree.DefaultMutableTreeNode(&quot;Library&quot;);&#xa;treeNodeQuickAccess.add(treeNodeLibrary);&#xa;&#xa;treeNodeBookmarks = new javax.swing.tree.DefaultMutableTreeNode(&quot;Bookmarks&quot;);&#xa;treeNodeQuickAccess.add(treeNodeBookmarks);&#xa;&#xa;treeNodeRemoteServers = new javax.swing.tree.DefaultMutableTreeNode(&quot;Remote servers&quot;);&#xa;treeNodeQuickAccess.add(treeNodeRemoteServers);&#xa;&#xa;treeQuickAccess.setModel(new javax.swing.tree.DefaultTreeModel(treeNodeQuickAccess));"/>
+                <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="*/&#xa;&#xa;/* Custom code */&#xa;// Adding nodes to JTree&#xa;treeNodeQuickAccess = new javax.swing.tree.DefaultMutableTreeNode(&quot;Quick access&quot;);&#xa;&#xa;treeNodeDrives = new javax.swing.tree.DefaultMutableTreeNode(&quot;Drives&quot;);&#xa;treeNodeQuickAccess.add(treeNodeDrives);&#xa;&#xa;treeNodeLibrary = new javax.swing.tree.DefaultMutableTreeNode(&quot;Library&quot;);&#xa;treeNodeQuickAccess.add(treeNodeLibrary);&#xa;&#xa;treeNodeBookmarks = new javax.swing.tree.DefaultMutableTreeNode(&quot;Bookmarks&quot;);&#xa;treeNodeQuickAccess.add(treeNodeBookmarks);&#xa;&#xa;treeNodeRemoteServers = new javax.swing.tree.DefaultMutableTreeNode(&quot;Remote servers&quot;);&#xa;treeNodeQuickAccess.add(treeNodeRemoteServers);&#xa;&#xa;treeModelQuickAccess = new DefaultTreeModel(treeNodeQuickAccess);&#xa;treeQuickAccess.setModel(treeModelQuickAccess);"/>
                 <AuxValue name="JavaCodeGenerator_InitCodePre" type="java.lang.String" value="/*"/>
               </AuxValues>
             </Component>

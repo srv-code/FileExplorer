@@ -2,6 +2,7 @@ package gui.mytests.handlers.fs;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.AccessDeniedException;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.InvalidPathException;
 import java.util.List;
@@ -29,7 +30,7 @@ public class RemoteFileSystemHandler extends FileSystemHandler {
 	}
 
 	@Override
-	public FileAttributes[] listFiles(FileAttributes dir) throws InvalidPathException, FileNotFoundException {
+	public FileAttributes[] listFiles(FileAttributes dir) throws InvalidPathException, FileNotFoundException, AccessDeniedException {
 		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
 	}
 
@@ -44,12 +45,27 @@ public class RemoteFileSystemHandler extends FileSystemHandler {
 	}
 
 	@Override
-	public FileAttributes getParent() throws FileNotFoundException {
+	public boolean canGoToParent() {
 		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
 	}
 
 	@Override
-	public boolean canGoToParent() {
+	public void openFile(FileAttributes file) {
+		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+	}
+
+	@Override
+	public void printFile(FileAttributes file) throws IllegalArgumentException, IOException {
+		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+	}
+
+	@Override
+	public void openDirectoryUsingSystem(final FileAttributes dir) throws IllegalArgumentException, IOException {
+		throw new UnsupportedOperationException("Not supported for remote folders");
+	}
+
+	@Override
+	public FileAttributes getParent(FileAttributes file) throws FileNotFoundException {
 		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
 	}
 }

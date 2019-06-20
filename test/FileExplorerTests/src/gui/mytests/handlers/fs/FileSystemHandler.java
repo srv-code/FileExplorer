@@ -1,7 +1,9 @@
 package gui.mytests.handlers.fs;
 
+import java.awt.Desktop;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.AccessDeniedException;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.InvalidPathException;
 import java.util.List;
@@ -12,7 +14,9 @@ import java.util.List;
  */
 public abstract class FileSystemHandler {
 	protected FileAttributes userHomeDirectory = null, defaultStartLocation = null;
-			
+	protected final Desktop desktop = Desktop.getDesktop();
+	public final boolean isDesktopSupported = Desktop.isDesktopSupported();
+	
 	public final NavigationHistoryHandler historyHandler = new NavigationHistoryHandler();
 	
 	protected FileAttributes currentWorkingDirectory = null;
@@ -65,7 +69,11 @@ public abstract class FileSystemHandler {
 //		return dir;
 //	}
 	
-	public abstract FileAttributes getParent() throws FileNotFoundException;
+	public FileAttributes getCurrentParent() throws FileNotFoundException {
+		return getParent(currentWorkingDirectory);
+	}
+		
+	public abstract FileAttributes getParent(final FileAttributes file) throws FileNotFoundException;
 	
 	public abstract boolean canGoToParent();
 	
@@ -83,11 +91,17 @@ public abstract class FileSystemHandler {
 	
 	protected abstract FileAttributes createNew(final String name, final boolean isDirectory) throws IOException, FileAlreadyExistsException;
 	
-	public abstract FileAttributes[] listFiles(final FileAttributes dir) throws InvalidPathException, FileNotFoundException;
+	public abstract FileAttributes[] listFiles(final FileAttributes dir) throws InvalidPathException, FileNotFoundException, AccessDeniedException;
 	public abstract List<FileAttributes> listRoots() throws FileNotFoundException;
 	
 	public abstract FileAttributes getUserHomeDirectory() throws FileNotFoundException;
 //	public abstract FileAttributes getTrashBinDirectory() throws FileNotFoundException;
+	
+	public abstract void openFile(final FileAttributes file) throws UnsupportedOperationException, IOException;
+	
+	public abstract void printFile(FileAttributes file) throws IllegalArgumentException, IOException;
+	
+	public abstract void openDirectoryUsingSystem(final FileAttributes dir) throws IllegalArgumentException, IOException;
 
 	/** 
 	 * Returns the proper FileSystem subclass object. Detects for local/remote file.
