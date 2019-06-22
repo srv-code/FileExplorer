@@ -7,6 +7,11 @@
 # BlueJ files
 *.ctxt
 
+# Windows specifics
+thumbs.db
+desktop.ini
+*.lnk
+
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
 
@@ -28,7 +33,6 @@ hs_err_pid*
 #/finalized/FileExplorer/lib/
 #/finalized/FileExplorer/dist/
 #/finalized/FileExplorer/build/
-#
 #/test/challenges/nbproject/private/
 #/test/FileExplorerTests/nbproject/private/
 #/test/FileExplorerTests/resources/

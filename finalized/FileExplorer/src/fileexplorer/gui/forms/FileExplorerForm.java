@@ -265,7 +265,7 @@ public class FileExplorerForm extends javax.swing.JFrame {
 
         helpMenu.setText(bundle.getString("FileExplorerForm.helpMenu.text")); // NOI18N
 
-        aboutMenuItem.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/about.png"))); // NOI18N
+        aboutMenuItem.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/about_small.png"))); // NOI18N
         aboutMenuItem.setText(bundle.getString("FileExplorerForm.aboutMenuItem.text")); // NOI18N
         aboutMenuItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {

@@ -48,8 +48,8 @@ public abstract class FileSystemHandler {
 		currentWorkingDirectory = checkIfDirectory(file);
 		if(registerInHistory) 
 			historyHandler.append(file);
-		System.out.printf("  // navigating to: %s, registerInHistory=%b, history=%s, canGoBackward=%b, canGoForward=%b\n", 
-				file, registerInHistory, historyHandler, historyHandler.canGoBackward(), historyHandler.canGoForward());
+//		System.out.printf("  // navigating to: %s, registerInHistory=%b, history=%s, canGoBackward=%b, canGoForward=%b\n", 
+//				file, registerInHistory, historyHandler, historyHandler.canGoBackward(), historyHandler.canGoForward());
 		return currentWorkingDirectory;
 	}
 	
@@ -87,15 +87,15 @@ public abstract class FileSystemHandler {
 	
 	public abstract FileAttributes getFileAttributes(final String absolutePath) throws FileNotFoundException;
 	
-	public FileAttributes createNewFile(final String fileName) throws IOException, FileAlreadyExistsException {
-		return createNew(fileName, false);
-	}
+//	public FileAttributes createNewFile(final String name) throws IOException, FileAlreadyExistsException {
+//		return createNew(name, false);
+//	}
+//	
+//	public FileAttributes createNewDirectory(final String name) throws IOException, FileAlreadyExistsException {
+//		return createNew(name, true);
+//	}
 	
-	public FileAttributes createNewDirectory(final String dirName) throws IOException, FileAlreadyExistsException {
-		return createNew(dirName, true);
-	}
-	
-	protected abstract FileAttributes createNew(final String name, final boolean isDirectory) throws IOException, FileAlreadyExistsException;
+	public abstract FileAttributes createNew(final String name, final boolean isDirectory) throws IOException, FileAlreadyExistsException;
 	
 	public abstract FileAttributes[] listFiles(final FileAttributes dir) throws InvalidPathException, FileNotFoundException, AccessDeniedException;
 	public abstract List<FileAttributes> listRoots() throws FileNotFoundException;
@@ -107,8 +107,6 @@ public abstract class FileSystemHandler {
 	
 	public abstract void printFile(FileAttributes file) throws IllegalArgumentException, IOException;
 	
-	public abstract void openDirectoryUsingSystem(final FileAttributes dir) throws IllegalArgumentException, IOException;
-
 	/** 
 	 * Returns the proper FileSystem subclass object. Detects for local/remote file.
 	 */

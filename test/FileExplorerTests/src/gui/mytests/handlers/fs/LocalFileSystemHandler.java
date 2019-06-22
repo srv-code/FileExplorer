@@ -70,18 +70,15 @@ public class LocalFileSystemHandler extends FileSystemHandler {
 	 * @return If created successfully then 
 	 *		returns the FileAttributes object else null.
 	 */
-	protected FileAttributes createNew(final String name, final boolean isDirectory) throws IOException, FileAlreadyExistsException {
+	public FileAttributes createNew(final String name, final boolean isDirectory) throws IOException, FileAlreadyExistsException {
 		File file = new File(currentWorkingDirectory.absolutePath, name);
 		if(file.exists())
 			throw new FileAlreadyExistsException(file.getAbsolutePath());
-		if(isDirectory) {
-			if(file.mkdir())
-				return getFileAttributes(file.getAbsolutePath());
+		if(isDirectory ? file.mkdir() : file.createNewFile()) {
+			return getFileAttributes(file.getAbsolutePath());
 		} else {
-			if(file.createNewFile())
-				return getFileAttributes(file.getAbsolutePath());
+			throw new IOException("Specified name '"+ name +"' not supported by current platform");
 		}
-		return null;
 	}
 
 	@Override
@@ -121,6 +118,9 @@ public class LocalFileSystemHandler extends FileSystemHandler {
 //		
 //	}
 
+	/**
+	 * @param file Can be a file or directory
+	 */
 	@Override
 	public void openFile(FileAttributes file) throws UnsupportedOperationException, IOException {
 		if(isDesktopSupported) {
@@ -137,13 +137,4 @@ public class LocalFileSystemHandler extends FileSystemHandler {
 		else 
 			desktop.print(new File(file.absolutePath));
 	}
-
-	@Override
-	public void openDirectoryUsingSystem(final FileAttributes dir) throws IllegalArgumentException, IOException {
-		if(dir.isDirectory)
-			desktop.open(new File(dir.absolutePath));
-		else 
-			throw new IllegalArgumentException("Not a directory");
-	}
-	
 }

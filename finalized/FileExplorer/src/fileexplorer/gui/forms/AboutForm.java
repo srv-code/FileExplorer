@@ -41,7 +41,7 @@ public class AboutForm extends javax.swing.JFrame {
             }
         });
 
-        aboutIconLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/about_big.png"))); // NOI18N
+        aboutIconLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/app_icon.png"))); // NOI18N
 
         appTitleLabel.setFont(new java.awt.Font("Tahoma", 0, 24)); // NOI18N
         appTitleLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
@@ -67,7 +67,7 @@ public class AboutForm extends javax.swing.JFrame {
                 .addComponent(aboutIconLabel)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 112, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 105, Short.MAX_VALUE)
                         .addComponent(appTitleLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 142, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(104, 104, 104))
                     .addGroup(layout.createSequentialGroup()
@@ -115,7 +115,7 @@ public class AboutForm extends javax.swing.JFrame {
     public static AboutForm init() {
 		/* Create and display the form */        
         AboutForm form = new AboutForm();
-        form.setIconImage(new ImageIcon(AboutForm.class.getResource("/images/about.png")).getImage());
+        form.setIconImage(new ImageIcon(AboutForm.class.getResource("/images/about_big.png")).getImage());
 		form.setVisible(true);
         return form;
     }

@@ -67,6 +67,19 @@ public class BookmarkHandler {
 		return this;
 	}
 	
+	public boolean remove(final FileAttributes path, final DefaultMutableTreeNode parentNode) {
+		Enumeration<DefaultMutableTreeNode> childrenNodes = parentNode.children();
+		DefaultMutableTreeNode node;
+		while(childrenNodes.hasMoreElements()) {
+			node = childrenNodes.nextElement();
+			if(((BookmarkedItem)node.getUserObject()).absolutePath.equals(path.absolutePath)) {
+				remove(node);
+				return true;
+			}
+		}
+		return false;
+	}
+	
 	public BookmarkHandler removeAllSiblings(final DefaultMutableTreeNode childNode) {
 		DefaultMutableTreeNode parentNode = (DefaultMutableTreeNode)childNode.getParent();
 		int childCount = parentNode.getChildCount();

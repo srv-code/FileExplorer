@@ -25,7 +25,7 @@ public class RemoteFileSystemHandler extends FileSystemHandler {
 	}
 
 	@Override
-	protected FileAttributes createNew(String name, boolean isDirectory) throws IOException, FileAlreadyExistsException {
+	public FileAttributes createNew(String name, boolean isDirectory) throws IOException, FileAlreadyExistsException {
 		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
 	}
 
@@ -59,10 +59,10 @@ public class RemoteFileSystemHandler extends FileSystemHandler {
 		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
 	}
 
-	@Override
-	public void openDirectoryUsingSystem(final FileAttributes dir) throws IllegalArgumentException, IOException {
-		throw new UnsupportedOperationException("Not supported for remote folders");
-	}
+//	@Override
+//	public void openDirectoryUsingSystem(final FileAttributes dir) throws IllegalArgumentException, IOException {
+//		throw new UnsupportedOperationException("Not supported for remote folders");
+//	}
 
 	@Override
 	public FileAttributes getParent(FileAttributes file) throws FileNotFoundException {
