@@ -43,14 +43,18 @@ public final class FileAttributes {
 		return String.format("%tY/%<tm/%<td %<tI:%<tM:%<tS %<Tp", lastModifiedTime);
 	}
 	
+	public static final String TYPE_FOLDER = "folder";
+	public static final String TYPE_LINK = "link";
+	public static final String TYPE_FILE = "file";
+	
 	private String getType() {
 		if(isDirectory)
-			return "folder";
+			return TYPE_FOLDER;
 		else if(isLink)
-			return "link";
+			return TYPE_LINK;
 		else {
 			int dotIdx = absolutePath.lastIndexOf('.');
-			return dotIdx == -1 ? "file" : absolutePath.substring(dotIdx+1).toLowerCase();
+			return dotIdx == -1 ? TYPE_FILE : absolutePath.substring(dotIdx+1).toLowerCase();
 		}
 	}
 	

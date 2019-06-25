@@ -18,7 +18,7 @@ import java.nio.file.FileAlreadyExistsException;
 import java.util.*;
 
 
-public class ListViewTest extends javax.swing.JFrame {
+public class ListViewFrame extends javax.swing.JFrame {
 	private BookmarkHandler bookmarkHandler = null;
     private DefaultMutableTreeNode treeNodeQuickAccess;
     private DefaultMutableTreeNode treeNodeDrives;
@@ -145,7 +145,7 @@ public class ListViewTest extends javax.swing.JFrame {
 	/**
 	 * Creates new form ListViewTest
 	 */
-	public ListViewTest() throws FileNotFoundException {
+	public ListViewFrame() throws FileNotFoundException {
 		System.out.println("Info: Initializing form UI components..."); // TODO log info
 		initComponents();
 		
@@ -191,8 +191,8 @@ public class ListViewTest extends javax.swing.JFrame {
 			for(FileAttributes file : fileSystemHandler.listRoots()) {
 				bookmarkHandler.add(	treeNodeDrives, 
 										new BookmarkedItem(	file.absolutePath, 
-															BookmarkedItem.ItemType.SYS_DRIVE, 
-															IconRegistry.driveIcon_big,
+															BookmarkedItem.TYPE_SYSTEM_DRIVE, 
+//															IconRegistry.driveIcon_big,
 															file.absolutePath));
 			}
 		} catch(FileNotFoundException e) {
@@ -201,9 +201,9 @@ public class ListViewTest extends javax.swing.JFrame {
 		}
 		
 		bookmarkHandler	.add(	treeNodeLibrary,
-								new BookmarkedItem("Home", BookmarkedItem.ItemType.LIBRARY_FOLDER, IconRegistry.libraryIcon_big, userHomeDirectoryPath))
+								new BookmarkedItem("Home", BookmarkedItem.TYPE_LIBRARY_FOLDER, userHomeDirectoryPath))
 						.add(	treeNodeLibrary,
-								new BookmarkedItem("Temp", BookmarkedItem.ItemType.LIBRARY_FOLDER, IconRegistry.libraryIcon_big, systemTempDirPath));
+								new BookmarkedItem("Temp", BookmarkedItem.TYPE_LIBRARY_FOLDER, systemTempDirPath));
 		
 		// TODO load all bookmarks and remote server hostnames from disk file
 		
@@ -275,7 +275,7 @@ public class ListViewTest extends javax.swing.JFrame {
 			btnGoToParentDir.setEnabled(fileSystemHandler.canGoToParent());
 			btnBookmarkIndicator.setSelected(bookmarkHandler.containsFile(treeNodeBookmarks, cwd));
 
-			System.out.println("Info: Folder listing " + (loadFresh ? "loaded" : "restored")); // TODO show in status bar
+			System.out.println("Info: Folder listing " + (loadFresh ? "loaded" : "restored")); // TODO show in status bar			
 		} catch(Exception e) {
 			JOptionPane.showMessageDialog(	this,
 											String.format("Cannot update table list!\n  Path: %s\n  Reason: %s",
@@ -526,18 +526,38 @@ public class ListViewTest extends javax.swing.JFrame {
         popupFileSelected.add(jSeparator2);
 
         menuCut.setText("Cut");
+        menuCut.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                menuCutActionPerformed(evt);
+            }
+        });
         popupFileSelected.add(menuCut);
 
         menuCopy.setText("Copy");
+        menuCopy.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                menuCopyActionPerformed(evt);
+            }
+        });
         popupFileSelected.add(menuCopy);
 
         menuPaste.setText("Paste");
         popupFileSelected.add(menuPaste);
 
         menuRename.setText("Rename");
+        menuRename.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                menuRenameActionPerformed(evt);
+            }
+        });
         popupFileSelected.add(menuRename);
 
         menuDelete.setText("Delete");
+        menuDelete.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                menuDeleteActionPerformed(evt);
+            }
+        });
         popupFileSelected.add(menuDelete);
         popupFileSelected.add(jSeparator5);
 
@@ -854,6 +874,7 @@ public class ListViewTest extends javax.swing.JFrame {
 		
 		int row = tableFileList.rowAtPoint(evt.getPoint());
 		if(row == -1) { // clicked on empty space
+			tableFileList.clearSelection();
 			if (evt.isPopupTrigger()) {
 				selectedFiles = new FileAttributes[] { fileSystemHandler.getCurrentWorkingDirectory() };
 				setFileSelectionContextOptions();
@@ -919,7 +940,7 @@ public class ListViewTest extends javax.swing.JFrame {
 		
 		TreePath selectedPath = treeQuickAccess.getPathForRow(row);
 		
-		if(selectedPath.getPathCount() > 2) { // only perform if folder entry is selected
+		if(selectedPath.getPathCount() > 2) { // only perform if a valid entry is selected
 //			Object[] nodes = selectedPath.getPath();
 //			selectedBookmarkNode = (DefaultMutableTreeNode)nodes[nodes.length-1];
 			selectedBookmarkNode = (DefaultMutableTreeNode)selectedPath.getLastPathComponent(); // efficient approach
@@ -933,11 +954,11 @@ public class ListViewTest extends javax.swing.JFrame {
 				selectedFiles = new FileAttributes[] { fileSystemHandler.getFileAttributes(filePath) };
 			} catch(FileNotFoundException e) {
 				JOptionPane.showMessageDialog(	this,
-												String.format("Cannot retieve bookmarked item!\n  \nName: %s\n  Type: %s\n  Path: %s\n  Reason: %s",
+												String.format("Cannot retieve bookmarked item!\n  Name: %s\n  Type: %s\n  Path: %s\n  Reason: %s",
 														selectedFiles[0].name, selectedFiles[0].type, selectedFiles[0].absolutePath, e),
 												"Invalid bookmarked item",
 												JOptionPane.ERROR_MESSAGE);
-				System.err.printf("Err: Cannot retieve bookmarked item!\n  \nName: %s\n  Type: %s\n  Path: %s\n  Reason: %s",
+				System.err.printf("Err: Cannot retieve bookmarked item!\n  Name: %s\n  Type: %s\n  Path: %s\n  Reason: %s",
 						selectedFiles[0].name, selectedFiles[0].type, selectedFiles[0].absolutePath, e); // log error
 				return;
 			}
@@ -1043,13 +1064,15 @@ public class ListViewTest extends javax.swing.JFrame {
     }//GEN-LAST:event_btnGoForwardInHistoryActionPerformed
 
     private void menuBookmarkPropertiesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuBookmarkPropertiesActionPerformed
-		BookmarkedItem item = (BookmarkedItem)selectedBookmarkNode.getUserObject();
-		FilePropertiesForm.init(selectedFiles, item.icon, item.type.toString(), fileSystemHandler);
+//		BookmarkedItem item = (BookmarkedItem)selectedBookmarkNode.getUserObject();
+//		System.out.println("  // item=" + item + ", selectedFiles[0]=" + selectedFiles[0]);
+		FilePropertiesForm.init(	selectedFiles, 
+									((BookmarkedItem)selectedBookmarkNode.getUserObject()).type,
+									fileSystemHandler);
     }//GEN-LAST:event_menuBookmarkPropertiesActionPerformed
 
     private void menuPropertiesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuPropertiesActionPerformed
         FilePropertiesForm.init(	selectedFiles,
-									iconRegistry.getFileIcon(selectedFiles[0], IconSize.BIG), 
 									selectedFiles[0].type,
 									fileSystemHandler);
     }//GEN-LAST:event_menuPropertiesActionPerformed
@@ -1087,8 +1110,8 @@ public class ListViewTest extends javax.swing.JFrame {
 		for(FileAttributes file : selectedFiles) {
 			bookmarkHandler.add(treeNodeBookmarks,
 								new BookmarkedItem(	file.name, 
-													BookmarkedItem.ItemType.PATH, 
-													iconRegistry.getFileIcon(file, IconSize.BIG), 
+													file.type, 
+//													iconRegistry.getFileIcon(file, IconSize.BIG), 
 													file.absolutePath));
 		}
     }//GEN-LAST:event_menuBookmarkActionPerformed
@@ -1159,8 +1182,9 @@ public class ListViewTest extends javax.swing.JFrame {
 		FileAttributes cwd = fileSystemHandler.getCurrentWorkingDirectory();
 		bookmarkHandler.add(treeNodeBookmarks,
 							new BookmarkedItem(	cwd.name, 
-												BookmarkedItem.ItemType.PATH, 
-												iconRegistry.getFileIcon(cwd, IconSize.BIG), 
+												cwd.type,
+//												BookmarkedItem.ItemType.PATH, 
+//												iconRegistry.getFileIcon(cwd, IconSize.BIG), 
 												cwd.absolutePath));
 		if(!btnBookmarkIndicator.isSelected())
 			btnBookmarkIndicator.setSelected(true);
@@ -1230,6 +1254,93 @@ public class ListViewTest extends javax.swing.JFrame {
 			System.out.println("  // " + f);
 		}
     }//GEN-LAST:event_menuCreateShortcutActionPerformed
+
+    private void menuCutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuCutActionPerformed
+		treeNodeRemoteServers.add(new DefaultMutableTreeNode(
+				new BookmarkedItem("abc", BookmarkedItem.TYPE_REMOTE_SERVER, "C:\\")));
+    }//GEN-LAST:event_menuCutActionPerformed
+
+    private void menuCopyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuCopyActionPerformed
+        
+    }//GEN-LAST:event_menuCopyActionPerformed
+
+    private void menuRenameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuRenameActionPerformed
+		String type = selectedFiles[0].isDirectory ? FileAttributes.TYPE_FOLDER : FileAttributes.TYPE_FILE;
+		String newName = (String)JOptionPane.showInputDialog(	this, 
+																"Enter new "+ type +" name:",
+																"Rename " + type,
+																JOptionPane.QUESTION_MESSAGE,
+																null, null, selectedFiles[0].name);
+		if(newName != null) {
+			try {
+				selectedFiles[0] = fileSystemHandler.rename(selectedFiles[0], newName.trim());
+				updateTableList(true);
+				findAndSelectInList(selectedFiles[0]);
+			} catch(IOException e) {
+				JOptionPane.showMessageDialog(	this,
+												"Failed renaming the " + type + ".\nReason: Cannot assign the specified name.",
+												"File operation failure",
+												JOptionPane.ERROR_MESSAGE);
+				System.err.printf("Err: Failed renaming a %s '%s'. Reason: %s\n", type, selectedFiles[0].name, e.getMessage());
+			}
+		}
+    }//GEN-LAST:event_menuRenameActionPerformed
+
+    private void menuDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuDeleteActionPerformed
+		StringBuilder tmpMsg = new StringBuilder("Delete ");
+		if(selectedFiles.length == 1) 
+			tmpMsg.append(selectedFiles[0].isDirectory ? FileAttributes.TYPE_FOLDER : FileAttributes.TYPE_FILE);
+		else 
+			tmpMsg.append(selectedFiles.length).append(" items");
+		tmpMsg.append('?');
+		
+		if(JOptionPane.showConfirmDialog(	this, 
+											tmpMsg.toString(), 
+											"Delete confirmation", 
+											JOptionPane.YES_NO_OPTION,
+											JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION) {
+			java.util.List<FileAttributes> undeletedFiles = new ArrayList<>();
+			boolean anyDeleted = false;
+			for(FileAttributes file : selectedFiles) {
+				try {
+					System.out.println("  // del: " + file);
+					fileSystemHandler.delete(file);
+					anyDeleted = true;
+				} catch(IOException e) {
+					undeletedFiles.add(file);
+				}
+			}
+			if(anyDeleted) 
+				updateTableList(true);
+			
+			if(!undeletedFiles.isEmpty()) {
+				tmpMsg.setLength(0);
+				tmpMsg.append("Failed to delete the ");
+				if(undeletedFiles.size()==1)
+					tmpMsg	.append(selectedFiles[0].isDirectory ? FileAttributes.TYPE_FOLDER : FileAttributes.TYPE_FILE)
+							.append('!');
+				else {
+					tmpMsg.append("following ").append(undeletedFiles.size()).append(" items:\n");
+					for(FileAttributes file : undeletedFiles) {
+						tmpMsg	.append("  [")
+								.append(file.isDirectory ? FileAttributes.TYPE_FOLDER : FileAttributes.TYPE_FILE)
+								.append("] ")
+								.append(file.name)
+								.append("\n");
+					}
+				}
+				String msgString = tmpMsg.toString();
+				
+				JOptionPane.showMessageDialog(	this,
+												msgString,
+												"File operation failure",
+												JOptionPane.ERROR_MESSAGE);
+				System.err.printf("Err: Failed to delete at path='%s': %s\n", 
+						fileSystemHandler.getCurrentWorkingDirectory().absolutePath, 
+						undeletedFiles); // TODO log error
+			}
+		}
+    }//GEN-LAST:event_menuDeleteActionPerformed
 	
 	public static void setAppLookAndFeel() throws ClassNotFoundException, InstantiationException, IllegalAccessException, UnsupportedLookAndFeelException {
 		boolean lnfNameNotFound = true;
@@ -1256,7 +1367,7 @@ public class ListViewTest extends javax.swing.JFrame {
 		java.awt.EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					listViewFrame = new ListViewTest();
+					listViewFrame = new ListViewFrame();
 					listViewFrame.setVisible(true);
 //	                javax.swing.SwingUtilities.updateComponentTreeUI(frame.getContentPane());
 				} catch(FileNotFoundException e) {

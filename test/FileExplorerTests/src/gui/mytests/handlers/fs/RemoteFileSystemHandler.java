@@ -15,11 +15,6 @@ public class RemoteFileSystemHandler extends FileSystemHandler {
 	}
 
 	@Override
-	public boolean delete(FileAttributes file) {
-		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-	}
-
-	@Override
 	public FileAttributes getFileAttributes(String absolutePath) throws FileNotFoundException {
 		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
 	}
@@ -66,6 +61,16 @@ public class RemoteFileSystemHandler extends FileSystemHandler {
 
 	@Override
 	public FileAttributes getParent(FileAttributes file) throws FileNotFoundException {
+		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+	}
+
+	@Override
+	public FileAttributes rename(FileAttributes file, String newName) throws IOException {
+		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+	}
+
+	@Override
+	public void delete(FileAttributes file) throws IOException {
 		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
 	}
 }

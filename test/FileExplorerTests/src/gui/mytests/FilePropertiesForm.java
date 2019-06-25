@@ -24,22 +24,20 @@ public class FilePropertiesForm extends javax.swing.JFrame {
 	
 	/**
 	 * Creates new form PropertiesForm
-	 * @param icon If multiples files are specified then this parameter has no 
-	 *		significance as a constant icon will be used.
 	 * @param type If multiples files are specified then this parameter has no 
 	 *		significance as a constant icon will be used.
 	 */
-	public FilePropertiesForm(final FileAttributes[] files, final Icon icon, final String type, final FileSystemHandler fsHandler) {
+	public FilePropertiesForm(final FileAttributes[] files, final String type, final FileSystemHandler fsHandler) {
 		this.files = files;
 		this.fileSystemHandler = fsHandler;
 		initComponents();
 		
 		// set values to GUI components
 		if(files.length == 1) {
-			lblTypeIcon.setIcon(icon);
-			txtName.setText(type.equals(BookmarkedItem.ItemType.SYS_DRIVE.toString()) ? files[0].absolutePath : files[0].name); 
-				txtName.setCaretPosition(0);			
-			txtType.setText(type); 
+			lblTypeIcon.setIcon(IconRegistry.getInstance().getTypeIcon(type));
+			txtName.setText(BookmarkedItem.TYPE_SYSTEM_DRIVE.equals(type) ? files[0].absolutePath : files[0].name);
+				txtName.setCaretPosition(0);
+			txtType.setText(type);
 				txtType.setCaretPosition(0);
 			txtSize.setText(files[0].sizeInWords + " (" + files[0].size + " B)"); 
 				txtSize.setCaretPosition(0);
@@ -49,7 +47,7 @@ public class FilePropertiesForm extends javax.swing.JFrame {
 			chkWritable.setSelected(files[0].isWritable);
 			chkExecutable.setSelected(files[0].isExecutable);
 			chkHidden.setSelected(files[0].isHidden);
-		} else {
+		} else { // ignore type
 			lblTypeIcon.setIcon(IconRegistry.multipleFilesIcon_big);
 			
 			StringBuilder names = new StringBuilder();
@@ -81,7 +79,7 @@ public class FilePropertiesForm extends javax.swing.JFrame {
 		}
 		
 		// global values
-		txtPath.setText(files[0].absolutePath); 
+		txtPath.setText(BookmarkedItem.TYPE_SYSTEM_DRIVE.equals(type) ? "root" : files[0].absolutePath); 
 			txtPath.setCaretPosition(0);
 		txtLocation.setText(files[0].isLocal ? "Local" : "Remote"); 
 			txtLocation.setCaretPosition(0);
@@ -356,34 +354,24 @@ public class FilePropertiesForm extends javax.swing.JFrame {
 	
 	private static FilePropertiesForm form = null;
 	
-	static FilePropertiesForm init(final FileAttributes[] files, final Icon icon, final String type, final FileSystemHandler fsHandler) {
-		/* Set the predefined look and feel */ /*
-		try {
-			boolean lnfNameNotFound = true;
-			for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-				if (SystemResources.LOOKnFEEL_NAMES.contains(info.getName())) {
-					javax.swing.UIManager.setLookAndFeel(info.getClassName());
-					lnfNameNotFound = false;
-					break;
-				}
-			}
-			if(lnfNameNotFound)
-				System.err.println("Warning: Cannot set predefined L&F: " + SystemResources.LOOKnFEEL_NAMES); // log error
-		} catch (Exception exc) {
-			System.err.println("Error: Cannot set L&F: " + exc); // Log error
-		}
-		*/
-		
+//	static FilePropertiesForm init(final FileAttributes[] files, final BookmarkedItem.ItemType type, final FileSystemHandler fsHandler) {
+//		return init(files, type.toString(), fsHandler);
+//	}
+	
+	static FilePropertiesForm init(final FileAttributes[] files, final String type, final FileSystemHandler fsHandler) {
 		/* Create and display the form */
 		java.awt.EventQueue.invokeLater(new Runnable() {
 			public void run() {
-				form = new FilePropertiesForm(files, icon, type, fsHandler);
+//				System.out.println("files=" + files + ", icon=" + icon + ", type=" + type + ", fsHandler=" + fsHandler);
+				form = new FilePropertiesForm(files, type, fsHandler);
 				form.setVisible(true);
 			}
 		});
 		
 		return form;
 	}
+	
+	
 	
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnApply;

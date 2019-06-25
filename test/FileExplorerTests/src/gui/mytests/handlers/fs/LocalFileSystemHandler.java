@@ -25,9 +25,20 @@ public class LocalFileSystemHandler extends FileSystemHandler {
 //		return new File(path).isAbsolute();
 //	}
 
-	@Override
-	public boolean delete(final FileAttributes file) {
-		return new File(file.absolutePath).delete();
+	@Override 
+	public FileAttributes rename(final FileAttributes file, final String newName) throws IOException {
+		File oldFile = new File(file.absolutePath);
+		File newFile = new File(oldFile.getParent(), newName);
+		if(oldFile.renameTo(newFile))
+			return getFileAttributes(newFile.getAbsolutePath());
+		else
+			throw new IOException("Unknown");
+	}
+	
+	@Override 
+	public void delete(final FileAttributes file) throws IOException {
+		if(!new File(file.absolutePath).delete())
+			throw new IOException("Unknown");
 	}
 
 	/**

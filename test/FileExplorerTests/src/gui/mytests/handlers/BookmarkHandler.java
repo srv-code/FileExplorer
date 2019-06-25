@@ -100,7 +100,7 @@ public class BookmarkHandler {
 
 	public void rename(final DefaultMutableTreeNode node, final String newName) {
 		BookmarkedItem oldItem = (BookmarkedItem)node.getUserObject();
-		node.setUserObject(new BookmarkedItem(newName, oldItem.type, oldItem.icon, oldItem.absolutePath));
+		node.setUserObject(new BookmarkedItem(newName, oldItem.type, oldItem.absolutePath));
 		refreshNode(node);
 		System.out.printf("Info: Bookmark renamed from '%s' to '%s'\n", oldItem.name, newName); // log Info
 	}

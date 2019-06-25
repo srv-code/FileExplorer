@@ -1,9 +1,12 @@
 package gui.mytests;
 
+import gui.mytests.handlers.BookmarkHandler;
+import gui.mytests.handlers.BookmarkedItem;
 import gui.mytests.handlers.fs.FileAttributes;
 import java.util.*;
 import javax.swing.*;
 import java.io.*;
+//import static gui.mytests.handlers.BookmarkedItem.*;
 
 
 public class SystemResources {
@@ -66,39 +69,39 @@ public class SystemResources {
 		public static final Icon libraryIcon_big =
 				new ImageIcon("D:/Projects/Java/NetBeans/Projects/project/Summer-Project/finalized/FileExplorer/resources/images/lib_big.png");
 		
-		public static final Icon remoteServerIcon_big =
-				new ImageIcon("D:/Projects/Java/NetBeans/Projects/project/Summer-Project/finalized/FileExplorer/resources/images/remote_big.png");
+		public static final Icon serverIcon_big =
+				new ImageIcon("D:/Projects/Java/NetBeans/Projects/project/Summer-Project/finalized/FileExplorer/resources/images/server_big.png");
 		
 		public static final Icon binaryIcon_small =
 				new ImageIcon("D:/Projects/Java/NetBeans/Projects/project/Summer-Project/finalized/FileExplorer/resources/images/bin_small.png");
 		public static final Icon binaryIcon_big =
-						new ImageIcon("D:/Projects/Java/NetBeans/Projects/project/Summer-Project/finalized/FileExplorer/resources/images/bin_big.png");
+				new ImageIcon("D:/Projects/Java/NetBeans/Projects/project/Summer-Project/finalized/FileExplorer/resources/images/bin_big.png");
 
 		public static final Icon executableIcon_small =
-						new ImageIcon("D:/Projects/Java/NetBeans/Projects/project/Summer-Project/finalized/FileExplorer/resources/images/exe_small.png");
+				new ImageIcon("D:/Projects/Java/NetBeans/Projects/project/Summer-Project/finalized/FileExplorer/resources/images/exe_small.png");
 		public static final Icon executableIcon_big =
-						new ImageIcon("D:/Projects/Java/NetBeans/Projects/project/Summer-Project/finalized/FileExplorer/resources/images/exe_big.png");
+				new ImageIcon("D:/Projects/Java/NetBeans/Projects/project/Summer-Project/finalized/FileExplorer/resources/images/exe_big.png");
 
 		public static final Icon documentIcon_small =
-						new ImageIcon("D:/Projects/Java/NetBeans/Projects/project/Summer-Project/finalized/FileExplorer/resources/images/doc_small.png");
+				new ImageIcon("D:/Projects/Java/NetBeans/Projects/project/Summer-Project/finalized/FileExplorer/resources/images/doc_small.png");
 		public static final Icon documentIcon_big =
-						new ImageIcon("D:/Projects/Java/NetBeans/Projects/project/Summer-Project/finalized/FileExplorer/resources/images/doc_big.png");
+				new ImageIcon("D:/Projects/Java/NetBeans/Projects/project/Summer-Project/finalized/FileExplorer/resources/images/doc_big.png");
 
 		public static final Icon videoIcon_small =
-						new ImageIcon("D:/Projects/Java/NetBeans/Projects/project/Summer-Project/finalized/FileExplorer/resources/images/video_small.png");
+				new ImageIcon("D:/Projects/Java/NetBeans/Projects/project/Summer-Project/finalized/FileExplorer/resources/images/video_small.png");
 		public static final Icon videoIcon_big =
-						new ImageIcon("D:/Projects/Java/NetBeans/Projects/project/Summer-Project/finalized/FileExplorer/resources/images/video_big.png");
+				new ImageIcon("D:/Projects/Java/NetBeans/Projects/project/Summer-Project/finalized/FileExplorer/resources/images/video_big.png");
 
 		public static final Icon musicIcon_small =
-						new ImageIcon("D:/Projects/Java/NetBeans/Projects/project/Summer-Project/finalized/FileExplorer/resources/images/music_small.png");
+				new ImageIcon("D:/Projects/Java/NetBeans/Projects/project/Summer-Project/finalized/FileExplorer/resources/images/music_small.png");
 		public static final Icon musicIcon_big =
-						new ImageIcon("D:/Projects/Java/NetBeans/Projects/project/Summer-Project/finalized/FileExplorer/resources/images/music_big.png");
+				new ImageIcon("D:/Projects/Java/NetBeans/Projects/project/Summer-Project/finalized/FileExplorer/resources/images/music_big.png");
 
 		
 		public static final Icon compressedIcon_small =
-						new ImageIcon("D:/Projects/Java/NetBeans/Projects/project/Summer-Project/finalized/FileExplorer/resources/images/zip_small.png");
+				new ImageIcon("D:/Projects/Java/NetBeans/Projects/project/Summer-Project/finalized/FileExplorer/resources/images/zip_small.png");
 		public static final Icon compressedIcon_big =
-						new ImageIcon("D:/Projects/Java/NetBeans/Projects/project/Summer-Project/finalized/FileExplorer/resources/images/zip_big.png");
+				new ImageIcon("D:/Projects/Java/NetBeans/Projects/project/Summer-Project/finalized/FileExplorer/resources/images/zip_big.png");
 
 		
 		public static enum IconSize { SMALL, BIG };
@@ -108,19 +111,19 @@ public class SystemResources {
 			new Object[] { Arrays.asList("png", "gif", "png", "jpg", "jpeg", "ico", "bmp", "tif", "tiff", "svgz"), imageIcon_small, imageIcon_big },
 			
 			// source code files
-			new Object[] { Arrays.asList("c", "h", "cpp", "py", "java", "cs", "xml", "html", "css", "js", "asp", "aspx"), sourceCodeIcon_small, sourceCodeIcon_big },
+			new Object[] { Arrays.asList("c", "h", "cpp", "py", "java", "cs", "xml", "html", "css", "js", "asp", "aspx", "vb", "vbs"), sourceCodeIcon_small, sourceCodeIcon_big },
 			
 			// configuration files
-			new Object[] { Arrays.asList("gitconfig", "ini", "cfg", "config", "db", "bat"), configIcon_small, configIcon_big },
+			new Object[] { Arrays.asList("gitconfig", "ini", "cfg", "config", "db", "bat", "conf"), configIcon_small, configIcon_big },
 			
 			// text files
 			new Object[] { Arrays.asList("txt", "log"), textIcon_small, textIcon_big },
 			
 			// binary files
-			new Object[] { Arrays.asList("dat", "lnk", "bin", "class"), binaryIcon_small, binaryIcon_big },
+			new Object[] { Arrays.asList("dat", "lnk", "bin", "class", "drv", "o", "asm"), binaryIcon_small, binaryIcon_big },
 
 			// executable files
-			new Object[] { Arrays.asList("sys", "dll", "com", "exe", "dmg", "app", "sh", "deb"), executableIcon_small, executableIcon_big },
+			new Object[] { Arrays.asList("sys", "dll", "com", "exe", "cpl", "msc", "dmg", "app", "sh", "deb"), executableIcon_small, executableIcon_big },
 			
 			// document files
 			new Object[] { Arrays.asList("pdf", "xls", "xlsx", "doc", "docx", "ppt", "pptx", "csv"), documentIcon_small, documentIcon_big },
@@ -136,18 +139,31 @@ public class SystemResources {
 		};
 		
 		public Icon getFileIcon(final FileAttributes file, final IconSize size) {
-			if(file.isDirectory) 
+			return getIcon(file.type, size);
+		}
+		
+		/* null proof */
+		public Icon getTypeIcon(final String type) { // returns only big icon
+			if(BookmarkedItem.TYPE_SYSTEM_DRIVE.equals(type))
+				return driveIcon_big;
+			if(BookmarkedItem.TYPE_LIBRARY_FOLDER.equals(type))
+				return libraryIcon_big;
+			if(BookmarkedItem.TYPE_REMOTE_SERVER.equals(type))
+				return serverIcon_big;
+			return getIcon(type, IconRegistry.IconSize.BIG);				
+		}
+		
+		private Icon getIcon(final String type, final IconSize size) {
+			if(type.equals(FileAttributes.TYPE_FOLDER))
 				return size==IconSize.SMALL ? dirIcon_small : dirIcon_big;
-			
-			if(!file.type.equals("file")) {
+			if(!type.equals(FileAttributes.TYPE_FILE)) {
 				for(Object[] record : registry) {
-					if(((List)record[0]).contains(file.type)) {
+					if(((List)record[0]).contains(type)) {
 						return (Icon)record[ size==IconSize.SMALL ? 1 : 2 ];
 					}
 				}
-				System.out.println("Warning: No icon associated with type=" + file.type); // TODO log warning
-			}
-		
+				System.out.println("Warning: No icon associated with type=" + type); // TODO log warning
+			}		
 			return size==IconSize.SMALL ? fileIcon_small : fileIcon_big;
 		}
 	}

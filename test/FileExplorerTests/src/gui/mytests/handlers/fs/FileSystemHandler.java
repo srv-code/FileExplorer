@@ -36,6 +36,10 @@ public abstract class FileSystemHandler {
 //		historyHandler.clear();
 	}
 	
+	public abstract FileAttributes rename(final FileAttributes file, final String newName) throws IOException;
+	
+	public abstract void delete(final FileAttributes file) throws IOException;
+	
 //	public abstract boolean isPathValid(final String absolutePath);
 	
 //	public abstract boolean isPathAbsolute(final String path);
@@ -82,8 +86,6 @@ public abstract class FileSystemHandler {
 	public abstract FileAttributes getParent(final FileAttributes file) throws FileNotFoundException;
 	
 	public abstract boolean canGoToParent();
-	
-	public abstract boolean delete(final FileAttributes file);
 	
 	public abstract FileAttributes getFileAttributes(final String absolutePath) throws FileNotFoundException;
 	
