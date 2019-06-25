@@ -183,6 +183,8 @@ public class ListViewFrame extends javax.swing.JFrame {
 		menuProperties.setAction(showPropertiesAction);
 		menuBookmarkProperties.setAction(showPropertiesAction);
 		*/
+		toolbarOptions.setLayout(new BoxLayout(toolbarOptions, BoxLayout.X_AXIS));
+
 	}
 	
 	private void setBookmarks() {
@@ -1347,6 +1349,7 @@ public class ListViewFrame extends javax.swing.JFrame {
 		for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
 			if (SystemResources.LOOKnFEEL_NAMES.contains(info.getName())) {
 				javax.swing.UIManager.setLookAndFeel(info.getClassName());
+				System.out.println("  // class="  + info.getClassName());
 				lnfNameNotFound = false;
 				break;
 			}
@@ -1358,7 +1361,10 @@ public class ListViewFrame extends javax.swing.JFrame {
 	public static void main(String args[]) throws Exception {
 		/* Set the predefined look and feel */
 		try {
-			setAppLookAndFeel();
+//			setAppLookAndFeel();
+			
+//			javax.swing.UIManager.setLookAndFeel(new com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel());
+			javax.swing.UIManager.setLookAndFeel(new javax.swing.plaf.nimbus.NimbusLookAndFeel());
 		} catch (Exception exc) {
 			System.err.println("Error: Cannot set L&F: " + exc); // Log error
 		}
