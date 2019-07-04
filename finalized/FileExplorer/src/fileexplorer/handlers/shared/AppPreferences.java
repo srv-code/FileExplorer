@@ -36,5 +36,18 @@ public class AppPreferences {
     
     /** For both system & user */
     public void importPreferences(final String filePath) {}
-    
+	
+	/** 
+	 * Sets the look and feel of the application on priority basis
+	 * of the provided look and feel class names
+	 */
+	public void setAppLookAndFeel() {
+		for(int i=0; i<SystemResources.LOOKnFEEL_CLASSNAMES.size(); i++) {
+			try {
+				javax.swing.UIManager.setLookAndFeel(SystemResources.LOOKnFEEL_CLASSNAMES.get(i));
+				return;
+			} catch(Exception e) {}
+		}
+		System.err.println("Warning: Cannot set predefined L&F: " + SystemResources.LOOKnFEEL_CLASSNAMES); // TODO log warning
+	}
 }

@@ -1,0 +1,1 @@
+javac -Xlint:unchecked -d build\classes\ src\gui\mytests\*.java src\gui\mytests\handlers\*.java src\gui\mytests\handlers\fs\*.java && java -cp build\classes\ gui.mytests.ListViewTest > out\ListViewTest

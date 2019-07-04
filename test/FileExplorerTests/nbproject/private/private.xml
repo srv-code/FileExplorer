@@ -3,23 +3,7 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/D:/Projects/Java/NetBeans/Projects/project/Summer-Project/test/FileExplorerTests/src/gui/mytests/FileListTableTest.java</file>
-            <file>file:/D:/Projects/Java/NetBeans/Projects/project/Summer-Project/test/FileExplorerTests/src/console/Test1.java</file>
-            <file>file:/D:/Projects/Java/NetBeans/Projects/project/Summer-Project/test/FileExplorerTests/src/gui/mytests/FilePropertiesForm.java</file>
-            <file>file:/D:/Projects/Java/NetBeans/Projects/project/Summer-Project/test/FileExplorerTests/src/console/fs/FileSystemOperations.java</file>
-            <file>file:/D:/Projects/Java/NetBeans/Projects/project/Summer-Project/test/FileExplorerTests/src/gui/mytests/OperationProgressForm.java</file>
-            <file>file:/D:/Projects/Java/NetBeans/Projects/project/Summer-Project/test/FileExplorerTests/src/gui/mytests/handlers/fs/RemoteFileSystemHandler.java</file>
-            <file>file:/D:/Projects/Java/NetBeans/Projects/project/Summer-Project/test/FileExplorerTests/src/gui/mytests/handlers/BookmarkedItem.java</file>
-            <file>file:/D:/Projects/Java/NetBeans/Projects/project/Summer-Project/test/FileExplorerTests/src/gui/mytests/ListViewFrame.java</file>
-            <file>file:/D:/Projects/Java/NetBeans/Projects/project/Summer-Project/test/FileExplorerTests/src/gui/mytests/handlers/BookmarkHandler.java</file>
-            <file>file:/D:/Projects/Java/NetBeans/Projects/project/Summer-Project/test/FileExplorerTests/src/gui/mytests/handlers/fs/FileAttributes.java</file>
-            <file>file:/D:/Projects/Java/NetBeans/Projects/project/Summer-Project/test/FileExplorerTests/src/gui/mytests/handlers/fs/FileAttributeBuilder.java</file>
-            <file>file:/D:/Projects/Java/NetBeans/Projects/project/Summer-Project/test/FileExplorerTests/src/gui/mytests/handlers/fs/FileSystemHandler.java</file>
-            <file>file:/D:/Projects/Java/NetBeans/Projects/project/Summer-Project/test/FileExplorerTests/src/gui/mytests/handlers/fs/LocalFileSystemHandler.java</file>
-            <file>file:/D:/Projects/Java/NetBeans/Projects/project/Summer-Project/test/FileExplorerTests/src/gui/mytests/handlers/fs/NavigationHistoryHandler.java</file>
-            <file>file:/D:/Projects/Java/NetBeans/Projects/project/Summer-Project/test/FileExplorerTests/src/gui/mytests/SystemResources.java</file>
             <file>file:/D:/Projects/Java/NetBeans/Projects/project/Summer-Project/test/FileExplorerTests/src/console/ConsoleTests.java</file>
-            <file>file:/D:/Projects/Java/NetBeans/Projects/project/Summer-Project/test/FileExplorerTests/src/gui/mytests/handlers/fs/EndInNavigationHistoryException.java</file>
         </group>
     </open-files>
 </project-private>

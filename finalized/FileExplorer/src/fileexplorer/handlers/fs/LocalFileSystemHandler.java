@@ -1,4 +1,4 @@
-package gui.mytests.handlers.fs;
+package fileexplorer.handlers.fs;
 
 import java.io.*;
 import java.nio.file.*;
@@ -10,10 +10,25 @@ import javax.swing.JOptionPane;
 public class LocalFileSystemHandler extends FileSystemHandler {
 	
 	protected LocalFileSystemHandler(final String absolutePath) throws FileNotFoundException, InvalidPathException {
-		super(absolutePath);
-		fileSystemID = String.format("Local@%s.%s::%s",
-				System.getProperty("os.name"), System.getProperty("os.version"),
-				System.getProperty("user.name"));
+//		super(absolutePath);
+		userHomeDirectory = getFileAttributes(getUserHomeDirectoryPath());
+//		isRemoteHandler = false;
+		currentWorkingDirectory = absolutePath==null ? userHomeDirectory : getFileAttributes(absolutePath);
+				
+		fileSystemID = String.format("Local@%s.%s",
+				System.getProperty("os.name"), System.getProperty("os.version"));
+	}
+	
+	public String getCurrentUsername() {
+		return System.getProperty("user.name");
+	}
+	
+	public String getUserHomeDirectoryPath() {
+		return System.getProperty("user.home");
+	}
+	
+	public String getTempDirectoryPath() {
+		return System.getProperty("java.io.tmpdir");
 	}
 		
 //	@Override
@@ -31,11 +46,12 @@ public class LocalFileSystemHandler extends FileSystemHandler {
 	@Override 
 	public FileAttributes rename(final FileAttributes file, final String newName) throws IOException {
 		File oldFile = new File(file.absolutePath);
+//		System.out.printf("  // oldFile=%s, oldFile.exists()=%b\n", oldFile.getAbsolutePath(), oldFile.exists());
 		File newFile = new File(oldFile.getParent(), newName);
 		if(oldFile.renameTo(newFile))
 			return getFileAttributes(newFile.getAbsolutePath());
 		else
-			throw new IOException("Unknown");
+			throw new IOException();
 	}
 	
 	@Override 
@@ -49,22 +65,25 @@ public class LocalFileSystemHandler extends FileSystemHandler {
 	 */
 	@Override
 	public FileAttributes getFileAttributes(final String absolutePath) throws FileNotFoundException {
-		File file = new File(absolutePath);
-		if(!file.exists())
-			throw new FileNotFoundException(absolutePath);
-			
-		return new FileAttributes(
-						file.canRead(), 
-						file.canWrite(),
-						file.canExecute(),
-						file.isDirectory(),
-						file.isHidden(),
-						Files.isSymbolicLink(file.toPath()),
-						true,
-						file.getName(),
-						file.getAbsolutePath(),
-						file.lastModified(),
-						file.length());
+		return getFileAttributes(new File(absolutePath));
+	}
+	
+	private FileAttributes getFileAttributes(final File file) throws FileNotFoundException {
+		if(file.exists())
+			return new FileAttributes(
+							file.canRead(), 
+							file.canWrite(),
+							file.canExecute(),
+							file.isDirectory(),
+							file.isHidden(),
+							Files.isSymbolicLink(file.toPath()),
+							true,
+							file.getName(),
+							file.getAbsolutePath(),
+							file.lastModified(),
+							file.length());
+		else 
+			throw new FileNotFoundException(file.getAbsolutePath());
 	}
 	
 	@Override 
@@ -89,7 +108,7 @@ public class LocalFileSystemHandler extends FileSystemHandler {
 		if(file.exists())
 			throw new FileAlreadyExistsException(file.getAbsolutePath());
 		if(isDirectory ? file.mkdir() : file.createNewFile()) {
-			return getFileAttributes(file.getAbsolutePath());
+			return getFileAttributes(file);
 		} else {
 			throw new IOException("Specified name '"+ name +"' not supported by current platform");
 		}
@@ -103,25 +122,25 @@ public class LocalFileSystemHandler extends FileSystemHandler {
 			throw new AccessDeniedException(dir.absolutePath);
 		FileAttributes[] fileAttributesList = new FileAttributes[fileList.length];
 		for(int i=0; i<fileList.length; i++) {
-			fileAttributesList[i] = getFileAttributes(fileList[i].getAbsolutePath());
+			fileAttributesList[i] = getFileAttributes(fileList[i]);
 		}
 		return fileAttributesList;
 	}
 
-	@Override
+//	@Override
 	public List<FileAttributes> listRoots() throws FileNotFoundException {
 		File[] roots = File.listRoots();
 		List<FileAttributes> fileAttributesList = new ArrayList<>();
 		for(File root : roots ) {
 //		for(int i=0; i<roots.length; i++) {
 			if(root.exists()) // Some drives (eg. DVD drives shows non-existent)
-				fileAttributesList.add(getFileAttributes(root.getAbsolutePath()));
+				fileAttributesList.add(getFileAttributes(root));
 		}
 		return fileAttributesList;
 	}
 
 	@Override
-	public FileAttributes getUserHomeDirectory() throws FileNotFoundException {
+	public FileAttributes getHomeDirectory() throws FileNotFoundException {
 		if(userHomeDirectory == null)
 			userHomeDirectory = getFileAttributes(System.getProperty("user.home"));
 		return userHomeDirectory;
@@ -145,10 +164,37 @@ public class LocalFileSystemHandler extends FileSystemHandler {
 	}
 
 	@Override
-	public void printFile(FileAttributes file) throws IllegalArgumentException, IOException {
+	public void printFile(final FileAttributes file) throws IllegalArgumentException, IOException {
 		if(file.isDirectory) 
 			throw new IllegalArgumentException("Not a file");
 		else 
 			desktop.print(new File(file.absolutePath));
+	}
+
+	@Override
+	public FileAttributes setExecuteFlag(final FileAttributes file, final boolean value) throws IOException {
+		File newFile = new File(file.absolutePath);
+		if(newFile.setExecutable(value))
+			return getFileAttributes(newFile);
+		else
+			throw new IOException();
+	}
+
+	@Override
+	public FileAttributes setReadFlag(final FileAttributes file, final boolean value) throws IOException {
+		File newFile = new File(file.absolutePath);		
+		if(newFile.setReadable(value))
+			return getFileAttributes(newFile);
+		else
+			throw new IOException();
+	}
+
+	@Override
+	public FileAttributes setWriteFlag(FileAttributes file, final boolean value)  throws IOException {
+		File newFile = new File(file.absolutePath);
+		if(new File(file.absolutePath).setWritable(value))
+			return getFileAttributes(newFile);
+		else
+			throw new IOException();
 	}
 }

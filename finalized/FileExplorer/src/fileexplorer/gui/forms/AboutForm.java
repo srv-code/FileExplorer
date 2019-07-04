@@ -1,18 +1,17 @@
 package fileexplorer.gui.forms;
-
-import fileexplorer.handlers.shared.SystemResources;
 import javax.swing.ImageIcon;
+import fileexplorer.handlers.shared.SystemResources;
 
 
 public class AboutForm extends javax.swing.JFrame {
-
-    /**
+	/**
      * Creates new form AboutForm
      */
-    public AboutForm() {
+	private AboutForm() {
         initComponents();
-		fileexplorer.handlers.shared.SystemResources.getActivityLogger().logInfo("AboutForm initialized");
-    }
+		setIconImage(new ImageIcon(AboutForm.class.getResource("/images/about_big.png")).getImage());
+		SystemResources.getActivityLogger().logInfo("AboutForm initialized");
+	}
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -41,7 +40,7 @@ public class AboutForm extends javax.swing.JFrame {
             }
         });
 
-        aboutIconLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/app_icon.png"))); // NOI18N
+        aboutIconLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/app_icon_big.png"))); // NOI18N
 
         appTitleLabel.setFont(new java.awt.Font("Tahoma", 0, 24)); // NOI18N
         appTitleLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
@@ -67,12 +66,12 @@ public class AboutForm extends javax.swing.JFrame {
                 .addComponent(aboutIconLabel)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 105, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(appTitleLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 142, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(104, 104, 104))
                     .addGroup(layout.createSequentialGroup()
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                        .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 342, Short.MAX_VALUE)
                         .addContainerGap())))
         );
         layout.setVerticalGroup(
@@ -112,12 +111,10 @@ public class AboutForm extends javax.swing.JFrame {
         SystemResources.getFileExplorerForm().setEnabled(true);
     }//GEN-LAST:event_formWindowClosing
 
-    public static AboutForm init() {
+    public static void init() {
 		/* Create and display the form */        
-        AboutForm form = new AboutForm();
-        form.setIconImage(new ImageIcon(AboutForm.class.getResource("/images/about_big.png")).getImage());
+        AboutForm form = new AboutForm();        
 		form.setVisible(true);
-        return form;
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

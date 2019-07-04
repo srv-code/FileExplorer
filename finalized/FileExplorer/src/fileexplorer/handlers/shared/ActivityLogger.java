@@ -1,5 +1,6 @@
 package fileexplorer.handlers.shared;
 
+//import com.sun.org.apache.xpath.internal.XPathVisitable;
 import java.io.*;
 import java.util.*;
 
@@ -12,10 +13,13 @@ public class ActivityLogger implements AutoCloseable {
 
     
     private static ActivityLogger instance = null;
-    public static ActivityLogger getInstance() throws IOException {
+    public static ActivityLogger getInstance() {
         if(instance == null) {
-            instance = new ActivityLogger(SystemResources.APP_TEMP_DIR_PATH, SystemResources.LOG_FILE_NAME);
-//            System.out.println("Info: ActivityLogger initialized, log file: "+ instance.file.getAbsolutePath());
+			try {
+				instance = new ActivityLogger(SystemResources.APP_DIR, SystemResources.LOG_FILE_NAME);
+			} catch(IOException e) {
+				System.err.println("Err: Cannot initialise ActivityLogger. Reason: " + e);
+			}
         }
         return instance;
     }
@@ -30,6 +34,11 @@ public class ActivityLogger implements AutoCloseable {
         return file;
     }
 
+	private void updateStatusBar(final String msg) {
+		if(SystemResources.fileExplorerForm != null && SystemResources.fileExplorerForm.lblActivityStatus != null)
+			SystemResources.fileExplorerForm.lblActivityStatus.setText(msg);
+	}
+
     private static enum Level {
     	FATAL,
 		SEVERE,
@@ -38,69 +47,108 @@ public class ActivityLogger implements AutoCloseable {
 		CONFIG
     }
     
-    public void logConfig(final String formatString, final Object... args) {
-        log(Level.CONFIG, formatString, args);
+    public ActivityLogger logConfig(final String formatString, final Object... args) {
+        log(null, Level.CONFIG, formatString, args);
+		return this;
     }
     
-    public void logInfo(final String formatString, final Object... args) {
-        log(Level.INFO, formatString, args);
+    public ActivityLogger logInfo(final String formatString, final Object... args) {
+        log(null, Level.INFO, formatString, args);		
+		return this;
     }
     
-    public void logWarning(final String formatString, final Object... args) {
-        log(Level.WARNING, formatString, args);
+    public ActivityLogger logWarning(final String formatString, final Object... args) {
+        log(null, Level.WARNING, formatString, args);
+		return this;
     }
     
-    public void logSevere(final String formatString, final Object... args) {
-        log(Level.SEVERE, formatString, args);
+    public ActivityLogger logSevere(final Throwable throwable, final String formatString, final Object... args) {
+        log(throwable, Level.SEVERE, formatString, args);
+		updateErrorCounter();
+		return this;
     }
     
-    public void logFatal(final String formatString, final Object... args) {
-        log(Level.FATAL, formatString, args);
+    public ActivityLogger logFatal(final Throwable throwable, final String formatString, final Object... args) {
+        log(throwable, Level.FATAL, formatString, args);
+		updateErrorCounter();
+		return this;
     }
 
     /** Does the main logging job */
-    private void log(final Level level,
+    private void log(final Throwable throwable, final Level level,
                     final String formatString, final Object... args) {
         try {
             // build the record 
             String[] record = new String[4];
-            record[0] = String.format("%tY/%<tm/%<td %<tH:%<tM:%<tS.%<tL.%<tN %<ta", new Date()); // date
-            record[1] = level.toString(); // level
+            record[0] = String.format("%tY/%<tm/%<td %<tH:%<tM:%<tS.%<tL %<ta", new Date()); // date
+            record[1] = String.format("%8s", level); // level
 
             Exception e = new Exception();
             e.fillInStackTrace();
             record[2] = e.getStackTrace()[2].toString(); // caller location
             record[3] = String.format(formatString, args); // log string
+			
+			if(level == Level.INFO) {
+				updateStatusBar(record[3]);
+			}
+				
 
             // add record to list
             logs.add(record);
 
             // write record to file
             for(String field : record) {
-                writer.write(field);
-                writer.write("    ");
+				if(writer!=null)
+					writer	.append(field)
+							.append("    ");
 				
 				// Print to console for east debugging
 				System.out.print(field);
 				System.out.print("    ");
             }
-            writer.write(SystemResources.PLATFORM_LINE_SEPARATOR);
+			
+			if(throwable != null) {
+				if(writer!=null) {
+					writer	.append(SystemResources.PLATFORM_LINE_SEPARATOR)
+							.append("Stack trace:")
+							.append(SystemResources.PLATFORM_LINE_SEPARATOR);
+					for(StackTraceElement element : throwable.getStackTrace())
+						writer	.append("    ")
+								.append(element.toString())
+								.append(SystemResources.PLATFORM_LINE_SEPARATOR);					
+				}
+				System.err.println("\nStack trace:");
+				throwable.printStackTrace(System.err);
+			}
+			
+			if(writer!=null) {
+				writer.write(SystemResources.PLATFORM_LINE_SEPARATOR);
+				writer.flush();
+			}
+			
 			System.out.println();
-            writer.flush();
         } catch(Exception e) {
-            System.err.printf("Err: Cannot write to log file. File='%s', Timestamp=%s, Exception=%s\n", 
+            System.err.printf("ERR: Cannot write to log file. File='%s', Timestamp=%s, Exception=%s\n", 
                     file.getAbsolutePath(), new Date(), e);
         }
     }
+	
+	private long errorCount = 0L;
+	private void updateErrorCounter() {
+		errorCount++;
+		if(SystemResources.fileExplorerForm != null && SystemResources.fileExplorerForm.lblErrorCount != null)
+			SystemResources.fileExplorerForm.lblErrorCount.setText(String.valueOf(errorCount));
+	}
     
-    public String getStackTrace(final Exception e) {
+	@Deprecated 
+    public String getStackTrace(final Throwable throwable) {
 		StringBuilder stackTrace = new StringBuilder();
-        stackTrace	.append(e)
+        stackTrace	.append(throwable)
 					.append(SystemResources.PLATFORM_LINE_SEPARATOR);
 		
-        for(StackTraceElement ste : e.getStackTrace())
+        for(StackTraceElement element : throwable.getStackTrace())
             stackTrace  .append("    ")
-						.append(ste)
+						.append(element)
                         .append(SystemResources.PLATFORM_LINE_SEPARATOR);
 
         return stackTrace.toString();
@@ -116,7 +164,8 @@ public class ActivityLogger implements AutoCloseable {
 
     @Override
     public void close() throws IOException {
-        writer.close();
+        if(writer != null)
+			writer.close();
 		isClosed = true;
 //        System.out.println("Info: ActivityLogger closed");
     }

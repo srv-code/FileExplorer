@@ -12,8 +12,20 @@ public class ConsoleTests {
 //        new PreferencesTest().setPreferenceTest();
 //		stackTraceTest();
 //		systemDefaultIconTest();
-		testDesktop();
+//		testDesktop();
+		changePermBits();
     }
+	
+	private static void changePermBits() {
+		File file = new File("c:/users/soura/desktop/aaa.txt");
+		System.out.printf("file.exists()=%s\n", file.exists());
+		System.out.printf("file.canWrite()=%b, file.setWritable(%b)=%b\n", 
+				file.canWrite(), !file.canWrite(), file.setWritable(!file.canWrite()));
+		System.out.printf("file.canRead()=%b, file.setReadable(%b)=%b\n", 
+				file.canRead(), !file.canRead(), file.setReadable(!file.canRead()));
+		System.out.printf("file.canExecute()=%b, file.setExecutable(%b)=%b\n", 
+				file.canExecute(), !file.canExecute(), file.setExecutable(!file.canExecute()));
+	}
 	
 	private static void testDesktop() throws Exception {
 		Desktop desktop = Desktop.getDesktop();

@@ -3,10 +3,12 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package gui.mytests;
+package fileexplorer.gui.forms;
 
-import gui.mytests.handlers.fs.FileAttributes;
-import gui.mytests.handlers.fs.FileSystemHandler;
+//import gui.mytests.handlers.fs.FileAttributes;
+//import gui.mytests.handlers.fs.FileSystemHandler;
+import fileexplorer.handlers.fs.FileAttributes;
+import fileexplorer.handlers.fs.FileSystemHandler;
 import java.awt.Color;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultEditorKit;
@@ -194,7 +196,7 @@ public class OperationProgressForm extends javax.swing.JFrame {
 			case "rm": operationType = OperationType.DELETE; break;
 			default: throw new IllegalArgumentException(args[2]);
 		}
-		FileSystemHandler fileSystemHandler = FileSystemHandler.getHandler("C:\\");
+		FileSystemHandler fileSystemHandler = FileSystemHandler.getLocalHandler("C:\\");
 		FileAttributes src = fileSystemHandler.getFileAttributes(args[0]);
 		FileAttributes dst = null;
 		if(operationType!=OperationType.DELETE) {
@@ -209,7 +211,7 @@ public class OperationProgressForm extends javax.swing.JFrame {
 	
 	private static OperationProgressForm frame;
 	
-	public static OperationProgressForm init(	final OperationType operationType, 
+	public static void init(	final OperationType operationType, 
 												final FileSystemHandler fileSystemHandler,
 												final FileAttributes src,
 												final FileAttributes dst) {
@@ -221,7 +223,6 @@ public class OperationProgressForm extends javax.swing.JFrame {
 				frame.execute();
 			}
 		});
-		return frame;
 	}
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

@@ -10,7 +10,11 @@ import java.io.*;
 
 
 public class SystemResources {
-	public final static List<String> LOOKnFEEL_NAMES = Arrays.asList("Windows", "Windows Classic");
+	public final static List<String> LOOKnFEEL_CLASSNAMES 
+			= Arrays.asList(	"javax.swing.plaf.nimbus.NimbusLookAndFeel", // TODO name as 'macOS'
+								"com.sun.java.swing.plaf.windows.WindowsLookAndFeel", // TODO name as 'Windows'
+								"com.sun.java.swing.plaf.windows.WindowsClassicLookAndFeel", // TODO name as 'Windows old'
+								"com.sun.java.swing.plaf.gtk.GTKLookAndFeel"); // TODO name as 'Ubuntu'
 	
 	public static class IconRegistry {
 		private static IconRegistry instance = null;

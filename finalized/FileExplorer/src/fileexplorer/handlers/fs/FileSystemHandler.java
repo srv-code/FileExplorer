@@ -1,4 +1,4 @@
-package gui.mytests.handlers.fs;
+package fileexplorer.handlers.fs;
 
 import java.awt.Desktop;
 import java.io.FileNotFoundException;
@@ -17,6 +17,7 @@ public abstract class FileSystemHandler {
 	protected FileAttributes userHomeDirectory = null, defaultStartLocation = null;
 	protected final Desktop desktop = Desktop.getDesktop();
 	public final boolean isDesktopSupported = Desktop.isDesktopSupported();
+//	public boolean isRemoteHandler;
 	
 	public final NavigationHistoryHandler historyHandler = new NavigationHistoryHandler();
 	
@@ -32,10 +33,17 @@ public abstract class FileSystemHandler {
 		return file;
 	}
 	
-	protected FileSystemHandler(final String absolutePath) throws FileNotFoundException, InvalidPathException {
-		navigateTo(absolutePath, true);
-//		historyHandler.clear();
-	}
+	public abstract FileAttributes setExecuteFlag(final FileAttributes file, final boolean value) throws IOException;
+	public abstract FileAttributes setReadFlag(final FileAttributes file, final boolean value) throws IOException;
+	public abstract FileAttributes setWriteFlag(final FileAttributes file, final boolean value) throws IOException;
+	
+//	public abstract Object getAttribute(final String key);
+	
+//	protected FileSystemHandler(final String fileSystemID) throws FileNotFoundException, InvalidPathException {
+//		this.fileSystemID = fileSystemID;
+////		navigateTo(absolutePath, true);
+////		historyHandler.clear();
+//	}
 	
 	public abstract FileAttributes rename(final FileAttributes file, final String newName) throws IOException;
 	
@@ -101,9 +109,9 @@ public abstract class FileSystemHandler {
 	public abstract FileAttributes createNew(final String name, final boolean isDirectory) throws IOException, FileAlreadyExistsException;
 	
 	public abstract FileAttributes[] listFiles(final FileAttributes dir) throws InvalidPathException, FileNotFoundException, AccessDeniedException;
-	public abstract List<FileAttributes> listRoots() throws FileNotFoundException;
+//	public abstract List<FileAttributes> listRoots() throws FileNotFoundException;
 	
-	public abstract FileAttributes getUserHomeDirectory() throws FileNotFoundException;
+	public abstract FileAttributes getHomeDirectory() throws FileNotFoundException;
 //	public abstract FileAttributes getTrashBinDirectory() throws FileNotFoundException;
 	
 	public abstract void openFile(final FileAttributes file) throws UnsupportedOperationException, IOException;
@@ -113,8 +121,16 @@ public abstract class FileSystemHandler {
 	/** 
 	 * Returns the proper FileSystem subclass object. Detects for local/remote file.
 	 */
-	public static FileSystemHandler getHandler(final String absolutePath) throws FileNotFoundException, InvalidPathException {
-		return absolutePath.toLowerCase().startsWith("ftp") ? 
-				new RemoteFileSystemHandler(absolutePath) : new LocalFileSystemHandler(absolutePath);
+//	public static FileSystemHandler getHandler(final String absolutePath) throws FileNotFoundException, InvalidPathException {
+//		return absolutePath.toLowerCase().startsWith("ftp") ? 
+//				new RemoteFileSystemHandler(absolutePath) : new LocalFileSystemHandler(absolutePath);
+//	}
+	
+	public static FileSystemHandler getRemoteHandler(final String address, final String username, final String password) throws FileNotFoundException, InvalidPathException {
+		return new RemoteFileSystemHandler(address, username, password);
+	}
+	
+	public static FileSystemHandler getLocalHandler(final String path) throws FileNotFoundException, InvalidPathException {
+		return new LocalFileSystemHandler(path);
 	}
 }
