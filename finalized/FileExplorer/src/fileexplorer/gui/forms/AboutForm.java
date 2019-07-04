@@ -1,17 +1,17 @@
 package fileexplorer.gui.forms;
-
 import javax.swing.ImageIcon;
+import fileexplorer.handlers.shared.SystemResources;
 
 
 public class AboutForm extends javax.swing.JFrame {
-
-    /**
+	/**
      * Creates new form AboutForm
      */
-    public AboutForm() {
+	private AboutForm() {
         initComponents();
-		fileexplorer.handlers.shared.SystemResources.getActivityLogger().logInfo("AboutForm initialized");
-    }
+		setIconImage(new ImageIcon(AboutForm.class.getResource("/images/about_big.png")).getImage());
+		SystemResources.getActivityLogger().logInfo("AboutForm initialized");
+	}
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -34,8 +34,13 @@ public class AboutForm extends javax.swing.JFrame {
         setResizable(false);
         setSize(new java.awt.Dimension(140, 300));
         setType(java.awt.Window.Type.UTILITY);
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowClosing(java.awt.event.WindowEvent evt) {
+                formWindowClosing(evt);
+            }
+        });
 
-        aboutIconLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/about_big.png"))); // NOI18N
+        aboutIconLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/app_icon_big.png"))); // NOI18N
 
         appTitleLabel.setFont(new java.awt.Font("Tahoma", 0, 24)); // NOI18N
         appTitleLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
@@ -61,12 +66,12 @@ public class AboutForm extends javax.swing.JFrame {
                 .addComponent(aboutIconLabel)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 112, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(appTitleLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 142, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(104, 104, 104))
                     .addGroup(layout.createSequentialGroup()
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                        .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 342, Short.MAX_VALUE)
                         .addContainerGap())))
         );
         layout.setVerticalGroup(
@@ -78,10 +83,10 @@ public class AboutForm extends javax.swing.JFrame {
                         .addComponent(aboutIconLabel)
                         .addGap(0, 0, Short.MAX_VALUE))
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(18, 18, 18)
+                        .addContainerGap()
                         .addComponent(appTitleLabel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 164, Short.MAX_VALUE)))
+                        .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 171, Short.MAX_VALUE)))
                 .addContainerGap())
         );
 
@@ -102,36 +107,14 @@ public class AboutForm extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_appDescTextPaneHyperlinkUpdate
 
-    public static AboutForm init() {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(AboutForm.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(AboutForm.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(AboutForm.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(AboutForm.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
+    private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
+        SystemResources.getFileExplorerForm().setEnabled(true);
+    }//GEN-LAST:event_formWindowClosing
 
-        /* Create and display the form */
-        
-        AboutForm form = new AboutForm();
-        form.setVisible(true);
-        form.setIconImage(new ImageIcon(AboutForm.class.getResource("/images/about.png")).getImage());
-        return form;
+    public static void init() {
+		/* Create and display the form */        
+        AboutForm form = new AboutForm();        
+		form.setVisible(true);
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

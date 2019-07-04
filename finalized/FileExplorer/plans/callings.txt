@@ -1,0 +1,56 @@
+			:: Design ::
+SystemHandler -> FileExplorerForm.init();
+
+FileExplorerForm.init()
+	-> FileExplorerForm()
+	-> addNewTab()
+		-> addNewTab(null)
+			-> fileSystemHandler = FileSystemHandler.getLocalHandler(path=null) {null=user.home}
+			-> addNewTab(fileSystemHandler)
+				-> {constructs lblTabTitle with text & icon}
+				-> ListViewFrame.init(lblTabTitle, fileSystemHandler)
+	
+BookmarkedItem
+	-> addNewTab(path={BookmarkedItem.absolutePath})
+	-> fileSystemHandler = FileSystemHandler.getLocalHandler(path)
+	-> addNewTab(fileSystemHandler)
+		-> {constructs lblTabTitle with text & icon}
+		-> ListViewFrame.init(lblTabTitle, fileSystemHandler)
+	
+RemoteLoginForm 
+	-> fileSystemHandler = FileSystemHandler.getRemoteHandler(host, username, password)
+	-> return fileSystemHandler.connect() ? fileSystemHandler : null; {remote handler always starts from root dir}
+	-> if(fileSystemHandler != null) addNewTab(fileSystemHandler)
+		-> {constructs lblTabTitle with text & icon}
+		-> ListViewFrame.init(lblTabTitle, fileSystemHandler)
+		
+---------------------------------------------------------------------------------------------------------------------------------------------------
+Bookmark handling: 
+	FileExplorerForm:
+		ListViewFrame :: init(..., bookmarkHandler)
+		void setBookmarks()
+		BookmarkHandler :: void removeAllSiblings(DefaultMutableTreeNode)
+		void openBookmarkedItem(BookmarkedItem item, boolean openInNewTab)
+		void openBookmarkedItemLocation(BookmarkedItem item)
+		BookmarkHandler :: void renameBookmarkedItem(BookmarkedItem item)
+		void removeBookmark(BookmarkedItem item)
+	
+	ListViewFrame:
+		BookmarkHandler :: void add(FileAttributes[])
+		BookmarkHandler :: boolean removeCurrentWorkingDirectory()
+		
+	BookmarkHandler:
+		Take all DefaultMutableTreeNode in constructor: 
+			final DefaultMutableTreeNode treeNodeDrives,
+			final DefaultMutableTreeNode treeNodeLibrary,
+			final DefaultMutableTreeNode treeNodeBookmarks,
+			final DefaultMutableTreeNode treeNodeRemoteServers
+			
+		void addBookmarks(FileAttributes[] files);	
+		void addDrives(...)
+		void remoteServers(...)
+		move FileExplorerForm.setBookmarks() -> BookmarkHandler.init();
+---------------------------------------------------------------------------------------------------------------------------------------------------
+Globals:
+	{paste-handling}
+	

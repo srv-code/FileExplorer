@@ -1,0 +1,30 @@
+Move to Globals:
+	private FileAttributes[] filetoPaste = null;
+	private enum PasteOperation { CUT, COPY, NONE }
+	private PasteOperation pasteOperation = PasteOperation.NONE;
+	private DefaultMutableTreeNode selectedBookmarkNode = null;
+	
+--------------------------------------------------------------------------------------------------------------------------------------------
+Remove/comment out main() from all modules except Main.class 
+Modify all init() to newer design
+--------------------------------------------------------------------------------------------------------------------------------------------
+fix:
+	set up bookmarks
+	PropertiesForm -> button irregular sizes
+	simplify NavigationHistoryHandler to throw less error
+--------------------------------------------------------------------------------------------------------------------------------------------
+Update UI:
+	file count 
+	status bar 
+	error count
+--------------------------------------------------------------------------------------------------------------------------------------------
+Remove unsupported/undeveloped options:
+	Open with...
+	Create shortcut
+	
+Check options: 
+	rename 
+	delete
+	
+To Do: 
+	Clear all context menu options (both) before a new load 
