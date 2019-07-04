@@ -7,6 +7,11 @@
 # BlueJ files
 *.ctxt
 
+# Windows specifics
+thumbs.db
+desktop.ini
+*.lnk
+
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
 
@@ -21,14 +26,31 @@
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
-/test/FileExplorerTests/nbproject/private/
-/test/FileExplorerTests/build/
-/test/challenges/nbproject/private/
+
+# plan files I make
+*.plan
+
+# directories 
+#/finalized/FileExplorer/test/
+#/finalized/FileExplorer/resources/
+#/finalized/FileExplorer/lib/
+#/finalized/FileExplorer/dist/
+#/finalized/FileExplorer/build/
+#/test/challenges/nbproject/private/
+#/test/FileExplorerTests/nbproject/private/
+#/test/FileExplorerTests/resources/
+#/test/FileExplorerTests/dist/
+#/test/FileExplorerTests/tmp/
+#/test/FileExplorerTests/test/
+#/test/FileExplorerTests/out/
+#/test/FileExplorerTests/lib/
+#/test/FileExplorerTests/build/
 
 .idea/
-
 build/
-resources/
+#resources/
 dist/
 lib/
 tmp/
+out/
+artifacts/
