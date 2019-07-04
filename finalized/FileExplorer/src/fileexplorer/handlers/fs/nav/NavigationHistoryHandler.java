@@ -1,5 +1,7 @@
-package fileexplorer.handlers.fs;
+package fileexplorer.handlers.fs.nav;
 
+import fileexplorer.handlers.fs.FileAttributes;
+import fileexplorer.handlers.fs.FileSystemHandler;
 import java.util.*;
 
 
@@ -8,19 +10,23 @@ public class NavigationHistoryHandler {
 	private int position=-1;
 	private int lastPosition = -1;
 	
-	NavigationHistoryHandler() {}
+	public NavigationHistoryHandler() {}
 	
 	/* package-private methods */
-	void append(final FileAttributes dir) {
+	public void append(final FileAttributes dir) {
 		list.add(dir);
 		lastPosition = position;
 		position=list.size()-1;
 	}
 			
-	FileAttributes removeCurrent() {		
-		list.remove(position);
-		position = lastPosition==list.size() ? --lastPosition : lastPosition;
-		return list.get(position);
+	public FileAttributes removeCurrent() throws NavigationException {
+		try {
+			list.remove(position);
+			position = lastPosition==list.size() ? --lastPosition : lastPosition;
+			return list.get(position);
+		} catch(Exception e) {
+			throw new NavigationException(e);
+		}
 	}
 	
 	void clear() {
@@ -32,10 +38,14 @@ public class NavigationHistoryHandler {
 	 * @return Previous visited path or null if 
 	 * no more backward path in history is present
 	 */
-	public FileAttributes backward() {
+	public FileAttributes backward() throws NavigationException {
 		if(canGoBackward()) {
-			lastPosition = position;
-			return list.get(--position);
+			try {
+				lastPosition = position;
+				return list.get(--position);
+			} catch(Exception e) {
+				throw new NavigationException(e);
+			}
 		} else 
 			return null;
 	}
@@ -48,10 +58,14 @@ public class NavigationHistoryHandler {
 	 * @return Next visited path or null if 
 	 * no more forward path in history is present
 	 */
-	public FileAttributes forward() {
+	public FileAttributes forward() throws NavigationException {
 		if(canGoForward()) {
-			lastPosition = position;
-			return list.get(++position);
+			try {
+				lastPosition = position;
+				return list.get(++position);
+			} catch(Exception e) {
+				throw new NavigationException(e);
+			}
 		} else 
 			return null;
 	}

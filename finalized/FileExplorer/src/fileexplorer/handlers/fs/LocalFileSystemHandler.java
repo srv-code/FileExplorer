@@ -60,9 +60,6 @@ public class LocalFileSystemHandler extends FileSystemHandler {
 			throw new IOException("Unknown");
 	}
 
-	/**
-	 * @param absolutePath Must be an absolute path
-	 */
 	@Override
 	public FileAttributes getFileAttributes(final String absolutePath) throws FileNotFoundException {
 		return getFileAttributes(new File(absolutePath));
@@ -141,10 +138,20 @@ public class LocalFileSystemHandler extends FileSystemHandler {
 
 	@Override
 	public FileAttributes getHomeDirectory() throws FileNotFoundException {
-		if(userHomeDirectory == null)
-			userHomeDirectory = getFileAttributes(System.getProperty("user.home"));
+		if(userHomeDirectory == null) {
+			try {
+				userHomeDirectory = getFileAttributes(getUserHomeDirectoryPath());
+			} catch(FileNotFoundException e) {
+				userHomeDirectory = getRootDirectory();
+			}
+		}
 		return userHomeDirectory;
 	}
+	
+	@Override 
+	public FileAttributes getRootDirectory() throws FileNotFoundException {
+		return getFileAttributes(ROOT_PATH);
+	};
 
 //	@Override
 //	public FileAttributes getTrashBinDirectory() {

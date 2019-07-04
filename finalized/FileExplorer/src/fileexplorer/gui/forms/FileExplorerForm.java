@@ -53,7 +53,10 @@ public class FileExplorerForm extends javax.swing.JFrame {
 		
 		form.setVisible(true);
 		form.addNewTab(form.HOME_DIR);
-		form.lblItemsSelected.setText(String.valueOf(form.getSelectedForm().fileList.length));
+//		System.out.printf("  // form==null: %b, form.lblItemsSelected==null: %b, form.getSelectedForm()==null: %b, form.getSelectedForm().fileList==null: %b\n", 
+//				form==null, form.lblItemsSelected==null, 
+//				form.getSelectedForm()==null, form.getSelectedForm().fileList==null);
+//		form.lblItemsSelected.setText(String.valueOf(form.getSelectedForm().fileList.length));
 		return form;
 	}
 	
@@ -64,6 +67,7 @@ public class FileExplorerForm extends javax.swing.JFrame {
     private FileExplorerForm() {
 		logger.logInfo("Initialising FileExplorerForm...");
         initComponents();
+		panelFolderListLoad.setVisible(false); // initial state 
 		try {   
 			localFileSystemHandler = (LocalFileSystemHandler)FileSystemHandler.getLocalHandler(null);
 		} catch(FileNotFoundException|InvalidPathException e) {
@@ -224,6 +228,8 @@ public class FileExplorerForm extends javax.swing.JFrame {
         /* Custom code */
         treeQuickAccess = new javax.swing.JTree();
         panelStatus = new javax.swing.JPanel();
+        progressBar = new javax.swing.JProgressBar();
+        btnCancelTableUpdate = new javax.swing.JButton();
         menubarMain = new javax.swing.JMenuBar();
         menuFile = new javax.swing.JMenu();
         menuCreate = new javax.swing.JMenu();
@@ -411,6 +417,27 @@ public class FileExplorerForm extends javax.swing.JFrame {
         lblErrorCount.setBorder(javax.swing.BorderFactory.createEtchedBorder());
         lblErrorCount.setIconTextGap(5);
         panelStatus.add(lblErrorCount, java.awt.BorderLayout.LINE_END);
+
+        panelFolderListLoad.setLayout(new java.awt.BorderLayout());
+
+        progressBar.setFont(new java.awt.Font("sansserif", 1, 10)); // NOI18N
+        progressBar.setIndeterminate(true);
+        progressBar.setPreferredSize(new java.awt.Dimension(150, 17));
+        progressBar.setString(bundle.getString("FileExplorerForm.progressBar.string")); // NOI18N
+        progressBar.setStringPainted(true);
+        panelFolderListLoad.add(progressBar, java.awt.BorderLayout.CENTER);
+
+        btnCancelTableUpdate.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/close_tab_button_small.png"))); // NOI18N
+        btnCancelTableUpdate.setText(bundle.getString("FileExplorerForm.btnCancelTableUpdate.text")); // NOI18N
+        btnCancelTableUpdate.setPreferredSize(new java.awt.Dimension(17, 17));
+        btnCancelTableUpdate.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnCancelTableUpdateActionPerformed(evt);
+            }
+        });
+        panelFolderListLoad.add(btnCancelTableUpdate, java.awt.BorderLayout.LINE_END);
+
+        panelStatus.add(panelFolderListLoad, java.awt.BorderLayout.PAGE_START);
 
         getContentPane().add(panelStatus, java.awt.BorderLayout.PAGE_END);
 
@@ -821,8 +848,16 @@ public class FileExplorerForm extends javax.swing.JFrame {
          System.out.println("  // tabbedPane.getComponentAt(0)=" + tabbedPane.getComponentAt(0).getClass().getName());
     }//GEN-LAST:event_menuitemReloadCurrentFolderActionPerformed
 
+    private void btnCancelTableUpdateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelTableUpdateActionPerformed
+        SwingWorker worker = getSelectedForm().currentUpdateTableListWorker;
+		if(worker != null)
+			worker.cancel(true);
+			
+    }//GEN-LAST:event_btnCancelTableUpdateActionPerformed
+
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnCancelTableUpdate;
     private javax.swing.ButtonGroup btngpAppLanguage;
     private javax.swing.ButtonGroup btngpAppTheme;
     private javax.swing.ButtonGroup btngpViewLayoutStyle;
@@ -878,8 +913,10 @@ public class FileExplorerForm extends javax.swing.JFrame {
     private javax.swing.JRadioButtonMenuItem menuitemTreeLayoutRadioButton;
     private javax.swing.JMenuItem menuitemViewDiagnostics;
     private javax.swing.JMenuItem menuitemViewPreferences;
+    public final javax.swing.JPanel panelFolderListLoad = new javax.swing.JPanel();
     private javax.swing.JPanel panelStatus;
     private javax.swing.JPopupMenu popupBookmarkedItems;
+    private javax.swing.JProgressBar progressBar;
     private javax.swing.JScrollPane scrollpaneTreeQuickAccess;
     private final javax.swing.JTabbedPane tabbedPane = new javax.swing.JTabbedPane();
     private javax.swing.JTree treeQuickAccess;

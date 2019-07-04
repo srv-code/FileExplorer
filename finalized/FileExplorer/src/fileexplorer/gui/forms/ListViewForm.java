@@ -2,6 +2,7 @@ package fileexplorer.gui.forms;
 
 import fileexplorer.handlers.fs.FileAttributes;
 import fileexplorer.handlers.fs.FileSystemHandler;
+import fileexplorer.handlers.fs.nav.NavigationException;
 import fileexplorer.handlers.shared.ActivityLogger;
 import fileexplorer.handlers.shared.BookmarkHandler;
 import fileexplorer.handlers.shared.BookmarkedItem;
@@ -10,6 +11,8 @@ import fileexplorer.handlers.shared.SystemResources.IconRegistry;
 import fileexplorer.handlers.shared.SystemResources.IconRegistry.IconSize;
 import java.awt.*;
 import java.awt.event.*;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import javax.swing.*;
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
@@ -93,7 +96,7 @@ public class ListViewForm extends JPanel {
 		jSeparator2.setVisible(true);
 		menuCut.setVisible(true);
 		menuCopy.setVisible(true);
-//		menuPaste.setVisible(pasteOperation != PasteOperation.NONE); // TODO complete
+		menuPaste.setVisible(SystemResources.pasteOperation != SystemResources.PasteOperation.NONE);
 		menuRename.setVisible(true);
 		menuDelete.setVisible(true);
         jSeparator5.setVisible(true);
@@ -318,6 +321,11 @@ public class ListViewForm extends JPanel {
         popupFileSelected.add(menuCopy);
 
         menuPaste.setText("Paste");
+        menuPaste.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                menuPasteActionPerformed(evt);
+            }
+        });
         popupFileSelected.add(menuPaste);
 
         menuRename.setText("Rename");
@@ -558,12 +566,13 @@ public class ListViewForm extends JPanel {
     }//GEN-LAST:event_menuNewFolderActionPerformed
 
     private void menuCutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuCutActionPerformed
-        //		treeNodeRemoteServers.add(new DefaultMutableTreeNode(
-            //				new BookmarkedItem("abc", BookmarkedItem.TYPE_REMOTE_SERVER, "C:\\")));
+		SystemResources.pasteOperation = SystemResources.PasteOperation.CUT;
+		SystemResources.filesToPaste = selectedFiles;
     }//GEN-LAST:event_menuCutActionPerformed
 
     private void menuCopyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuCopyActionPerformed
-
+		SystemResources.pasteOperation = SystemResources.PasteOperation.COPY;
+		SystemResources.filesToPaste = selectedFiles;
     }//GEN-LAST:event_menuCopyActionPerformed
 
     private void menuRenameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuRenameActionPerformed
@@ -715,28 +724,46 @@ public class ListViewForm extends JPanel {
     }//GEN-LAST:event_menuPropertiesActionPerformed
 
     private void btnGoBackInHistoryActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGoBackInHistoryActionPerformed
-        FileAttributes dir = fileSystemHandler.historyHandler.backward();
-        System.out.println("  // back: " + dir.absolutePath);
+        FileAttributes dir = null;
+		NavigationException exc = null;
+		try {
+			dir = fileSystemHandler.historyHandler.backward();
+		} catch(NavigationException e) {
+			exc = e;
+		}
+//        System.out.println("  // back: " + dir.absolutePath);
         if(dir == null) {
-            System.err.println("Err: (Logic) Cannot move back in history: Navigation limit reached"); // log error
-            JOptionPane.showMessageDialog(	this,
-                "Cannot move back in history: Navigation limit reached",
-                "Navigation error",
-                JOptionPane.ERROR_MESSAGE);
+			logger.logFatal(exc, "(Logic Error) Cannot move backward in history from: %s. Reason: %s", 
+					fileSystemHandler.getCurrentWorkingDirectory().absolutePath,
+					exc==null? "Navigation limit reached" : exc.toString());
+			btnGoBackInHistory.setEnabled(false);
+//			JOptionPane.showMessageDialog(	this,
+//							"Cannot move back in history: Navigation limit reached",
+//							"Navigation error",
+//							JOptionPane.ERROR_MESSAGE);
             return;
         }
         loadPath(dir, false);
     }//GEN-LAST:event_btnGoBackInHistoryActionPerformed
 
     private void btnGoForwardInHistoryActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGoForwardInHistoryActionPerformed
-        FileAttributes dir = fileSystemHandler.historyHandler.forward();
-        System.out.println("  // fwd: " + dir.absolutePath);
+        FileAttributes dir = null;
+		NavigationException exc = null;
+		try {
+			dir = fileSystemHandler.historyHandler.forward();
+		} catch(NavigationException e) {
+			exc = e;
+		}
+//        System.out.println("  // fwd: " + dir.absolutePath);
         if(dir == null) {
-            System.err.println("Err: (Logic) Cannot move forward in history: Navigation limit reached"); // log error
-            JOptionPane.showMessageDialog(	this,
-                "Cannot move forward in history: Navigation limit reached",
-                "Navigation error",
-                JOptionPane.ERROR_MESSAGE);
+			logger.logFatal(exc, "(Logic Error) Cannot move forward in history from: %s. Reason: %s", 
+					fileSystemHandler.getCurrentWorkingDirectory().absolutePath,
+					exc==null? "Navigation limit reached" : exc.toString());
+			btnGoForwardInHistory.setEnabled(false);
+//            JOptionPane.showMessageDialog(	this,
+//                "Cannot move forward in history: Navigation limit reached",
+//                "Navigation error",
+//                JOptionPane.ERROR_MESSAGE);
             return;
         }
         loadPath(dir, false);
@@ -813,7 +840,8 @@ public class ListViewForm extends JPanel {
             //		TableModel tableModel = source.getModel();
             //		System.out.printf("  // getSelectedRowCount()=%d, selected row indices=[", tableFileList.getSelectedRowCount());
             int[] selectedRows = tableFileList.getSelectedRows();
-			SystemResources.fileExplorerForm.lblActivityStatus.setText(selectedRows.length + " items selected");
+			if(SystemResources.fileExplorerForm != null)
+				SystemResources.fileExplorerForm.lblActivityStatus.setText(selectedRows.length + " items selected");
             //		for(int viewRow : selectedRows)
             //			System.out.printf("{v=%d,m=%d} ", viewRow, tableFileList.convertRowIndexToModel(viewRow));
 
@@ -836,6 +864,10 @@ public class ListViewForm extends JPanel {
     private void menuOpenInNewTabActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuOpenInNewTabActionPerformed
         SystemResources.fileExplorerForm.addNewTab(selectedFiles[0].absolutePath);
     }//GEN-LAST:event_menuOpenInNewTabActionPerformed
+
+    private void menuPasteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuPasteActionPerformed
+        
+    }//GEN-LAST:event_menuPasteActionPerformed
 
 	private void updateTabTitleBar(final FileAttributes dir) {
 		lblTabTitle.setText("".equals(dir.name) ? dir.absolutePath : dir.name);
@@ -883,56 +915,114 @@ public class ListViewForm extends JPanel {
 		}
 		updateTableList(true);
 	} 
+	
+	class UpdateTableListWorker extends SwingWorker<Void, Void> implements PropertyChangeListener {
+		private final boolean loadFresh;
+		
+		UpdateTableListWorker(final boolean loadFresh) {
+			this.loadFresh = loadFresh;
+		}
+		
+		
+		/* Main task. Executed in background thread. */
+		@Override
+		public Void doInBackground() {
+			try {
+				FileAttributes cwd = fileSystemHandler.getCurrentWorkingDirectory();
+				logger.logInfo("%s table list for path='%s'", 
+						loadFresh ? "Updating" : "Restoring", cwd.absolutePath);
+
+				if(loadFresh)
+					fileList = setDirectoryFirstArrangement(fileSystemHandler.listFiles(cwd));
+
+				tableFileList.getRowSorter().setSortKeys(null);
+				setTableRows(fileList);
+				txtPathAddress.setText(cwd.absolutePath);
+
+				// update navigation button states
+				btnGoBackInHistory.setEnabled(fileSystemHandler.historyHandler.canGoBackward());
+				btnGoForwardInHistory.setEnabled(fileSystemHandler.historyHandler.canGoForward());
+				btnGoToParentDir.setEnabled(fileSystemHandler.canGoToParent());
+				btnBookmarkIndicator.setSelected(bookmarkHandler.containsBookmarkFile(cwd));
+				updateTabTitleBar(cwd);
+				logger.logInfo("Folder list %s for path: %s", loadFresh ? "loaded" : "restored", cwd.absolutePath);
+			} catch(Exception e) {
+				JOptionPane.showMessageDialog(	SystemResources.fileExplorerForm,
+												String.format("Cannot update table list!\n  Path: %s\n  Reason: %s",
+														fileSystemHandler.getCurrentWorkingDirectory().absolutePath, e),
+												"Directory listing error",
+												JOptionPane.ERROR_MESSAGE);
+				logger.logSevere(e, "Cannot update table list: %s",  e);
+
+	//			System.out.println("  // reverting...");
+	//			System.out.println("  // before: cwd=" + fileSystemHandler.getCurrentWorkingDirectory() + 
+	//					", history=" + fileSystemHandler.historyHandler);			
+				try {
+					fileSystemHandler.revertLastNavigation();
+				} catch(NavigationException e1) {
+					logger.logSevere(e1, "Cannot revert to last navigated path from: %s, defaulting to home directory. Reason: %s", 
+							fileSystemHandler.getCurrentWorkingDirectory().absolutePath,
+							e1);
+				}
+				try {
+					fileSystemHandler.setCurrentWorkingDirectoryToHomeDirectory();
+				} catch(FileNotFoundException e1) {
+					JOptionPane.showMessageDialog(	SystemResources.fileExplorerForm,
+													String.format("Cannot move to home directory from: %s!",
+															fileSystemHandler.getCurrentWorkingDirectory().absolutePath),
+													"Directory listing error",
+													JOptionPane.ERROR_MESSAGE);
+					logger.logFatal(e1, "Cannot move to home directory from %s: %s",
+							fileSystemHandler.getCurrentWorkingDirectory().absolutePath, e1);
+				}
+
+	//			System.out.println("  // after: cwd=" + fileSystemHandler.getCurrentWorkingDirectory() + 
+	//					", history=" + fileSystemHandler.historyHandler);
+	//			setTableRows(lastFileListing); // populating with last successful file listing
+
+				updateTableList(false); // load from cache
+
+	//			System.out.println("  // done");
+	//			System.out.println("Info: Reverted to last folder listing"); // TODO log info
+			}
+			return null;
+		}
+
+		/* Executed in event dispatch thread */
+		public void done() {
+//			Toolkit.getDefaultToolkit().beep();
+			if(SystemResources.fileExplorerForm != null) {
+				SystemResources.fileExplorerForm.lblItemsSelected.setText(String.valueOf(fileList.length));
+				SystemResources.fileExplorerForm.lblActivityStatus.setText(fileList.length + " items selected");
+				SystemResources.fileExplorerForm.panelFolderListLoad.setVisible(false);
+			}	
+		}
+		
+		private boolean panelNotSetVisible = true;
+		/* Invoked when task's progress property changes. */
+		public void propertyChange(PropertyChangeEvent evt) {
+			if(panelNotSetVisible) { // eliminates irrelevant property setting 
+				if ("progress".equals(evt.getPropertyName())) {
+					if(SystemResources.fileExplorerForm != null) {
+						SystemResources.fileExplorerForm.panelFolderListLoad.setVisible(true);
+						panelNotSetVisible = false;
+					}
+				}
+			}
+		}
+	}
+	
+	UpdateTableListWorker currentUpdateTableListWorker = null;
 
 	FileAttributes[] fileList = null;
 	
 	/** Updates with currentWorkingDirectory */
 	private void updateTableList(final boolean loadFresh) {
-		try {
-			FileAttributes cwd = fileSystemHandler.getCurrentWorkingDirectory();
-			logger.logInfo("%s table list for path='%s'", 
-					loadFresh ? "Updating" : "Restoring", cwd.absolutePath);
-			
-			if(loadFresh)
-				fileList = setDirectoryFirstArrangement(fileSystemHandler.listFiles(cwd));
-			
-			tableFileList.getRowSorter().setSortKeys(null);
-			setTableRows(fileList);
-			txtPathAddress.setText(cwd.absolutePath);
-			
-			// update navigation button states
-			btnGoBackInHistory.setEnabled(fileSystemHandler.historyHandler.canGoBackward());
-			btnGoForwardInHistory.setEnabled(fileSystemHandler.historyHandler.canGoForward());
-			btnGoToParentDir.setEnabled(fileSystemHandler.canGoToParent());
-			btnBookmarkIndicator.setSelected(bookmarkHandler.containsBookmarkFile(cwd));
-			if(SystemResources.fileExplorerForm != null)
-				SystemResources.fileExplorerForm.lblItemsSelected.setText(String.valueOf(fileList.length));
-
-			updateTabTitleBar(cwd);
-			logger.logInfo("Folder list %s for path: %s", loadFresh ? "loaded" : "restored", cwd.absolutePath);
-		} catch(Exception e) {
-			JOptionPane.showMessageDialog(	this,
-											String.format("Cannot update table list!\n  Path: %s\n  Reason: %s",
-													fileSystemHandler.getCurrentWorkingDirectory().absolutePath, e),
-											"Directory listing error",
-											JOptionPane.ERROR_MESSAGE);
-			logger.logSevere(e, "Cannot update table list: %s",  e);
-			
-//			System.out.println("  // reverting...");
-//			System.out.println("  // before: cwd=" + fileSystemHandler.getCurrentWorkingDirectory() + 
-//					", history=" + fileSystemHandler.historyHandler);			
-			
-			fileSystemHandler.revertLastNavigation();
-			
-//			System.out.println("  // after: cwd=" + fileSystemHandler.getCurrentWorkingDirectory() + 
-//					", history=" + fileSystemHandler.historyHandler);
-//			setTableRows(lastFileListing); // populating with last successful file listing
-
-			updateTableList(false); // load from cache
-			
-//			System.out.println("  // done");
-//			System.out.println("Info: Reverted to last folder listing"); // TODO log info
-		}
+		if(SystemResources.fileExplorerForm != null)
+			SystemResources.fileExplorerForm.panelFolderListLoad.setVisible(true);
+		
+		currentUpdateTableListWorker = new UpdateTableListWorker(loadFresh);
+		currentUpdateTableListWorker.execute();		
 	}
 
 	/* Only change the currentWorkingDirectory */

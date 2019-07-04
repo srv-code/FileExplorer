@@ -5,6 +5,7 @@ import fileexplorer.handlers.fs.FileAttributes;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.CookiePolicy;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -44,6 +45,10 @@ public class SystemResources {
     public static AppPreferences getAppPreferences() {
         return prefs;
     }
+	
+	public static enum PasteOperation { CUT, COPY, NONE };
+	public static PasteOperation pasteOperation = PasteOperation.NONE;
+	public static FileAttributes[] filesToPaste = null;
     
         
     private SystemResources() {} // disable external instantiation

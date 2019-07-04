@@ -13,8 +13,17 @@ public class ConsoleTests {
 //		stackTraceTest();
 //		systemDefaultIconTest();
 //		testDesktop();
-		changePermBits();
+//		changePermBits();
+		waiting();
     }
+	
+	private static void waiting() throws InterruptedException {
+		System.out.println("starting...");
+		ProgressIndeterminate.start();
+		Thread.sleep(3000); // simulate wait 
+		System.out.println("Stopping...");
+		ProgressIndeterminate.stop();
+	}
 	
 	private static void changePermBits() {
 		File file = new File("c:/users/soura/desktop/aaa.txt");

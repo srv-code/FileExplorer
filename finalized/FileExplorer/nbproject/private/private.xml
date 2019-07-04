@@ -3,8 +3,15 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
+            <file>file:/D:/Projects/Java/NetBeans/Projects/project/Summer-Project/finalized/FileExplorer/src/fileexplorer/gui/forms/ProgressIndeterminate.java</file>
+            <file>file:/D:/Projects/Java/NetBeans/Projects/project/Summer-Project/finalized/FileExplorer/src/fileexplorer/handlers/fs/nav/NavigationHistoryHandler.java</file>
+            <file>file:/D:/Projects/Java/NetBeans/Projects/project/Summer-Project/finalized/FileExplorer/src/fileexplorer/gui/forms/FileExplorerForm.java</file>
             <file>file:/D:/Projects/Java/NetBeans/Projects/project/Summer-Project/finalized/FileExplorer/src/fileexplorer/handlers/fs/LocalFileSystemHandler.java</file>
             <file>file:/D:/Projects/Java/NetBeans/Projects/project/Summer-Project/finalized/FileExplorer/src/fileexplorer/gui/forms/ListViewForm.java</file>
+            <file>file:/D:/Projects/Java/NetBeans/Projects/project/Summer-Project/finalized/FileExplorer/src/fileexplorer/gui/forms/FilePropertiesForm.java</file>
+            <file>file:/D:/Projects/Java/NetBeans/Projects/project/Summer-Project/finalized/FileExplorer/src/fileexplorer/handlers/fs/FileSystemHandler.java</file>
+            <file>file:/D:/Projects/Java/NetBeans/Projects/project/Summer-Project/finalized/FileExplorer/src/fileexplorer/handlers/fs/RemoteFileSystemHandler.java</file>
+            <file>file:/D:/Projects/Java/NetBeans/Projects/project/Summer-Project/finalized/FileExplorer/src/fileexplorer/handlers/fs/nav/NavigationException.java</file>
         </group>
     </open-files>
 </project-private>

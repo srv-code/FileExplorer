@@ -1,5 +1,7 @@
 package fileexplorer.handlers.fs;
 
+import fileexplorer.handlers.fs.nav.NavigationException;
+import fileexplorer.handlers.fs.nav.NavigationHistoryHandler;
 import java.awt.Desktop;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -17,6 +19,7 @@ public abstract class FileSystemHandler {
 	protected FileAttributes userHomeDirectory = null, defaultStartLocation = null;
 	protected final Desktop desktop = Desktop.getDesktop();
 	public final boolean isDesktopSupported = Desktop.isDesktopSupported();
+	protected final String ROOT_PATH = "/";
 //	public boolean isRemoteHandler;
 	
 	public final NavigationHistoryHandler historyHandler = new NavigationHistoryHandler();
@@ -24,6 +27,11 @@ public abstract class FileSystemHandler {
 	protected FileAttributes currentWorkingDirectory = null;
 	
 	public FileAttributes getCurrentWorkingDirectory() {
+		return currentWorkingDirectory;
+	}
+	
+	public FileAttributes setCurrentWorkingDirectoryToHomeDirectory() throws FileNotFoundException {
+		currentWorkingDirectory = getHomeDirectory();
 		return currentWorkingDirectory;
 	}
 	
@@ -66,7 +74,7 @@ public abstract class FileSystemHandler {
 		return currentWorkingDirectory;
 	}
 	
-	public FileAttributes revertLastNavigation() {
+	public FileAttributes revertLastNavigation() throws NavigationException {
 		currentWorkingDirectory = historyHandler.removeCurrent();
 		return currentWorkingDirectory;
 	}
@@ -112,7 +120,7 @@ public abstract class FileSystemHandler {
 //	public abstract List<FileAttributes> listRoots() throws FileNotFoundException;
 	
 	public abstract FileAttributes getHomeDirectory() throws FileNotFoundException;
-//	public abstract FileAttributes getTrashBinDirectory() throws FileNotFoundException;
+	public abstract FileAttributes getRootDirectory() throws FileNotFoundException;
 	
 	public abstract void openFile(final FileAttributes file) throws UnsupportedOperationException, IOException;
 	

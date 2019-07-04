@@ -1,4 +1,4 @@
-Move to Globals:
+Move to SystemResources:
 	private FileAttributes[] filetoPaste = null;
 	private enum PasteOperation { CUT, COPY, NONE }
 	private PasteOperation pasteOperation = PasteOperation.NONE;
@@ -6,12 +6,8 @@ Move to Globals:
 	
 --------------------------------------------------------------------------------------------------------------------------------------------
 Remove/comment out main() from all modules except Main.class 
-Modify all init() to newer design
 --------------------------------------------------------------------------------------------------------------------------------------------
-fix:
-	set up bookmarks
-	PropertiesForm -> button irregular sizes
-	simplify NavigationHistoryHandler to throw less error
+Move all task intensive jobs to SwingWorker$Task
 --------------------------------------------------------------------------------------------------------------------------------------------
 Update UI:
 	file count 

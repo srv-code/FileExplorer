@@ -19,7 +19,9 @@ import java.awt.Toolkit;
 import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.lang.reflect.InvocationTargetException;
 import java.nio.file.attribute.FileAttribute;
+import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.plaf.ComponentUI;
 
@@ -30,12 +32,22 @@ import javax.swing.plaf.ComponentUI;
  * @author soura
  */
 public class OperationProgressForm extends javax.swing.JFrame {
-
+	private final OperationType operationType;
+	private final FileSystemHandler fileSystemHandler;
+	private final FileAttributes[] srcs;
+	private final FileAttributes dst;
+	
+	
 	private OperationProgressForm(	final OperationType operationType, 
 									final FileSystemHandler fileSystemHandler,
-									final FileAttributes src,
+									final FileAttributes[] srcs,
 									final FileAttributes dst) {
 		initComponents();
+		
+		this.operationType = operationType;
+		this.fileSystemHandler = fileSystemHandler;
+		this.srcs = srcs;
+		this.dst = dst;
 		
 		switch(operationType) {
 			case MOVE:		setTitle("Moving..."); break;
@@ -55,9 +67,7 @@ public class OperationProgressForm extends javax.swing.JFrame {
 		
 		task = new Task();
         task.addPropertyChangeListener(new PropertyChangeListener() {
-			/**
-			* Invoked when task's progress property changes.
-			*/
+			/* Invoked when task's progress property changes. */
 			@Override 
 			public void propertyChange(PropertyChangeEvent evt) {
 				if ("progress" == evt.getPropertyName()) {
@@ -189,21 +199,28 @@ public class OperationProgressForm extends javax.swing.JFrame {
 		}
 		
 		
-		OperationType operationType;
-		switch(args[0]) {
-			case "cp": operationType = OperationType.COPY; break;
-			case "mv": operationType = OperationType.MOVE; break;
-			case "rm": operationType = OperationType.DELETE; break;
-			default: throw new IllegalArgumentException(args[2]);
-		}
-		FileSystemHandler fileSystemHandler = FileSystemHandler.getLocalHandler("C:\\");
-		FileAttributes src = fileSystemHandler.getFileAttributes(args[0]);
-		FileAttributes dst = null;
-		if(operationType!=OperationType.DELETE) {
-			dst = fileSystemHandler.getFileAttributes(args[1]);
-		}
+//		OperationType operationType;
+//		switch(args[0]) {
+//			case "cp": operationType = OperationType.COPY; break;
+//			case "mv": operationType = OperationType.MOVE; break;
+//			case "rm": operationType = OperationType.DELETE; break;
+//			default: throw new IllegalArgumentException(args[2]);
+//		}
+//		FileSystemHandler fileSystemHandler = FileSystemHandler.getLocalHandler("C:\\");
+//		FileAttributes src = fileSystemHandler.getFileAttributes(args[0]);
+//		FileAttributes dst = null;
+//		if(operationType!=OperationType.DELETE) {
+//			dst = fileSystemHandler.getFileAttributes(args[1]);
+//		}
 		
-		init(operationType, fileSystemHandler, src, dst);
+		FileSystemHandler fileSystemHandler = FileSystemHandler.getLocalHandler("C:\\");
+		FileAttributes[] srcs = { fileSystemHandler.getFileAttributes("D:/tmp/paste_test/src/dir1"),
+			fileSystemHandler.getFileAttributes("D:/tmp/paste_test/src/a.txt"),
+			fileSystemHandler.getFileAttributes("D:/tmp/paste_test/src/asas.pub")
+		};		
+		FileAttributes dst = fileSystemHandler.getFileAttributes("D:/tmp/paste_test/dst");
+		
+		init(OperationType.COPY, fileSystemHandler, srcs, dst);
 	}
 	
 	
@@ -212,13 +229,14 @@ public class OperationProgressForm extends javax.swing.JFrame {
 	private static OperationProgressForm frame;
 	
 	public static void init(	final OperationType operationType, 
-												final FileSystemHandler fileSystemHandler,
-												final FileAttributes src,
-												final FileAttributes dst) {
+								final FileSystemHandler fileSystemHandler,
+								final FileAttributes[] srcs,
+								final FileAttributes dst) throws InterruptedException, InvocationTargetException {
 		/* Create and display the frame */
-		java.awt.EventQueue.invokeLater(new Runnable() {
+//		java.awt.EventQueue.invokeLater(new Runnable() {
+		SwingUtilities.invokeAndWait(new Runnable() {
 			public void run() {
-				frame = new OperationProgressForm(operationType, fileSystemHandler, src, dst);
+				frame = new OperationProgressForm(operationType, fileSystemHandler, srcs, dst);
 				frame.setVisible(true);
 				frame.execute();
 			}
