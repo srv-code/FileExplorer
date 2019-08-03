@@ -151,7 +151,7 @@
     </Component>
     <Component class="javax.swing.JCheckBox" name="chkAddToBookmark">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Add to bookmark if logs in"/>
+        <Property name="text" type="java.lang.String" value="Add to bookmark"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JButton" name="btnLogin">

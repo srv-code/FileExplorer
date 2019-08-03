@@ -14,67 +14,6 @@ public class RemoteFileSystemHandler extends FileSystemHandler {
 //		super(absolutePath);
 		fileSystemID = String.format("Remote@%s", host);
 	}
-	
-	@Override
-	public FileAttributes getFileAttributes(String absolutePath) throws FileNotFoundException {
-		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-	}
-
-	@Override
-	public FileAttributes createNew(String name, boolean isDirectory) throws IOException, FileAlreadyExistsException {
-		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-	}
-
-	@Override
-	public FileAttributes[] listFiles(FileAttributes dir) throws InvalidPathException, FileNotFoundException, AccessDeniedException {
-		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-	}
-
-//	@Override
-//	public List<FileAttributes> listRoots() throws FileNotFoundException {
-//		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-//	}
-
-	@Override
-	public FileAttributes getHomeDirectory() throws FileNotFoundException {
-		// should be the root path /
-		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-	}
-
-	@Override
-	public boolean canGoToParent() {
-		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-	}
-
-	@Override
-	public void openFile(FileAttributes file) {
-		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-	}
-
-	@Override
-	public void printFile(FileAttributes file) throws IllegalArgumentException, IOException {
-		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-	}
-
-//	@Override
-//	public void openDirectoryUsingSystem(final FileAttributes dir) throws IllegalArgumentException, IOException {
-//		throw new UnsupportedOperationException("Not supported for remote folders");
-//	}
-
-	@Override
-	public FileAttributes getParent(FileAttributes file) throws FileNotFoundException {
-		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-	}
-
-	@Override
-	public FileAttributes rename(FileAttributes file, String newName) throws IOException {
-		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-	}
-
-	@Override
-	public void delete(FileAttributes file) throws IOException {
-		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-	}
 
 	@Override
 	public FileAttributes setExecuteFlag(FileAttributes file, boolean value) throws IOException {
@@ -92,9 +31,74 @@ public class RemoteFileSystemHandler extends FileSystemHandler {
 	}
 
 	@Override
+	public FileAttributes rename(FileAttributes file, String newName) throws IOException {
+		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+	}
+
+	@Override
+	public long[] count(FileAttributes root) throws IOException {
+		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+	}
+
+	@Override
+	public long[] copy(FileAttributes src, FileAttributes dst) throws IOException {
+		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+	}
+
+	@Override
+	public long[] move(FileAttributes src, FileAttributes dst) throws IOException {
+		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+	}
+
+	@Override
+	public long[] delete(FileAttributes root) throws IOException {
+		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+	}
+
+	@Override
+	public FileAttributes getParent(FileAttributes file) throws FileNotFoundException {
+		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+	}
+
+	@Override
+	public boolean canGoToParent() {
+		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+	}
+
+	@Override
+	public FileAttributes getFileAttributes(String absolutePath) throws FileNotFoundException {
+		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+	}
+
+	@Override
+	public FileAttributes createNew(String name, boolean isDirectory) throws IOException, FileAlreadyExistsException {
+		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+	}
+
+	@Override
+	public FileAttributes[] listFiles(FileAttributes dir) throws InvalidPathException, FileNotFoundException, AccessDeniedException {
+		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+	}
+
+	@Override
+	public FileAttributes getHomeDirectory() throws FileNotFoundException {
+		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+	}
+
+	@Override
 	public FileAttributes getRootDirectory() throws FileNotFoundException {
 		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
 	}
 
+	@Override
+	public void openFile(FileAttributes file) throws UnsupportedOperationException, IOException {
+		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+	}
+
+	@Override
+	public void printFile(FileAttributes file) throws IllegalArgumentException, IOException {
+		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+	}
+	
 	
 }

@@ -1,14 +1,13 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+/* Abandoned */
+		
 package fileexplorer.gui.forms;
 
 //import gui.mytests.handlers.fs.FileAttributes;
 //import gui.mytests.handlers.fs.FileSystemHandler;
 import fileexplorer.handlers.fs.FileAttributes;
 import fileexplorer.handlers.fs.FileSystemHandler;
+import fileexplorer.handlers.shared.ActivityLogger;
+import fileexplorer.handlers.shared.SystemResources;
 import java.awt.Color;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultEditorKit;
@@ -19,6 +18,7 @@ import java.awt.Toolkit;
 import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.file.attribute.FileAttribute;
 import javax.swing.SwingUtilities;
@@ -36,6 +36,7 @@ public class OperationProgressForm extends javax.swing.JFrame {
 	private final FileSystemHandler fileSystemHandler;
 	private final FileAttributes[] srcs;
 	private final FileAttributes dst;
+	private ActivityLogger logger = SystemResources.getActivityLogger();
 	
 	
 	private OperationProgressForm(	final OperationType operationType, 
@@ -57,30 +58,102 @@ public class OperationProgressForm extends javax.swing.JFrame {
 		}
 	}
 	
-	private Task task;
+	private long totalCount, currentCount=0;
+	private long dirCount=0L, fileCount=0L;
+	private Exception failureException = null;
 	
-	private void execute() {
-		progressbarOverall.setIndeterminate(true);
-		progressbarCurrent.setIndeterminate(true);
+	class ProgressWorker extends SwingWorker<Void,Void> implements PropertyChangeListener {
+		/* Main task. Executed in background thread. */
+		@Override
+		public Void doInBackground() {
+			try {
+				int progress = 0;
+				//Initialize progress property.
+				setProgress(0);
+
+				// counting...
+				long tuple[];
+				for(FileAttributes src: srcs) {			
+					tuple = fileSystemHandler.count(src);
+					dirCount = tuple[0];
+					fileCount = tuple[1];
+					totalCount += dirCount+fileCount;
+				}						
+				setProgress(++progress);
+
+				switch(operationType) {
+					case DELETE: 
+						for(FileAttributes root : srcs) {
+							fileSystemHandler.delete(root); // TODO pass a handler for sending progress count
+						}
+						break;
+
+					default: throw new UnsupportedOperationException("Not yet designed"); // TODO implement for all operations
+				}
+			} catch(Exception e) {
+				failureException = e;
+				cancel(true);
+			}
+			return null;
+		}
+
+		/* Executed in event dispatch thread */
+		@Override
+		public void done() {
+			Toolkit.getDefaultToolkit().beep();
+			taskLog.append("  // isCancelled()=" + isCancelled() + "\n");
+//					frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
+		}
 		
-//		int total = 
-		
-		task = new Task();
-        task.addPropertyChangeListener(new PropertyChangeListener() {
-			/* Invoked when task's progress property changes. */
-			@Override 
-			public void propertyChange(PropertyChangeEvent evt) {
-				if ("progress" == evt.getPropertyName()) {
-					int progress = (Integer) evt.getNewValue();
-					progressbarOverall.setIndeterminate(false);
-					progressbarCurrent.setIndeterminate(false);
-//					progressBar.setValue(progress);
-					taskLog.append(String.format(
-								"Completed %d%% of task.\n", progress));
+		/* Invoked when task's progress property changes. */
+		@Override 
+		public void propertyChange(PropertyChangeEvent evt) {
+			if ("progress".equals(evt.getPropertyName())) {
+				if((Integer) evt.getNewValue() == 0) {
+					progressbarOverall.setIndeterminate(true);
+					progressbarCurrent.setIndeterminate(true);
+					taskLog.append("Discovering items...\n");
+				} else {
+					if(progressbarOverall.isIndeterminate()) {
+						progressbarOverall.setIndeterminate(false);
+						progressbarCurrent.setIndeterminate(false);
+						taskLog.append("Total " + totalCount + " items found\n");
+					}
+					else {
+						progressbarOverall.setValue((int)(currentCount/totalCount)); // calc value is guranteed to be b/w 0 to 100
+//								progressbarCurrent.setValue(currentByteCount/totalByteCount);
+					}
+				}
+
+				if(isCancelled() || isDone()) {
+					Toolkit.getDefaultToolkit().beep();
+					taskLog.append(String.format("Processed %s %d %ss & %d %ss\n",
+								isCancelled() ? "only" : "all", 
+								dirCount, FileAttributes.TYPE_FOLDER, fileCount, FileAttributes.TYPE_FILE));
+
+					if (isCancelled()) {								
+						taskLog.append(String.format("Task %s\n", 
+								failureException==null? "cancelled by user":
+										("failed: " + failureException)));
+
+						if(failureException == null) 
+							logger.logInfo("Task cancelled by user");
+						else
+							logger.logSevere(failureException, "While last %s operation: %s", 
+									operationType, failureException);
+					} else {
+						taskLog.append("Task successful\n");
+					}
 				}
 			}
-		});
-        task.execute();
+		}
+	}
+	
+	private ProgressWorker progrressWorker = null;
+	
+	private void execute() {
+		progrressWorker = new ProgressWorker();
+		progrressWorker.execute();
 	}
 
 	/**
@@ -252,29 +325,4 @@ public class OperationProgressForm extends javax.swing.JFrame {
     private javax.swing.JProgressBar progressbarOverall;
     private javax.swing.JTextArea taskLog;
     // End of variables declaration//GEN-END:variables
-
-
-	class Task extends SwingWorker<Void, Void> {
-        /*
-         * Main task. Executed in background thread.
-         */
-        @Override
-        public Void doInBackground() {
-            int progress = 0;
-            //Initialize progress property.
-            setProgress(0);
-			
-			return null;
-        }
-
-        /*
-         * Executed in event dispatch thread
-         */
-        public void done() {
-            Toolkit.getDefaultToolkit().beep();
-//            startButton.setEnabled(true);
-//            taskLog.append("Done!\n");
-			frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
-        }
-    }
 }

@@ -14,8 +14,13 @@ public class ConsoleTests {
 //		systemDefaultIconTest();
 //		testDesktop();
 //		changePermBits();
-		waiting();
+//		waiting();
+		progressTest();
     }
+	
+	private static void progressTest() {
+		
+	}
 	
 	private static void waiting() throws InterruptedException {
 		System.out.println("starting...");

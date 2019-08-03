@@ -63,7 +63,7 @@ public class RemoteLoginForm extends javax.swing.JFrame {
 
         txtUserPassword.setEnabled(false);
 
-        chkAddToBookmark.setText("Add to bookmark if logs in");
+        chkAddToBookmark.setText("Add to bookmark");
 
         btnLogin.setText("Log in");
 

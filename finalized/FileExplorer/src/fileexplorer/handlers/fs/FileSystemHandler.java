@@ -55,7 +55,14 @@ public abstract class FileSystemHandler {
 	
 	public abstract FileAttributes rename(final FileAttributes file, final String newName) throws IOException;
 	
-	public abstract void delete(final FileAttributes file) throws IOException;
+	protected final int PASTE_BUF_SIZE = 8192; // 8KB
+	protected long dirCount=0L, fileCount=0L, cpFileCount=0L, cpDirCount=0L, rmFileCount=0L, rmDirCount=0L;
+	protected boolean allowDelete = true; // [For test purpose] safe guard against any fatal operation
+	
+	public abstract long[] count(final FileAttributes root) throws IOException;
+	public abstract long[] copy(final FileAttributes src, final FileAttributes dst) throws IOException;
+	public abstract long[] move(final FileAttributes src, final FileAttributes dst) throws IOException;
+	public abstract long[] delete(final FileAttributes root) throws IOException;
 	
 //	public abstract boolean isPathValid(final String absolutePath);
 	

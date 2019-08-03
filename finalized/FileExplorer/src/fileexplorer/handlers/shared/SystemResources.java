@@ -46,7 +46,20 @@ public class SystemResources {
         return prefs;
     }
 	
-	public static enum PasteOperation { CUT, COPY, NONE };
+	public static enum PasteOperation {
+		CUT  ("Cut"),
+		COPY ("Copy"),
+		NONE ("None");
+		
+		private String desc;
+		public String toString() {
+			return desc;
+		}
+		
+		PasteOperation(String desc) {
+			this.desc = desc;
+		}
+	};
 	public static PasteOperation pasteOperation = PasteOperation.NONE;
 	public static FileAttributes[] filesToPaste = null;
     

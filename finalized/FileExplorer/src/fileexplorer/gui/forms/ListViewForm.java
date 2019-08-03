@@ -566,13 +566,14 @@ public class ListViewForm extends JPanel {
     }//GEN-LAST:event_menuNewFolderActionPerformed
 
     private void menuCutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuCutActionPerformed
-		SystemResources.pasteOperation = SystemResources.PasteOperation.CUT;
-		SystemResources.filesToPaste = selectedFiles;
+//		SystemResources.pasteOperation = SystemResources.PasteOperation.CUT;
+//		SystemResources.filesToPaste = selectedFiles;
     }//GEN-LAST:event_menuCutActionPerformed
 
     private void menuCopyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuCopyActionPerformed
 		SystemResources.pasteOperation = SystemResources.PasteOperation.COPY;
 		SystemResources.filesToPaste = selectedFiles;
+		logger.logInfo("%d items copied", selectedFiles.length);
     }//GEN-LAST:event_menuCopyActionPerformed
 
     private void menuRenameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuRenameActionPerformed
@@ -866,7 +867,22 @@ public class ListViewForm extends JPanel {
     }//GEN-LAST:event_menuOpenInNewTabActionPerformed
 
     private void menuPasteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuPasteActionPerformed
-        
+        FileAttributes currentFile=null;
+		try {
+			logger.logInfo("To %s %d items", SystemResources.pasteOperation, SystemResources.filesToPaste.length);
+			
+			for(int i=0; i<SystemResources.filesToPaste.length; i++) {
+				currentFile = SystemResources.filesToPaste[i];
+				if(SystemResources.pasteOperation == SystemResources.PasteOperation.COPY)
+					fileSystemHandler.copy(currentFile, fileSystemHandler.getCurrentWorkingDirectory());
+				else 
+					fileSystemHandler.move(currentFile, fileSystemHandler.getCurrentWorkingDirectory());
+				logger.logInfo(currentFile, );
+			}
+		} catch(IOException e) {
+			logger.logSevere(e, "Unable to %s item '%s'. (Reason: %s)", 
+					SystemResources.pasteOperation, currentFile, e);
+		}
     }//GEN-LAST:event_menuPasteActionPerformed
 
 	private void updateTabTitleBar(final FileAttributes dir) {
