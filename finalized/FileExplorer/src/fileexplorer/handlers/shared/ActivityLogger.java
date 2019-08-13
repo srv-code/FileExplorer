@@ -35,8 +35,8 @@ public class ActivityLogger implements AutoCloseable {
     }
 
 	private void updateStatusBar(final String msg) {
-		if(SystemResources.fileExplorerForm != null && SystemResources.fileExplorerForm.lblActivityStatus != null)
-			SystemResources.fileExplorerForm.lblActivityStatus.setText(msg);
+		if(SystemResources.formFileExplorer != null && SystemResources.formFileExplorer.lblActivityStatus != null)
+			SystemResources.formFileExplorer.lblActivityStatus.setText(msg);
 	}
 
     private static enum Level {
@@ -136,8 +136,8 @@ public class ActivityLogger implements AutoCloseable {
 	private long errorCount = 0L;
 	private void updateErrorCounter() {
 		errorCount++;
-		if(SystemResources.fileExplorerForm != null && SystemResources.fileExplorerForm.lblErrorCount != null)
-			SystemResources.fileExplorerForm.lblErrorCount.setText(String.valueOf(errorCount));
+		if(SystemResources.formFileExplorer != null && SystemResources.formFileExplorer.lblErrorCount != null)
+			SystemResources.formFileExplorer.lblErrorCount.setText(String.valueOf(errorCount));
 	}
     
 	@Deprecated 

@@ -34,11 +34,16 @@ public class FileExplorerForm extends javax.swing.JFrame {
     private DefaultMutableTreeNode treeNodeRemoteServers;
 	private DefaultTreeModel treeModelQuickAccess;
 //	private DefaultMutableTreeNode selectedBookmarkNode = null;
-	private BookmarkHandler bookmarkHandler;
 	private final String HOME_DIR = "home";	
 	private static FileExplorerForm form = null;
 	private LocalFileSystemHandler localFileSystemHandler;
 	private IconRegistry iconRegistry = IconRegistry.getInstance();
+	
+	/* public resources */
+	public final BookmarkHandler bookmarkHandler;
+	public AboutForm formAbout;
+	public PreferencesForm formPreferences;
+	public RemoteLoginForm formRemoteLogin;
 	
 	
 	public static FileExplorerForm init() throws InterruptedException, InvocationTargetException {
@@ -84,7 +89,7 @@ public class FileExplorerForm extends javax.swing.JFrame {
 												"Platform info: " + platform,
 											"Feature not supported",
 											JOptionPane.WARNING_MESSAGE);
-			System.err.println("Err: Desktop not supported in this platform: Platform: " + platform);
+			logger.logSevere(null, "Desktop feature not supported in this platform: Platform: %s", platform);
 		}
 		
 		bookmarkHandler = BookmarkHandler.getInstance(treeQuickAccess, treeModelQuickAccess,
@@ -122,7 +127,7 @@ public class FileExplorerForm extends javax.swing.JFrame {
 		
 	}
 	
-	private void addNewTab(final FileSystemHandler fileSystemHandler) {
+	public void addNewTab(final FileSystemHandler fileSystemHandler) {
 		JLabel lblTabTitle = new JLabel(null, 
 			fileSystemHandler instanceof RemoteFileSystemHandler ? iconRegistry.remoteTabIcon_small : iconRegistry.localTabIcon_small,
 			SwingConstants.RIGHT);
@@ -256,11 +261,6 @@ public class FileExplorerForm extends javax.swing.JFrame {
         menuitemThemeMotifCDERadioButton = new javax.swing.JRadioButtonMenuItem();
         menuitemThemeWindowsRadioButton = new javax.swing.JRadioButtonMenuItem();
         menuitemThemeWindowsClassicRadioButton = new javax.swing.JRadioButtonMenuItem();
-        menuViewLayoutStyle = new javax.swing.JMenu();
-        menuitemListLayoutRadioButton = new javax.swing.JRadioButtonMenuItem();
-        menuitemDetailsLayoutRadioButton = new javax.swing.JRadioButtonMenuItem();
-        menuitemIconLayoutRadioButton = new javax.swing.JRadioButtonMenuItem();
-        menuitemTreeLayoutRadioButton = new javax.swing.JRadioButtonMenuItem();
         menuViewLanguage = new javax.swing.JMenu();
         menuitemLangEnglishUSRadioButton = new javax.swing.JRadioButtonMenuItem();
         menuitemLangFrenchRadioButton = new javax.swing.JRadioButtonMenuItem();
@@ -570,30 +570,6 @@ public class FileExplorerForm extends javax.swing.JFrame {
 
         menuView.add(menuTheme);
 
-        menuViewLayoutStyle.setText(bundle.getString("FileExplorerForm.menuViewLayoutStyle.text")); // NOI18N
-
-        menuitemListLayoutRadioButton.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_L, java.awt.event.InputEvent.ALT_MASK));
-        btngpViewLayoutStyle.add(menuitemListLayoutRadioButton);
-        menuitemListLayoutRadioButton.setText(bundle.getString("FileExplorerForm.menuitemListLayoutRadioButton.text")); // NOI18N
-        menuViewLayoutStyle.add(menuitemListLayoutRadioButton);
-
-        menuitemDetailsLayoutRadioButton.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_D, java.awt.event.InputEvent.ALT_MASK));
-        btngpViewLayoutStyle.add(menuitemDetailsLayoutRadioButton);
-        menuitemDetailsLayoutRadioButton.setText(bundle.getString("FileExplorerForm.menuitemDetailsLayoutRadioButton.text")); // NOI18N
-        menuViewLayoutStyle.add(menuitemDetailsLayoutRadioButton);
-
-        menuitemIconLayoutRadioButton.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_I, java.awt.event.InputEvent.ALT_MASK));
-        btngpViewLayoutStyle.add(menuitemIconLayoutRadioButton);
-        menuitemIconLayoutRadioButton.setText(bundle.getString("FileExplorerForm.menuitemIconLayoutRadioButton.text")); // NOI18N
-        menuViewLayoutStyle.add(menuitemIconLayoutRadioButton);
-
-        menuitemTreeLayoutRadioButton.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_T, java.awt.event.InputEvent.ALT_MASK));
-        btngpViewLayoutStyle.add(menuitemTreeLayoutRadioButton);
-        menuitemTreeLayoutRadioButton.setText(bundle.getString("FileExplorerForm.menuitemTreeLayoutRadioButton.text")); // NOI18N
-        menuViewLayoutStyle.add(menuitemTreeLayoutRadioButton);
-
-        menuView.add(menuViewLayoutStyle);
-
         menuViewLanguage.setText(bundle.getString("FileExplorerForm.menuViewLanguage.text")); // NOI18N
 
         btngpAppLanguage.add(menuitemLangEnglishUSRadioButton);
@@ -649,13 +625,10 @@ public class FileExplorerForm extends javax.swing.JFrame {
 
 //	private AboutForm aboutForm = null;
     private void menuitemAboutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuitemAboutActionPerformed
-//        this.setEnabled(false);
-//		if(aboutForm == null) {
-//			aboutForm = AboutForm.init();
-//		} else {
-//			aboutForm.setVisible(true);
-//		}
-		AboutForm.init();
+		if(formAbout == null)
+			AboutForm.init();
+		else 
+			formAbout.requestFocus();
     }//GEN-LAST:event_menuitemAboutActionPerformed
 
     private void formWindowClosed(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosed
@@ -663,20 +636,25 @@ public class FileExplorerForm extends javax.swing.JFrame {
     }//GEN-LAST:event_formWindowClosed
 
     private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
-        if(JOptionPane.showConfirmDialog(this,
-				"Do you want to Exit ?", "Exit Confirmation",
-				JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {		
-			this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-			logger.logInfo("Window closing...");
-			SystemHandler.getInstance().close();
-		} 
+        if(SystemResources.prefs.confirmBeforeExit) {
+			if(JOptionPane.showConfirmDialog(this,
+					"Do you want to Exit ?", "Exit Confirmation",
+					JOptionPane.YES_NO_OPTION) == JOptionPane.NO_OPTION)
+				return;
+		}
+		logger.logInfo("Window closing...");
+		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		SystemHandler.getInstance().close();
 //		else if (result == JOptionPane.NO_OPTION)
 //          this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
     }//GEN-LAST:event_formWindowClosing
 
     private void menuitemConnectRemoteServerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuitemConnectRemoteServerActionPerformed
 //        this.dispatchEvent(new java.awt.event.WindowEvent(this, java.awt.event.WindowEvent.WINDOW_CLOSING));
-		RemoteLoginForm.init();
+		if(formRemoteLogin == null)
+			RemoteLoginForm.init();
+		else 
+			formRemoteLogin.requestFocus();
     }//GEN-LAST:event_menuitemConnectRemoteServerActionPerformed
 
 	private ListViewForm getSelectedForm() {
@@ -825,7 +803,10 @@ public class FileExplorerForm extends javax.swing.JFrame {
     }//GEN-LAST:event_menuBookmarkPropertiesActionPerformed
 
     private void menuitemViewPreferencesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuitemViewPreferencesActionPerformed
-        System.out.println("  // app icon=" + iconRegistry.appIcon_big);
+        if(formPreferences == null)
+			PreferencesForm.init();
+		else 
+			formPreferences.requestFocus();
     }//GEN-LAST:event_menuitemViewPreferencesActionPerformed
 
     private void menuitemCloseCurrentTabActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuitemCloseCurrentTabActionPerformed
@@ -884,7 +865,6 @@ public class FileExplorerForm extends javax.swing.JFrame {
     private javax.swing.JMenu menuTheme;
     private javax.swing.JMenu menuView;
     private javax.swing.JMenu menuViewLanguage;
-    private javax.swing.JMenu menuViewLayoutStyle;
     private javax.swing.JMenuBar menubarMain;
     private javax.swing.JMenuItem menuitemAbout;
     private javax.swing.JMenuItem menuitemBookmarkCurrentFolder;
@@ -893,15 +873,12 @@ public class FileExplorerForm extends javax.swing.JFrame {
     private javax.swing.JMenuItem menuitemConnectRemoteServer;
     private javax.swing.JMenuItem menuitemCreateNewFile;
     private javax.swing.JMenuItem menuitemCreateNewFolder;
-    private javax.swing.JRadioButtonMenuItem menuitemDetailsLayoutRadioButton;
     private javax.swing.JMenuItem menuitemEditAddressBar;
     private javax.swing.JMenuItem menuitemExit;
     private javax.swing.JMenuItem menuitemGoToParentFolder;
-    private javax.swing.JRadioButtonMenuItem menuitemIconLayoutRadioButton;
     private javax.swing.JRadioButtonMenuItem menuitemLangEnglishUSRadioButton;
     private javax.swing.JRadioButtonMenuItem menuitemLangFrenchRadioButton;
     private javax.swing.JRadioButtonMenuItem menuitemLangGermanRadioButton;
-    private javax.swing.JRadioButtonMenuItem menuitemListLayoutRadioButton;
     private javax.swing.JMenuItem menuitemNewTab;
     private javax.swing.JMenuItem menuitemReloadCurrentFolder;
     private javax.swing.JMenuItem menuitemSearch;
@@ -910,7 +887,6 @@ public class FileExplorerForm extends javax.swing.JFrame {
     private javax.swing.JRadioButtonMenuItem menuitemThemeNimbuslRadioButton;
     private javax.swing.JRadioButtonMenuItem menuitemThemeWindowsClassicRadioButton;
     private javax.swing.JRadioButtonMenuItem menuitemThemeWindowsRadioButton;
-    private javax.swing.JRadioButtonMenuItem menuitemTreeLayoutRadioButton;
     private javax.swing.JMenuItem menuitemViewDiagnostics;
     private javax.swing.JMenuItem menuitemViewPreferences;
     public final javax.swing.JPanel panelFolderListLoad = new javax.swing.JPanel();

@@ -160,7 +160,7 @@
         <Component class="javax.swing.JButton" name="btnGoBackInHistory">
           <Properties>
             <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-              <Image iconType="2" name="D:\Projects\Java\NetBeans\Projects\project\Summer-Project\finalized\FileExplorer\resources\images\back_small.png"/>
+              <Image iconType="3" name="/images/back_small.png"/>
             </Property>
             <Property name="toolTipText" type="java.lang.String" value="Go back in history"/>
             <Property name="focusable" type="boolean" value="false"/>
@@ -174,7 +174,7 @@
         <Component class="javax.swing.JButton" name="btnGoForwardInHistory">
           <Properties>
             <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-              <Image iconType="2" name="D:\Projects\Java\NetBeans\Projects\project\Summer-Project\finalized\FileExplorer\resources\images\fwd_small.png"/>
+              <Image iconType="3" name="/images/fwd_small.png"/>
             </Property>
             <Property name="toolTipText" type="java.lang.String" value="Go forward in history"/>
             <Property name="focusable" type="boolean" value="false"/>
@@ -188,7 +188,7 @@
         <Component class="javax.swing.JButton" name="btnGoToParentDir">
           <Properties>
             <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-              <Image iconType="2" name="D:\Projects\Java\NetBeans\Projects\project\Summer-Project\finalized\FileExplorer\resources\images\up_small.png"/>
+              <Image iconType="3" name="/images/up_small.png"/>
             </Property>
             <Property name="toolTipText" type="java.lang.String" value="Go to parent folder"/>
             <Property name="focusable" type="boolean" value="false"/>
@@ -202,7 +202,7 @@
         <Component class="javax.swing.JButton" name="btnReloadPath">
           <Properties>
             <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-              <Image iconType="2" name="D:\Projects\Java\NetBeans\Projects\project\Summer-Project\finalized\FileExplorer\resources\images\reload_small.png"/>
+              <Image iconType="3" name="/images/reload_small.png"/>
             </Property>
             <Property name="toolTipText" type="java.lang.String" value="Reload current path contents"/>
             <Property name="focusable" type="boolean" value="false"/>
@@ -213,10 +213,10 @@
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnReloadPathActionPerformed"/>
           </Events>
         </Component>
-        <Component class="javax.swing.JButton" name="btnGoToHometDir">
+        <Component class="javax.swing.JButton" name="btnGoToHomeDir">
           <Properties>
             <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-              <Image iconType="2" name="D:\Projects\Java\NetBeans\Projects\project\Summer-Project\finalized\FileExplorer\resources\images\home_small.png"/>
+              <Image iconType="3" name="/images/home_small.png"/>
             </Property>
             <Property name="toolTipText" type="java.lang.String" value="Go to parent folder"/>
             <Property name="focusable" type="boolean" value="false"/>
@@ -224,7 +224,7 @@
             <Property name="verticalTextPosition" type="int" value="3"/>
           </Properties>
           <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnGoToHometDirActionPerformed"/>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnGoToHomeDirActionPerformed"/>
           </Events>
         </Component>
         <Component class="javax.swing.JToolBar$Separator" name="jSeparator3">
@@ -232,7 +232,7 @@
         <Component class="javax.swing.JLabel" name="lblAddressIcon">
           <Properties>
             <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-              <Image iconType="2" name="D:\Projects\Java\NetBeans\Projects\project\Summer-Project\finalized\FileExplorer\resources\images\address_small.png"/>
+              <Image iconType="3" name="/images/address_small.png"/>
             </Property>
             <Property name="toolTipText" type="java.lang.String" value=""/>
           </Properties>
@@ -254,7 +254,7 @@
         <Component class="javax.swing.JToggleButton" name="btnBookmarkIndicator">
           <Properties>
             <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-              <Image iconType="2" name="D:\Projects\Java\NetBeans\Projects\project\Summer-Project\finalized\FileExplorer\resources\images\bookmark - off.png"/>
+              <Image iconType="3" name="/images/bookmark - off.png"/>
             </Property>
             <Property name="toolTipText" type="java.lang.String" value="Bookmark current folder"/>
             <Property name="focusable" type="boolean" value="false"/>
@@ -269,7 +269,7 @@
               <Dimension value="[30, 30]"/>
             </Property>
             <Property name="selectedIcon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-              <Image iconType="2" name="D:\Projects\Java\NetBeans\Projects\project\Summer-Project\finalized\FileExplorer\resources\images\bookmark - on.png"/>
+              <Image iconType="3" name="/images/bookmark - on.png"/>
             </Property>
           </Properties>
           <Events>
@@ -281,7 +281,7 @@
         <Component class="javax.swing.JLabel" name="lblSearchIcon">
           <Properties>
             <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-              <Image iconType="2" name="D:\Projects\Java\NetBeans\Projects\project\Summer-Project\finalized\FileExplorer\resources\images\search_small.png"/>
+              <Image iconType="3" name="/images/search_small.png"/>
             </Property>
             <Property name="toolTipText" type="java.lang.String" value=""/>
           </Properties>

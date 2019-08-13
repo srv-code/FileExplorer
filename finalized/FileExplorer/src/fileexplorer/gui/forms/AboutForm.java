@@ -9,7 +9,8 @@ public class AboutForm extends javax.swing.JFrame {
      */
 	private AboutForm() {
         initComponents();
-		setIconImage(new ImageIcon(AboutForm.class.getResource("/images/about_big.png")).getImage());
+		setIconImage(SystemResources.IconRegistry.getInstance().propertiesIcon_small.getImage());
+//		setIconImage(new ImageIcon(AboutForm.class.getResource("/images/about_big.png")).getImage());
 		SystemResources.getActivityLogger().logInfo("AboutForm initialized");
 	}
 
@@ -108,13 +109,17 @@ public class AboutForm extends javax.swing.JFrame {
     }//GEN-LAST:event_appDescTextPaneHyperlinkUpdate
 
     private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
-        SystemResources.getFileExplorerForm().setEnabled(true);
+        SystemResources.formFileExplorer.setEnabled(true);
+		SystemResources.formFileExplorer.formAbout = null;
+		SystemResources.formFileExplorer.requestFocus();
+		SystemResources.formFileExplorer.requestFocus();
     }//GEN-LAST:event_formWindowClosing
 
     public static void init() {
-		/* Create and display the form */        
-        AboutForm form = new AboutForm();        
-		form.setVisible(true);
+		/* Create and display the form */
+        SystemResources.formFileExplorer.formAbout = new AboutForm();
+		SystemResources.formFileExplorer.formAbout.setVisible(true);
+		SystemResources.formFileExplorer.setEnabled(false);
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

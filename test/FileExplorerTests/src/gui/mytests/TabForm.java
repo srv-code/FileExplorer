@@ -22,9 +22,9 @@ public class TabForm extends javax.swing.JPanel {
 		txt.setText(text);
 	}
 	
-	public String getText() {
-	
-	}
+//	public String getText() {
+//	
+//	}
 
 	/**
 	 * This method is called from within the constructor to initialize the form.

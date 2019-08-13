@@ -57,7 +57,7 @@ public class ListViewFrame extends javax.swing.JFrame {
         jSeparator2.setVisible(true);
 		menuCut.setVisible(true);
 		menuCopy.setVisible(true);
-		menuPaste.setVisible(pasteOperation != PasteOperation.NONE);
+//		menuPaste.setVisible(pasteOperation != PasteOperation.NONE);
 		menuRename.setVisible(true);
 		menuDelete.setVisible(true);
         jSeparator5.setVisible(true);
@@ -215,7 +215,7 @@ public class ListViewFrame extends javax.swing.JFrame {
 	
 	private void setTable() {
 		tableModel = (DefaultTableModel) tableFileList.getModel();
-		tableFileList.getColumnModel().getColumn(0).setCellRenderer(new ImageRenderer());
+//		tableFileList.getColumnModel().getColumn(0).setCellRenderer(new ImageRenderer());
 		
 		DefaultTableCellRenderer rightJustifiedCellRenderer = new DefaultTableCellRenderer();
 		rightJustifiedCellRenderer.setHorizontalAlignment(JLabel.RIGHT);
@@ -366,16 +366,16 @@ public class ListViewFrame extends javax.swing.JFrame {
 	}
 	*/
 	
-	class ImageRenderer extends DefaultTableCellRenderer {
-	  JLabel lbl = new JLabel();
-
-	  public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
-	      boolean hasFocus, int row, int column) {
-			// lbl.setText((String) value);
-			lbl.setIcon((Icon)value);
-			return lbl;
-	  }
-	}
+//	class ImageRenderer extends DefaultTableCellRenderer {
+//	  JLabel lbl = new JLabel();
+//
+//	  public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
+//	      boolean hasFocus, int row, int column) {
+//			// lbl.setText((String) value);
+//			lbl.setIcon((Icon)value);
+//			return lbl;
+//	  }
+//	}
 
 	/**
 	 * This method is called from within the constructor to initialize the form.
@@ -893,8 +893,8 @@ public class ListViewFrame extends javax.swing.JFrame {
 	}
 	
 	private FileAttributes filetoPaste = null;
-	private enum PasteOperation { CUT, COPY, NONE }
-	private PasteOperation pasteOperation = PasteOperation.NONE;
+//	private enum PasteOperation { CUT, COPY, NONE }
+//	private PasteOperation pasteOperation = PasteOperation.NONE;
 	private DefaultMutableTreeNode selectedBookmarkNode = null;
 	
 	private void setBookmarkContextOptions() {

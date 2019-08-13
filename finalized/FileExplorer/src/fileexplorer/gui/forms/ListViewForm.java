@@ -45,7 +45,6 @@ public class ListViewForm extends JPanel {
 	 * Creates new form ListViewForm
 	 */
 	public ListViewForm(final JLabel lblTabTitle, final FileSystemHandler fileSystemHandler, final BookmarkHandler bookmarkHandler) {
-		System.out.println("Info: Initializing ListViewFrame...");
 		logger.logInfo("Initializing ListViewFrame...");
 		this.lblTabTitle = lblTabTitle;
 		this.fileSystemHandler = fileSystemHandler;
@@ -207,7 +206,7 @@ public class ListViewForm extends JPanel {
         btnGoForwardInHistory = new javax.swing.JButton();
         btnGoToParentDir = new javax.swing.JButton();
         btnReloadPath = new javax.swing.JButton();
-        btnGoToHometDir = new javax.swing.JButton();
+        btnGoToHomeDir = new javax.swing.JButton();
         jSeparator3 = new javax.swing.JToolBar.Separator();
         lblAddressIcon = new javax.swing.JLabel();
         txtPathAddress = new javax.swing.JTextField();
@@ -359,7 +358,7 @@ public class ListViewForm extends JPanel {
         toolbarOptions.setFloatable(false);
         toolbarOptions.setRollover(true);
 
-        btnGoBackInHistory.setIcon(new javax.swing.ImageIcon("D:\\Projects\\Java\\NetBeans\\Projects\\project\\Summer-Project\\finalized\\FileExplorer\\resources\\images\\back_small.png")); // NOI18N
+        btnGoBackInHistory.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/back_small.png"))); // NOI18N
         btnGoBackInHistory.setToolTipText("Go back in history");
         btnGoBackInHistory.setFocusable(false);
         btnGoBackInHistory.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
@@ -371,7 +370,7 @@ public class ListViewForm extends JPanel {
         });
         toolbarOptions.add(btnGoBackInHistory);
 
-        btnGoForwardInHistory.setIcon(new javax.swing.ImageIcon("D:\\Projects\\Java\\NetBeans\\Projects\\project\\Summer-Project\\finalized\\FileExplorer\\resources\\images\\fwd_small.png")); // NOI18N
+        btnGoForwardInHistory.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/fwd_small.png"))); // NOI18N
         btnGoForwardInHistory.setToolTipText("Go forward in history");
         btnGoForwardInHistory.setFocusable(false);
         btnGoForwardInHistory.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
@@ -383,7 +382,7 @@ public class ListViewForm extends JPanel {
         });
         toolbarOptions.add(btnGoForwardInHistory);
 
-        btnGoToParentDir.setIcon(new javax.swing.ImageIcon("D:\\Projects\\Java\\NetBeans\\Projects\\project\\Summer-Project\\finalized\\FileExplorer\\resources\\images\\up_small.png")); // NOI18N
+        btnGoToParentDir.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/up_small.png"))); // NOI18N
         btnGoToParentDir.setToolTipText("Go to parent folder");
         btnGoToParentDir.setFocusable(false);
         btnGoToParentDir.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
@@ -395,7 +394,7 @@ public class ListViewForm extends JPanel {
         });
         toolbarOptions.add(btnGoToParentDir);
 
-        btnReloadPath.setIcon(new javax.swing.ImageIcon("D:\\Projects\\Java\\NetBeans\\Projects\\project\\Summer-Project\\finalized\\FileExplorer\\resources\\images\\reload_small.png")); // NOI18N
+        btnReloadPath.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/reload_small.png"))); // NOI18N
         btnReloadPath.setToolTipText("Reload current path contents");
         btnReloadPath.setFocusable(false);
         btnReloadPath.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
@@ -407,20 +406,20 @@ public class ListViewForm extends JPanel {
         });
         toolbarOptions.add(btnReloadPath);
 
-        btnGoToHometDir.setIcon(new javax.swing.ImageIcon("D:\\Projects\\Java\\NetBeans\\Projects\\project\\Summer-Project\\finalized\\FileExplorer\\resources\\images\\home_small.png")); // NOI18N
-        btnGoToHometDir.setToolTipText("Go to parent folder");
-        btnGoToHometDir.setFocusable(false);
-        btnGoToHometDir.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        btnGoToHometDir.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        btnGoToHometDir.addActionListener(new java.awt.event.ActionListener() {
+        btnGoToHomeDir.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/home_small.png"))); // NOI18N
+        btnGoToHomeDir.setToolTipText("Go to parent folder");
+        btnGoToHomeDir.setFocusable(false);
+        btnGoToHomeDir.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        btnGoToHomeDir.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        btnGoToHomeDir.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnGoToHometDirActionPerformed(evt);
+                btnGoToHomeDirActionPerformed(evt);
             }
         });
-        toolbarOptions.add(btnGoToHometDir);
+        toolbarOptions.add(btnGoToHomeDir);
         toolbarOptions.add(jSeparator3);
 
-        lblAddressIcon.setIcon(new javax.swing.ImageIcon("D:\\Projects\\Java\\NetBeans\\Projects\\project\\Summer-Project\\finalized\\FileExplorer\\resources\\images\\address_small.png")); // NOI18N
+        lblAddressIcon.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/address_small.png"))); // NOI18N
         lblAddressIcon.setToolTipText("");
         toolbarOptions.add(lblAddressIcon);
 
@@ -434,14 +433,14 @@ public class ListViewForm extends JPanel {
         });
         toolbarOptions.add(txtPathAddress);
 
-        btnBookmarkIndicator.setIcon(new javax.swing.ImageIcon("D:\\Projects\\Java\\NetBeans\\Projects\\project\\Summer-Project\\finalized\\FileExplorer\\resources\\images\\bookmark - off.png")); // NOI18N
+        btnBookmarkIndicator.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/bookmark - off.png"))); // NOI18N
         btnBookmarkIndicator.setToolTipText("Bookmark current folder");
         btnBookmarkIndicator.setFocusable(false);
         btnBookmarkIndicator.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         btnBookmarkIndicator.setMaximumSize(new java.awt.Dimension(30, 30));
         btnBookmarkIndicator.setMinimumSize(new java.awt.Dimension(30, 30));
         btnBookmarkIndicator.setPreferredSize(new java.awt.Dimension(30, 30));
-        btnBookmarkIndicator.setSelectedIcon(new javax.swing.ImageIcon("D:\\Projects\\Java\\NetBeans\\Projects\\project\\Summer-Project\\finalized\\FileExplorer\\resources\\images\\bookmark - on.png")); // NOI18N
+        btnBookmarkIndicator.setSelectedIcon(new javax.swing.ImageIcon(getClass().getResource("/images/bookmark - on.png"))); // NOI18N
         btnBookmarkIndicator.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnBookmarkIndicatorActionPerformed(evt);
@@ -450,7 +449,7 @@ public class ListViewForm extends JPanel {
         toolbarOptions.add(btnBookmarkIndicator);
         toolbarOptions.add(jSeparator4);
 
-        lblSearchIcon.setIcon(new javax.swing.ImageIcon("D:\\Projects\\Java\\NetBeans\\Projects\\project\\Summer-Project\\finalized\\FileExplorer\\resources\\images\\search_small.png")); // NOI18N
+        lblSearchIcon.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/search_small.png"))); // NOI18N
         lblSearchIcon.setToolTipText("");
         toolbarOptions.add(lblSearchIcon);
 
@@ -571,6 +570,7 @@ public class ListViewForm extends JPanel {
     }//GEN-LAST:event_menuCutActionPerformed
 
     private void menuCopyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuCopyActionPerformed
+		/* @test_feature */
 		SystemResources.pasteOperation = SystemResources.PasteOperation.COPY;
 		SystemResources.filesToPaste = selectedFiles;
 		logger.logInfo("%d items copied", selectedFiles.length);
@@ -799,7 +799,7 @@ public class ListViewForm extends JPanel {
         }
     }//GEN-LAST:event_btnReloadPathActionPerformed
 
-    private void btnGoToHometDirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGoToHometDirActionPerformed
+    private void btnGoToHomeDirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGoToHomeDirActionPerformed
         try {
             //			System.out.println("  // home: " + userHomeDirectoryPath);
             loadPath(fileSystemHandler.getHomeDirectory(), true);
@@ -808,9 +808,9 @@ public class ListViewForm extends JPanel {
                 "Cannot move to user home directory: " + e,
                 "Navigation error",
                 JOptionPane.ERROR_MESSAGE);
-            System.err.println("Err: Cannot move to user home directory: " + e);
+            logger.logSevere(e, "Cannot move to user home directory. Reason: %s", e);
         }
-    }//GEN-LAST:event_btnGoToHometDirActionPerformed
+    }//GEN-LAST:event_btnGoToHomeDirActionPerformed
 
     private void txtPathAddressActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtPathAddressActionPerformed
         loadPath(txtPathAddress.getText().trim(), true);
@@ -841,8 +841,8 @@ public class ListViewForm extends JPanel {
             //		TableModel tableModel = source.getModel();
             //		System.out.printf("  // getSelectedRowCount()=%d, selected row indices=[", tableFileList.getSelectedRowCount());
             int[] selectedRows = tableFileList.getSelectedRows();
-			if(SystemResources.fileExplorerForm != null)
-				SystemResources.fileExplorerForm.lblActivityStatus.setText(selectedRows.length + " items selected");
+			if(SystemResources.formFileExplorer != null)
+				SystemResources.formFileExplorer.lblActivityStatus.setText(selectedRows.length + " items selected");
             //		for(int viewRow : selectedRows)
             //			System.out.printf("{v=%d,m=%d} ", viewRow, tableFileList.convertRowIndexToModel(viewRow));
 
@@ -863,25 +863,36 @@ public class ListViewForm extends JPanel {
     }//GEN-LAST:event_tableFileListMouseReleased
 
     private void menuOpenInNewTabActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuOpenInNewTabActionPerformed
-        SystemResources.fileExplorerForm.addNewTab(selectedFiles[0].absolutePath);
+        SystemResources.formFileExplorer.addNewTab(selectedFiles[0].absolutePath);
     }//GEN-LAST:event_menuOpenInNewTabActionPerformed
 
     private void menuPasteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuPasteActionPerformed
-        FileAttributes currentFile=null;
-		try {
-			logger.logInfo("To %s %d items", SystemResources.pasteOperation, SystemResources.filesToPaste.length);
-			
-			for(int i=0; i<SystemResources.filesToPaste.length; i++) {
-				currentFile = SystemResources.filesToPaste[i];
+        FileAttributes currentFile, pasteLocation=fileSystemHandler.getCurrentWorkingDirectory();
+		logger.logInfo("Starting: operation=%s, paste location='%s', item count=%d", 
+				SystemResources.pasteOperation,
+				pasteLocation,
+				SystemResources.filesToPaste.length);
+
+		for(int i=0, len=SystemResources.filesToPaste.length; i<len; i++) {
+			currentFile = SystemResources.filesToPaste[i];
+			try {
 				if(SystemResources.pasteOperation == SystemResources.PasteOperation.COPY)
-					fileSystemHandler.copy(currentFile, fileSystemHandler.getCurrentWorkingDirectory());
+					fileSystemHandler.copy(currentFile, pasteLocation);
 				else 
-					fileSystemHandler.move(currentFile, fileSystemHandler.getCurrentWorkingDirectory());
-				logger.logInfo(currentFile, );
+					fileSystemHandler.move(currentFile, pasteLocation);
+				updateTableList(true);
+				logger.logInfo("  source: '%s'", SystemResources.filesToPaste[i].absolutePath);
+			} catch(IOException e) {
+				JOptionPane.showMessageDialog(	this,
+												String.format("Cannot %s '%s'\nReason: %s",
+														SystemResources.pasteOperation.toString().toLowerCase(),
+														currentFile.absolutePath,
+														e.getMessage()),
+												"File operation failure",
+												JOptionPane.ERROR_MESSAGE);			
+				logger.logSevere(e, "Cannot perform: operation=%s, file='%s'. (Reason: %s)", 
+						SystemResources.pasteOperation, currentFile, e);
 			}
-		} catch(IOException e) {
-			logger.logSevere(e, "Unable to %s item '%s'. (Reason: %s)", 
-					SystemResources.pasteOperation, currentFile, e);
 		}
     }//GEN-LAST:event_menuPasteActionPerformed
 
@@ -963,7 +974,7 @@ public class ListViewForm extends JPanel {
 				updateTabTitleBar(cwd);
 				logger.logInfo("Folder list %s for path: %s", loadFresh ? "loaded" : "restored", cwd.absolutePath);
 			} catch(Exception e) {
-				JOptionPane.showMessageDialog(	SystemResources.fileExplorerForm,
+				JOptionPane.showMessageDialog(SystemResources.formFileExplorer,
 												String.format("Cannot update table list!\n  Path: %s\n  Reason: %s",
 														fileSystemHandler.getCurrentWorkingDirectory().absolutePath, e),
 												"Directory listing error",
@@ -983,7 +994,7 @@ public class ListViewForm extends JPanel {
 				try {
 					fileSystemHandler.setCurrentWorkingDirectoryToHomeDirectory();
 				} catch(FileNotFoundException e1) {
-					JOptionPane.showMessageDialog(	SystemResources.fileExplorerForm,
+					JOptionPane.showMessageDialog(SystemResources.formFileExplorer,
 													String.format("Cannot move to home directory from: %s!",
 															fileSystemHandler.getCurrentWorkingDirectory().absolutePath),
 													"Directory listing error",
@@ -1007,10 +1018,10 @@ public class ListViewForm extends JPanel {
 		/* Executed in event dispatch thread */
 		public void done() {
 //			Toolkit.getDefaultToolkit().beep();
-			if(SystemResources.fileExplorerForm != null) {
-				SystemResources.fileExplorerForm.lblItemsSelected.setText(String.valueOf(fileList.length));
-				SystemResources.fileExplorerForm.lblActivityStatus.setText(fileList.length + " items selected");
-				SystemResources.fileExplorerForm.panelFolderListLoad.setVisible(false);
+			if(SystemResources.formFileExplorer != null) {
+				SystemResources.formFileExplorer.lblItemsSelected.setText(String.valueOf(fileList.length));
+				SystemResources.formFileExplorer.lblActivityStatus.setText(fileList.length + " items selected");
+				SystemResources.formFileExplorer.panelFolderListLoad.setVisible(false);
 			}	
 		}
 		
@@ -1019,8 +1030,8 @@ public class ListViewForm extends JPanel {
 		public void propertyChange(PropertyChangeEvent evt) {
 			if(panelNotSetVisible) { // eliminates irrelevant property setting 
 				if ("progress".equals(evt.getPropertyName())) {
-					if(SystemResources.fileExplorerForm != null) {
-						SystemResources.fileExplorerForm.panelFolderListLoad.setVisible(true);
+					if(SystemResources.formFileExplorer != null) {
+						SystemResources.formFileExplorer.panelFolderListLoad.setVisible(true);
 						panelNotSetVisible = false;
 					}
 				}
@@ -1034,11 +1045,10 @@ public class ListViewForm extends JPanel {
 	
 	/** Updates with currentWorkingDirectory */
 	private void updateTableList(final boolean loadFresh) {
-		if(SystemResources.fileExplorerForm != null)
-			SystemResources.fileExplorerForm.panelFolderListLoad.setVisible(true);
+		if(SystemResources.formFileExplorer != null)
+			SystemResources.formFileExplorer.panelFolderListLoad.setVisible(true);
 		
-		currentUpdateTableListWorker = new UpdateTableListWorker(loadFresh);
-		currentUpdateTableListWorker.execute();		
+		new UpdateTableListWorker(loadFresh).execute();
 	}
 
 	/* Only change the currentWorkingDirectory */
@@ -1220,13 +1230,12 @@ public class ListViewForm extends JPanel {
                 "File operation failure",
                 JOptionPane.ERROR_MESSAGE);
             logger.logSevere(e, "Cannot open %s bookmarked item %s. Reason: %s", 
-					openLocation ? "location of" : "", e);
-					
+					openLocation ? "location of" : "", e);					
         }
 	}
 	
 	public static ListViewForm init(final JLabel lblTabTitle, final FileSystemHandler fileSystemHandler, final BookmarkHandler bookmarkHandler) {
-		/* Create and display the form */		
+		/* Create and display the form */
 		return new ListViewForm(lblTabTitle, fileSystemHandler, bookmarkHandler);
 	}
 	
@@ -1254,7 +1263,7 @@ public class ListViewForm extends JPanel {
     private javax.swing.JToggleButton btnBookmarkIndicator;
     private javax.swing.JButton btnGoBackInHistory;
     private javax.swing.JButton btnGoForwardInHistory;
-    private javax.swing.JButton btnGoToHometDir;
+    private javax.swing.JButton btnGoToHomeDir;
     private javax.swing.JButton btnGoToParentDir;
     private javax.swing.JButton btnReloadPath;
     private javax.swing.JScrollPane jScrollPane1;

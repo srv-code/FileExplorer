@@ -1,0 +1,4 @@
+@Deprecated, /* @abandoned */   : development stopped
+/* @future */			: marked for development in future
+/* @test */			: test module
+/* @test_feature */		: test feature, waiting to be replaced by a real implementation

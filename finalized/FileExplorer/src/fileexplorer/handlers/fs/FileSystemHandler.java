@@ -1,5 +1,6 @@
 package fileexplorer.handlers.fs;
 
+import org.apache.commons.net.ftp.*;
 import fileexplorer.handlers.fs.nav.NavigationException;
 import fileexplorer.handlers.fs.nav.NavigationHistoryHandler;
 import java.awt.Desktop;
@@ -141,8 +142,12 @@ public abstract class FileSystemHandler {
 //				new RemoteFileSystemHandler(absolutePath) : new LocalFileSystemHandler(absolutePath);
 //	}
 	
-	public static FileSystemHandler getRemoteHandler(final String address, final String username, final String password) throws FileNotFoundException, InvalidPathException {
-		return new RemoteFileSystemHandler(address, username, password);
+	public static FileSystemHandler getRemoteHandler(	final FTPClient ftpClient,
+														final String address, 
+														final String username, 
+														final String password) 
+												throws FileNotFoundException, InvalidPathException {
+		return new RemoteFileSystemHandler(ftpClient, address, username, password);
 	}
 	
 	public static FileSystemHandler getLocalHandler(final String path) throws FileNotFoundException, InvalidPathException {

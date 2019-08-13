@@ -1,0 +1,35 @@
+Notes: 
+	1. Save preferences at last using the associated prefs handler.
+	
+RemoteLoginForm: 
+	Objective: 
+		1. To save the sever hostname/IP and user upon successful logins and show them in the drop box on per-hostname basis.
+		2. Saving of the map (containing the successful hostnames/IPs & usernames) into the preferences will be done during the closing of the app via the prefs handler.
+		
+	To Dos: 
+		* Remove all the prefs saving codes and consolidate them in saveRemoteServerProfilesToPreferences().
+		* Cleanse the methods: loadProfiles, saveRemoteServerProfile, updateComboAddressesAndUsernames.
+		* Fix the BookmarkedItem for  remote servers.
+		* Check the actual event for combo box item selection.
+			
+	Implementation:
+		1. Upon successful logins, the hostname and the usernames will be saved in a local map (residing in the SystemResources) and the same will be used for dynamic loading of the usernames upon selected hostnames/IPs.
+		
+	Algorithm:
+		[RemoteLoginForm]
+			comboServerHostNameItemStateChanged():
+				comboUserName.removeAll()
+				comboUserName.addItems(remoteServerProfileMap.get(comboServerHostName.selectedItem()))
+				
+			btnLoginActionPerformed():
+				if(loginSuccessful())
+					saveProfileToMap(newHostname, newUsername, SystemResources.remoteServerProfileMap)
+					if(!comboServerHostName.hasItem(newHostname))
+						comboServerHostName.addItem(newHostname)
+						// if(comboServerHostName.selectedItem().equals(newHostname)) // -- always true
+						if(!comboUserName.hasItem(newUsername))
+							comboUserName.addItem(newUsername)
+						
+		[PreferencesHandler]
+			savePreferences():
+				save(remoteServerProfileMap)

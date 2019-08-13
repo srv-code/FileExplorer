@@ -1,16 +1,25 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package fileexplorer.gui.forms;
+
+import fileexplorer.handlers.fs.FileSystemHandler;
+import org.apache.commons.net.ftp.*;
+import fileexplorer.handlers.shared.ActivityLogger;
+import fileexplorer.handlers.shared.AppPreferences;
+import fileexplorer.handlers.shared.SystemResources;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.nio.file.InvalidPathException;
+import java.util.ArrayList;
+import java.util.List;
+import javax.swing.JOptionPane;
 
 /**
  *
  * @author soura
  */
-public class RemoteLoginForm extends javax.swing.JFrame {
-
+public class RemoteLoginForm extends javax.swing.JFrame {	
+	private static ActivityLogger logger = SystemResources.getActivityLogger();
+	final private FTPClient ftpClient = new FTPClient();
+	
 	/**
 	 * Creates new form RemoteLoginForm
 	 */
@@ -28,99 +37,142 @@ public class RemoteLoginForm extends javax.swing.JFrame {
     private void initComponents() {
 
         jLabel1 = new javax.swing.JLabel();
-        txtAddress = new javax.swing.JTextField();
         jLabel2 = new javax.swing.JLabel();
-        comboboxUserType = new javax.swing.JComboBox<>();
+        comboUserType = new javax.swing.JComboBox<>();
         jLabel3 = new javax.swing.JLabel();
-        txtUserName = new javax.swing.JTextField();
         jLabel4 = new javax.swing.JLabel();
-        txtUserPassword = new javax.swing.JTextField();
         chkAddToBookmark = new javax.swing.JCheckBox();
         btnLogin = new javax.swing.JButton();
+        txtUserPassword = new javax.swing.JPasswordField();
+        txtServerBookmarkName = new javax.swing.JTextField();
+        jLabel5 = new javax.swing.JLabel();
+        comboServerHostName = new javax.swing.JComboBox<>();
+        comboUserName = new javax.swing.JComboBox<>();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Remote server login");
+        setAlwaysOnTop(true);
         setResizable(false);
         setType(java.awt.Window.Type.UTILITY);
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowClosed(java.awt.event.WindowEvent evt) {
+                formWindowClosed(evt);
+            }
+            public void windowOpened(java.awt.event.WindowEvent evt) {
+                formWindowOpened(evt);
+            }
+        });
 
         jLabel1.setText("Address:");
 
         jLabel2.setText("User type:");
 
-        comboboxUserType.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Anonymous", "Registered" }));
-        comboboxUserType.addActionListener(new java.awt.event.ActionListener() {
+        comboUserType.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Anonymous", "Registered" }));
+        comboUserType.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                comboboxUserTypeActionPerformed(evt);
+                comboUserTypeActionPerformed(evt);
             }
         });
 
         jLabel3.setText("Username:");
 
-        txtUserName.setText("Anonymous");
-        txtUserName.setEnabled(false);
-
         jLabel4.setText("Password:");
+
+        chkAddToBookmark.setText("Add to bookmark");
+        chkAddToBookmark.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                chkAddToBookmarkActionPerformed(evt);
+            }
+        });
+
+        btnLogin.setText("Log in");
+        btnLogin.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnLoginActionPerformed(evt);
+            }
+        });
 
         txtUserPassword.setEnabled(false);
 
-        chkAddToBookmark.setText("Add to bookmark");
+        txtServerBookmarkName.setEnabled(false);
 
-        btnLogin.setText("Log in");
+        jLabel5.setText("Name:");
+        jLabel5.setEnabled(false);
+
+        comboServerHostName.setEditable(true);
+        comboServerHostName.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                comboServerHostNameActionPerformed(evt);
+            }
+        });
+
+        comboUserName.setEditable(true);
+        comboUserName.setEnabled(false);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
+                        .addContainerGap()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel2)
-                            .addComponent(jLabel1))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabel2)
+                                    .addComponent(jLabel1))
+                                .addGap(19, 19, 19)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(comboServerHostName, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(comboUserType, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabel3)
+                                    .addComponent(jLabel4))
+                                .addGap(12, 12, 12)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(comboUserName, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(txtUserPassword)))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(chkAddToBookmark)
+                                .addGap(0, 0, Short.MAX_VALUE))))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(175, 175, 175)
+                        .addComponent(btnLogin))
+                    .addGroup(layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 63, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(txtAddress)
-                            .addComponent(comboboxUserType, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel3)
-                            .addComponent(jLabel4))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(txtUserPassword)
-                            .addComponent(txtUserName)))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(chkAddToBookmark)
-                        .addGap(0, 0, Short.MAX_VALUE)))
+                        .addComponent(txtServerBookmarkName, javax.swing.GroupLayout.PREFERRED_SIZE, 346, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
-            .addGroup(layout.createSequentialGroup()
-                .addGap(175, 175, 175)
-                .addComponent(btnLogin)
-                .addContainerGap(196, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(9, 9, 9)
+                .addGap(10, 10, 10)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel1)
-                    .addComponent(txtAddress, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(comboServerHostName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel2)
-                    .addComponent(comboboxUserType, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(comboUserType, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel3)
-                    .addComponent(txtUserName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(comboUserName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(txtUserPassword, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(txtUserPassword, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel4))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(chkAddToBookmark)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 9, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(txtServerBookmarkName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel5))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(btnLogin)
                 .addContainerGap())
         );
@@ -128,19 +180,225 @@ public class RemoteLoginForm extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void comboboxUserTypeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_comboboxUserTypeActionPerformed
-        System.out.println("action performed: " + comboboxUserType.getSelectedItem());
-		if("Anonymous".equals(comboboxUserType.getSelectedItem())) {
-			txtUserName.setText("Anonymous");
-			txtUserName.setEnabled(false);
-			txtUserPassword.setEnabled(false);
+    private void comboUserTypeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_comboUserTypeActionPerformed
+        if(comboUserType.getSelectedIndex()==0) { // selected user as Anonymous
+			comboUserName.setEnabled(false);
+			txtUserPassword.setEnabled(false);			
 		} else {
-			txtUserName.setText("");
-			txtUserName.setEnabled(true);
+			comboUserName.setEnabled(true);
 			txtUserPassword.setEnabled(true);
-		}
-    }//GEN-LAST:event_comboboxUserTypeActionPerformed
+		}		
+		loadUserNames();
+    }//GEN-LAST:event_comboUserTypeActionPerformed
 
+//	private String host, username, password, bookmarkName;
+	
+    private void btnLoginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLoginActionPerformed
+		final String hostName = comboServerHostName.getSelectedItem()==null? "" : comboServerHostName.getSelectedItem().toString().trim();
+		final String userName = comboUserName.getSelectedItem()==null ? "" : comboUserName.getSelectedItem().toString().trim();
+		final String password = new String(txtUserPassword.getPassword()).trim();
+		final String bookmarkName = chkAddToBookmark.isSelected() ? txtServerBookmarkName.getText().trim() : null;
+		
+		/* validating inputs */
+		if(hostName.length()==0) {
+			comboServerHostName.requestFocus();
+			JOptionPane.showMessageDialog(	this,
+											"Please enter a valid host address",
+											"Invalid input",
+											JOptionPane.ERROR_MESSAGE);
+			return;
+		}
+		
+		if(userName.length()==0) {
+			comboUserName.requestFocus();
+			JOptionPane.showMessageDialog(	this,
+											"Please enter a valid username",
+											"Invalid input",
+											JOptionPane.ERROR_MESSAGE);
+			return;
+		}
+		
+		if(chkAddToBookmark.isSelected() && bookmarkName.length()==0) {
+			txtServerBookmarkName.requestFocus();
+			JOptionPane.showMessageDialog(	this,
+											"Please enter a valid bookmark name",
+											"Invalid input",
+											JOptionPane.ERROR_MESSAGE);
+			return;
+		}
+		
+		try {
+			/* attempting to connect to remote server */
+			connectToServer(hostName, SystemResources.FTP_PORT, userName, password);
+			logger.logConfig("Connection successful to remote server %s as user '%s'", hostName, userName);
+			
+			/* save this remote server profile to map & combo box */
+			saveRemoteServerProfile(hostName, userName);
+			
+			/* adding remote server to bookmark pane */
+			if(chkAddToBookmark.isSelected()) {
+				logger.logInfo("Adding remote server %s to bookmark pane...", hostName);
+				SystemResources.formFileExplorer.bookmarkHandler.addRemoteServer(bookmarkName, hostName);
+			}
+			
+			/* creating a new tab with server's root listing */
+			addNewTab(hostName, userName, password);
+			
+			/* close this window */
+			dispose();
+		} catch(IOException e) {
+			JOptionPane.showMessageDialog(	this,
+											"Cannot connect to remote server: " + hostName + 
+													"\nReason: " + e,
+											"Remote server connection failed",
+											JOptionPane.ERROR_MESSAGE);
+			logger.logSevere(e, "Remote server connection failed. Reason: %s", e);
+		}
+    }//GEN-LAST:event_btnLoginActionPerformed
+
+	private void saveRemoteServerProfile(	final String hostName, 
+											final String userName) {
+		/* saving to map */
+		List<String> userNameList = SystemResources.prefs.remoteServerProfilesMap.get(hostName);
+		if(userNameList == null) {
+			userNameList = new ArrayList<>();
+			SystemResources.prefs.remoteServerProfilesMap.put(hostName, userNameList);
+		}
+		
+		if(!userNameList.contains(userName) && !userName.equals(SystemResources.ANONYMOUS_USERNAME))
+			userNameList.add(userName);
+		
+		/* adding to combo boxes */
+		boolean isNew = true;
+		for(int i=0, len=comboServerHostName.getItemCount(); i<len; i++) {
+			if(hostName.equals(comboServerHostName.getItemAt(i))) {
+				isNew = false;
+				break;
+			}
+		}
+		
+		if(isNew) 
+			comboServerHostName.addItem(hostName);
+		
+		if(!userName.equals(SystemResources.ANONYMOUS_USERNAME)) {
+			isNew = true;
+			for(int i=0, len=comboUserName.getItemCount(); i<len; i++) {
+				if(userName.equals(comboUserName.getItemAt(i))) {
+					isNew = false;
+					break;
+				}
+			}
+			
+			if(isNew) 
+				comboUserName.addItem(userName);
+		}
+	}
+	
+	private void addNewTab(final String hostName, final String userName, final String password) {
+		try {
+			SystemResources.formFileExplorer
+						.addNewTab(
+								FileSystemHandler.getRemoteHandler(
+										ftpClient, hostName, userName, password));
+		} catch(FileNotFoundException|InvalidPathException e) {
+			JOptionPane.showMessageDialog(	this,
+											"Cannot load directory listing of remote server " + hostName
+												+ ".\nReason: " + e,
+											"Remote server operation failed",
+											JOptionPane.ERROR_MESSAGE);
+			logger.logSevere(e, "Cannot load directory listing of remote server %s. Reason: %s", 
+					hostName, e);
+		}
+	}
+	
+    private void chkAddToBookmarkActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chkAddToBookmarkActionPerformed
+        txtServerBookmarkName.setEnabled(chkAddToBookmark.isSelected());
+    }//GEN-LAST:event_chkAddToBookmarkActionPerformed
+
+    private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
+		SystemResources.formFileExplorer.setEnabled(false);
+		
+        /* load remote server profiles from preference map */
+		comboUserName.addItem(SystemResources.ANONYMOUS_USERNAME);
+		txtUserPassword.setText(SystemResources.ANONYMOUS_PASSWORD);
+		System.out.println("  // will load hostnames: " + SystemResources.prefs.remoteServerProfilesMap.keySet());
+		for(String hostString: SystemResources.prefs.remoteServerProfilesMap.keySet()) {
+			System.out.println("  // host added: " + hostString);
+			comboServerHostName.addItem(hostString);
+		}
+    }//GEN-LAST:event_formWindowOpened
+
+    private void formWindowClosed(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosed
+        SystemResources.formFileExplorer.setEnabled(true);
+		SystemResources.formFileExplorer.formRemoteLogin = null;
+		SystemResources.formFileExplorer.requestFocus();
+    }//GEN-LAST:event_formWindowClosed
+
+    private void comboServerHostNameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_comboServerHostNameActionPerformed
+        loadUserNames();
+    }//GEN-LAST:event_comboServerHostNameActionPerformed
+
+	private void loadUserNames() {
+		if(comboUserType.getSelectedIndex()==0) { // selected user as Anonymous
+			comboUserName.removeAllItems();
+			comboUserName.addItem(SystemResources.ANONYMOUS_USERNAME);
+			txtUserPassword.setText(SystemResources.ANONYMOUS_PASSWORD);
+		} else {
+			/* load the associated usernames from map */
+			String hostName = null;
+			if(comboServerHostName.getSelectedItem() == null)
+				return;
+			else
+				hostName = comboServerHostName.getSelectedItem().toString().trim();
+			if(hostName.length()==0) /* blank input */
+				return;			
+			List<String> usernameList = SystemResources.prefs.remoteServerProfilesMap.get(hostName);
+			if(usernameList==null) /* new server host name */
+				return;
+			System.out.printf("  // users to add for host=%s: %s\n", hostName, usernameList);
+			comboUserName.removeAllItems();
+			for(String usernameString: usernameList)
+				comboUserName.addItem(usernameString);
+		}
+	}
+	
+	private void logServerReply(final FTPClient ftpClient, final String hostName) {
+		String[] replies = ftpClient.getReplyStrings();
+        if (replies != null && replies.length > 0) {
+			for (String reply : replies)
+                logger.logConfig("Remote server (%s) reply: %s", hostName, reply);
+        }
+	}
+	
+	private void connectToServer(	final String hostName, 
+									final int port, 
+									final String userName, 
+									final String  password) 
+											throws IOException {
+		logger.logInfo("Connecting to remote server '%s'...", hostName);
+		ftpClient.connect(hostName, port);
+		logServerReply(ftpClient, hostName);
+		int replyCode = ftpClient.getReplyCode();
+
+		if (FTPReply.isPositiveCompletion(replyCode))
+			logger.logConfig("Connected to remote server: %s, reply code: %d", hostName, replyCode);
+		else
+			throw new IOException("Connection failed. (Server: " + hostName + ", Reply code:" + replyCode + ")");
+
+		logger.logConfig("Logging in to remote server %s...", hostName);
+		boolean success = ftpClient.login(userName, password);
+		logServerReply(ftpClient, hostName);
+		if (success)
+			logger.logConfig("Logged in to remote server: %s, user: '%s'", hostName, userName);
+		else
+			throw new IOException("Log in failed. (Server: " + hostName + ", username: '" + userName + 
+					"', reply code: " + ftpClient.getReplyCode() + ")");
+		
+		// use local passive mode to pass firewall
+		logger.logConfig("Entering local passive mode in remote server %s...", hostName);
+		ftpClient.enterLocalPassiveMode();
+		logger.logConfig("Entered local passive mode in remote server %s", hostName);
+	}
 	
 	private static RemoteLoginForm form = null;
 	
@@ -148,8 +406,9 @@ public class RemoteLoginForm extends javax.swing.JFrame {
 		/* Create and display the form */
 		java.awt.EventQueue.invokeLater(new Runnable() {
 			public void run() {
-				form = new RemoteLoginForm();
-				form.setVisible(true);
+				SystemResources.formFileExplorer.formRemoteLogin = new RemoteLoginForm();
+				SystemResources.formFileExplorer.formRemoteLogin.setVisible(true);
+				logger.logInfo("RemoteLoginForm initialized");
 			}
 		});
 	}
@@ -157,13 +416,15 @@ public class RemoteLoginForm extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnLogin;
     private javax.swing.JCheckBox chkAddToBookmark;
-    private javax.swing.JComboBox<String> comboboxUserType;
+    private javax.swing.JComboBox<String> comboServerHostName;
+    private javax.swing.JComboBox<String> comboUserName;
+    private javax.swing.JComboBox<String> comboUserType;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
-    private javax.swing.JTextField txtAddress;
-    private javax.swing.JTextField txtUserName;
-    private javax.swing.JTextField txtUserPassword;
+    private javax.swing.JLabel jLabel5;
+    private javax.swing.JTextField txtServerBookmarkName;
+    private javax.swing.JPasswordField txtUserPassword;
     // End of variables declaration//GEN-END:variables
 }

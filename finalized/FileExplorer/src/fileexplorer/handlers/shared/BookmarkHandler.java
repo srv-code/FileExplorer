@@ -109,6 +109,12 @@ public class BookmarkHandler {
 		return this;
 	}
 	
+	public BookmarkHandler addRemoteServer(final String name, final String host) {
+		add(treeNodeRemoteServers, new BookmarkedItem(name, BookmarkedItem.TYPE_REMOTE_SERVER, host));
+		refreshNode(treeNodeRemoteServers);
+		return this;
+	}
+	
 	private void add(final DefaultMutableTreeNode node, final BookmarkedItem item) {
 		if(!itemAlreadyPresent(node, item))
 			node.add(new DefaultMutableTreeNode(item));

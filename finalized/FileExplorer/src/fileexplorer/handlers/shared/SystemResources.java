@@ -28,6 +28,10 @@ public class SystemResources {
     public final static String ACCOUNT_USER_NAME = System.getProperty("user.name");
     public final static String ACCOUNT_USER_HOME_PATH = System.getProperty("user.home");
     public final static String LOOK_AND_FEEL_CLASS_NAME = "com.sun.java.swing.plaf.windows.WindowsLookAndFeel";
+	public final static int FTP_PORT = 21;
+	public final static String ANONYMOUS_USERNAME = "anonymous";
+	public final static String ANONYMOUS_PASSWORD = "";
+	
     
     /* Non-final fields - will be set only by SystemHandler, 
      *   paired with public getters only */
@@ -36,30 +40,17 @@ public class SystemResources {
         return logger;
     }
     
-    public static FileExplorerForm fileExplorerForm = null; // TODO rectify
-    public static FileExplorerForm getFileExplorerForm() {
-        return fileExplorerForm;
-    }
+    public static FileExplorerForm formFileExplorer = null; // TODO rectify
+//    public static FileExplorerForm getFileExplorerForm() {
+//        return formFileExplorer;
+//    }
     
-    static AppPreferences prefs;
+    public static AppPreferences prefs;
     public static AppPreferences getAppPreferences() {
         return prefs;
     }
 	
-	public static enum PasteOperation {
-		CUT  ("Cut"),
-		COPY ("Copy"),
-		NONE ("None");
-		
-		private String desc;
-		public String toString() {
-			return desc;
-		}
-		
-		PasteOperation(String desc) {
-			this.desc = desc;
-		}
-	};
+	public static enum PasteOperation { CUT, COPY, NONE; };
 	public static PasteOperation pasteOperation = PasteOperation.NONE;
 	public static FileAttributes[] filesToPaste = null;
     
@@ -111,6 +102,8 @@ public class SystemResources {
 		public final ImageIcon sourceCodeIcon_big = getImage("/images/src_big.png");
 		
 		public final ImageIcon propertiesIcon_small = getImage("/images/about_small.png");
+		
+		public final ImageIcon prefsIcon_big = getImage("/images/prefs_big.png");
 		
 		public final ImageIcon localTabIcon_small = getImage("/images/localtab_small.png");
 		public final ImageIcon closeTabButton_small = getImage("/images/close_tab_button_small.png");
@@ -166,7 +159,7 @@ public class SystemResources {
 			new Object[] { Arrays.asList("sys", "dll", "com", "exe", "cpl", "msc", "dmg", "app", "sh", "deb"), executableIcon_small, executableIcon_big },
 			
 			// document files
-			new Object[] { Arrays.asList("pdf", "xls", "xlsx", "doc", "docx", "ppt", "pptx", "csv"), documentIcon_small, documentIcon_big },
+			new Object[] { Arrays.asList("pdf", "xls", "xlsx", "doc", "docx", "rtf", "ppt", "pptx", "csv"), documentIcon_small, documentIcon_big },
 
 			// compressed files
 			new Object[] { Arrays.asList("zip", "zipx", "rar", "tar", "tgz", "cab", "iso", "gz", "7z", "bzip", "bzip2", "gzip", "wim", "jar", "xz"), compressedIcon_small, compressedIcon_big },
@@ -201,7 +194,7 @@ public class SystemResources {
 						return (ImageIcon)record[ size==IconSize.SMALL ? 1 : 2 ];
 					}
 				}
-				System.out.println("Warning: No icon associated with type=" + type); // TODO log warning
+				logger.logWarning("No icon associated with type=" + type); // TODO log warning
 			}		
 			return size==IconSize.SMALL ? fileIcon_small : fileIcon_big;
 		}

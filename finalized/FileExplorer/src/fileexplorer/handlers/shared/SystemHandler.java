@@ -48,7 +48,7 @@ public class SystemHandler implements AutoCloseable {
             logger.logInfo("Initializing FileExplorerForm...");
             
 			// Start main GUI form
-            SystemResources.fileExplorerForm = FileExplorerForm.init();
+            SystemResources.formFileExplorer = FileExplorerForm.init();
         } catch(Exception e) {
             // TODO do something more here
 			try {
@@ -63,6 +63,8 @@ public class SystemHandler implements AutoCloseable {
     @Override 
     public void close() {
 		try {
+			logger.logInfo("Storing user preferences...");
+			SystemResources.prefs.storeUserPreferences();
 			logger.logInfo("Closing ActivityLogger...");
             logger.close();
         } catch(IOException e) {

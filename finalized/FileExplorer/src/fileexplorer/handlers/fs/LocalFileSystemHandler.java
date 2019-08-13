@@ -107,7 +107,7 @@ public class LocalFileSystemHandler extends FileSystemHandler {
 
 	@Override
 	public FileAttributes[] listFiles(final FileAttributes dir) throws InvalidPathException, FileNotFoundException, AccessDeniedException {
-		File dirToList = new File(checkIfDirectory(dir).absolutePath);		
+		File dirToList = new File(checkIfDirectory(dir).absolutePath);
 		File[] fileList = dirToList.listFiles();
 		if(fileList == null) 
 			throw new AccessDeniedException(dir.absolutePath);

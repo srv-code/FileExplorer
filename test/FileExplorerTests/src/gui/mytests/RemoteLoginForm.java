@@ -65,6 +65,11 @@ public class RemoteLoginForm extends javax.swing.JFrame {
         chkAddToBookmark.setText("Add to bookmark if logs in");
 
         btnLogin.setText("Log in");
+        btnLogin.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnLoginActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -139,6 +144,10 @@ public class RemoteLoginForm extends javax.swing.JFrame {
 			txtUserPassword.setEnabled(true);
 		}
     }//GEN-LAST:event_comboboxUserTypeActionPerformed
+
+    private void btnLoginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLoginActionPerformed
+		
+    }//GEN-LAST:event_btnLoginActionPerformed
 
 	/**
 	 * @param args the command line arguments
