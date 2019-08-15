@@ -34,18 +34,18 @@ public class SystemHandler implements AutoCloseable {
         try {
 			System.out.println("Info: Initializing ActivityLogger...");
             logger = SystemResources.logger = ActivityLogger.getInstance();
-			logger.logInfo("ActivityLogger initialized, log file: "
+			logger.logConfig("ActivityLogger initialized, log file: "
 					+ logger.getFile().getAbsolutePath());
 			
-			logger.logInfo("Initializing AppPreferences...");
+			logger.logConfig("Initializing AppPreferences...");
             SystemResources.prefs = AppPreferences.getInstance();
             
-			logger.logInfo("Loading user preferences...");
+			logger.logConfig("Loading user preferences...");
             SystemResources.prefs.loadUserPreferences();
-			logger.logInfo("Loading UI look and feel...");
+			logger.logConfig("Setting theme...");
 			SystemResources.prefs.setAppLookAndFeel();
             
-            logger.logInfo("Initializing FileExplorerForm...");
+            logger.logConfig("Initializing FileExplorerForm...");
             
 			// Start main GUI form
             SystemResources.formFileExplorer = FileExplorerForm.init();
@@ -63,9 +63,9 @@ public class SystemHandler implements AutoCloseable {
     @Override 
     public void close() {
 		try {
-			logger.logInfo("Storing user preferences...");
+			logger.logConfig("Storing user preferences...");
 			SystemResources.prefs.storeUserPreferences();
-			logger.logInfo("Closing ActivityLogger...");
+			logger.logConfig("Closing ActivityLogger...");
             logger.close();
         } catch(IOException e) {
             System.err.println("ERR: Cannot close logger. (Exc: " + e + ")");

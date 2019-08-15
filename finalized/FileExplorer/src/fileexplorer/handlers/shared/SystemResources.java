@@ -9,25 +9,44 @@ import java.net.CookiePolicy;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javax.swing.ImageIcon;
 import javax.swing.ImageIcon;
 import javax.swing.JTextField;
 import javax.swing.JToggleButton;
+import jdk.nashorn.internal.runtime.linker.NashornGuards;
 
 /**
  * Just a container of system wide 
  *   shareable resources.
  */
 public class SystemResources {
-    // Final fields
+	private SystemResources() {} // disable external instantiation
+	
+	/** Map of theme custom names and look and feel class names */
+	public final static Map<String,String> mapThemeClasses = new HashMap<>();
+	
+	static { // initialization block
+		/* construct mapThemeClasses */
+		mapThemeClasses.put(AppPreferences.THEME_MACOSX, "javax.swing.plaf.nimbus.NimbusLookAndFeel");
+		mapThemeClasses.put(AppPreferences.THEME_WINDOWS, "com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
+		mapThemeClasses.put(AppPreferences.THEME_WINDOWSCLASSIC, "com.sun.java.swing.plaf.windows.WindowsClassicLookAndFeel");
+		mapThemeClasses.put(AppPreferences.THEME_UBUNTU, "com.sun.java.swing.plaf.gtk.GTKLookAndFeel");
+		mapThemeClasses.put(AppPreferences.THEME_METAL, "javax.swing.plaf.metal.MetalLookAndFeel");
+		mapThemeClasses.put(AppPreferences.THEME_MOTIF, "com.sun.java.swing.plaf.motif.MotifLookAndFeel");
+	}
+	
+	// Final fields
     public final static String APP_DIR_NAME = "FileExplorer";
     public final static File APP_DIR = new File(System.getProperty("java.io.tmpdir"), APP_DIR_NAME);
     public final static String LOG_FILE_NAME = String.format("Session-%td.%<tb.%<tY_%<tH.%<tM.%<tS.%<tL.log", new Date());
     public final static String PLATFORM_LINE_SEPARATOR = System.getProperty("line.separator");
     public final static String ACCOUNT_USER_NAME = System.getProperty("user.name");
     public final static String ACCOUNT_USER_HOME_PATH = System.getProperty("user.home");
-    public final static String LOOK_AND_FEEL_CLASS_NAME = "com.sun.java.swing.plaf.windows.WindowsLookAndFeel";
+//    public final static String LOOK_AND_FEEL_CLASS_NAME = "com.sun.java.swing.plaf.windows.WindowsLookAndFeel";
+	
 	public final static int FTP_PORT = 21;
 	public final static String ANONYMOUS_USERNAME = "anonymous";
 	public final static String ANONYMOUS_PASSWORD = "";
@@ -53,15 +72,7 @@ public class SystemResources {
 	public static enum PasteOperation { CUT, COPY, NONE; };
 	public static PasteOperation pasteOperation = PasteOperation.NONE;
 	public static FileAttributes[] filesToPaste = null;
-    
-        
-    private SystemResources() {} // disable external instantiation
 	
-	public final static List<String> LOOKnFEEL_CLASSNAMES 
-			= Arrays.asList(	"javax.swing.plaf.nimbus.NimbusLookAndFeel", // TODO name as 'macOS'
-								"com.sun.java.swing.plaf.windows.WindowsLookAndFeel", // TODO name as 'Windows'
-								"com.sun.java.swing.plaf.windows.WindowsClassicLookAndFeel", // TODO name as 'Windows old'
-								"com.sun.java.swing.plaf.gtk.GTKLookAndFeel"); // TODO name as 'Ubuntu'
 //	public final static List<JTextField> addressBarList = new ArrayList<>();
 //	public final static List<JToggleButton> bookmarkIndicatorList = new ArrayList<>();
 	

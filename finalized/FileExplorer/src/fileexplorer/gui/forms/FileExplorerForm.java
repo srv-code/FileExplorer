@@ -486,6 +486,7 @@ public class FileExplorerForm extends javax.swing.JFrame {
 
         menuFile.add(menuTab);
 
+        menuitemConnectRemoteServer.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_R, java.awt.event.InputEvent.ALT_MASK));
         menuitemConnectRemoteServer.setText(bundle.getString("FileExplorerForm.menuitemConnectRemoteServer.text")); // NOI18N
         menuitemConnectRemoteServer.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {

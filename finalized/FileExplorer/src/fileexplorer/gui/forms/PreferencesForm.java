@@ -5,20 +5,65 @@
  */
 package fileexplorer.gui.forms;
 
+import fileexplorer.handlers.shared.ActivityLogger;
+import fileexplorer.handlers.shared.AppPreferences;
 import fileexplorer.handlers.shared.SystemResources;
+import javax.swing.JOptionPane;
 
 /**
  *
  * @author soura
  */
 public class PreferencesForm extends javax.swing.JFrame {
-
+	private final ActivityLogger logger = ActivityLogger.getInstance();
 	/**
 	 * Creates new form PreferencesForm
 	 */
 	public PreferencesForm() {
 		initComponents();
+		syncUIElementsWithPrefValues();
+	}
+	
+	private void syncUIElementsWithPrefValues() {
 		chkConfirmBeforeExit.setSelected(SystemResources.prefs.confirmBeforeExit);
+		
+//		System.out.printf("  // SystemResources.prefs.themeClassName=%s, SystemResources.prefs.language=%s\n",
+//				SystemResources.prefs.themeClassName, SystemResources.prefs.language);
+		
+		switch(SystemResources.prefs.themeClassName) {
+			case AppPreferences.THEME_MACOSX:			comboThemeClass.setSelectedItem("Mac OS X"); break;
+			case AppPreferences.THEME_METAL:			comboThemeClass.setSelectedItem("Metal"); break;
+			case AppPreferences.THEME_MOTIF:			comboThemeClass.setSelectedItem("Motif/CDE"); break;
+			case AppPreferences.THEME_WINDOWS:			comboThemeClass.setSelectedItem("Windows"); break;
+			case AppPreferences.THEME_WINDOWSCLASSIC:	comboThemeClass.setSelectedItem("Windows Classic"); break;
+			case AppPreferences.THEME_UBUNTU:			comboThemeClass.setSelectedItem("Ubuntu"); break;
+			default: 
+				JOptionPane.showMessageDialog(	this,
+											"Corrupted preference data:\n  key=" + 
+											AppPreferences.KEY_THEME_CLASS_NAME + "\n  value=" + 
+											SystemResources.prefs.themeClassName,
+											"Corrupted preference data",
+											JOptionPane.WARNING_MESSAGE);
+				logger.logSevere(null, "Corrupted preference data: key=%s, value=%s", 
+						AppPreferences.KEY_THEME_CLASS_NAME, 
+						SystemResources.prefs.themeClassName);
+		}
+		
+		switch(SystemResources.prefs.language) {
+			case AppPreferences.LANG_ENGLISH:	comboLanguage.setSelectedItem("English (US)"); break;
+			case AppPreferences.LANG_FRENCH:	comboLanguage.setSelectedItem("French"); break;
+			case AppPreferences.LANG_GERMAN:	comboLanguage.setSelectedItem("German"); break;			
+			default: 
+				JOptionPane.showMessageDialog(	this,
+											"Corrupted preference data\n  key=" + 
+											AppPreferences.KEY_LANGUAGE + "\n  value=" + 
+											SystemResources.prefs.language,
+											"Corrupted preference data",
+											JOptionPane.WARNING_MESSAGE);
+				logger.logSevere(null, "Corrupted preference data: key=%s, value=%s", 
+						AppPreferences.KEY_LANGUAGE, 
+						SystemResources.prefs.language);
+		}
 	}
 	
 	public static void init() {
@@ -43,6 +88,10 @@ public class PreferencesForm extends javax.swing.JFrame {
         btnApply = new javax.swing.JButton();
         btnCancel = new javax.swing.JButton();
         btnOK = new javax.swing.JButton();
+        jLabel2 = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
+        comboThemeClass = new javax.swing.JComboBox<>();
+        comboLanguage = new javax.swing.JComboBox<>();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         addWindowListener(new java.awt.event.WindowAdapter() {
@@ -87,23 +136,43 @@ public class PreferencesForm extends javax.swing.JFrame {
             }
         });
 
+        jLabel2.setText("Theme:");
+
+        jLabel3.setText("Language:");
+
+        comboThemeClass.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Mac OS X", "Metal", "Motif/CDE", "Windows", "Windows Classic", "Ubuntu" }));
+
+        comboLanguage.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "English (US)", "French", "German" }));
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addContainerGap()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(appTitleLabel)
-                            .addComponent(chkConfirmBeforeExit))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 8, Short.MAX_VALUE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(btnOK, javax.swing.GroupLayout.PREFERRED_SIZE, 74, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)))
-                .addGap(6, 6, 6)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(appTitleLabel)
+                                    .addComponent(chkConfirmBeforeExit))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 8, Short.MAX_VALUE))
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                .addGap(0, 0, Short.MAX_VALUE)
+                                .addComponent(btnOK, javax.swing.GroupLayout.PREFERRED_SIZE, 74, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGap(6, 6, 6))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jLabel2)
+                                .addGap(23, 23, 23)
+                                .addComponent(comboThemeClass, javax.swing.GroupLayout.PREFERRED_SIZE, 159, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jLabel3)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(comboLanguage, javax.swing.GroupLayout.PREFERRED_SIZE, 159, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(layout.createSequentialGroup()
@@ -117,16 +186,26 @@ public class PreferencesForm extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addGap(8, 8, 8)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 158, Short.MAX_VALUE)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(btnApply)
+                            .addComponent(btnCancel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(btnOK)))
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(appTitleLabel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(chkConfirmBeforeExit)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 158, Short.MAX_VALUE)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(btnApply)
-                    .addComponent(btnCancel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btnOK))
+                        .addComponent(chkConfirmBeforeExit)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel2)
+                            .addComponent(comboThemeClass, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel3)
+                            .addComponent(comboLanguage, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
 
@@ -152,16 +231,71 @@ public class PreferencesForm extends javax.swing.JFrame {
         dispose();
     }//GEN-LAST:event_btnCancelActionPerformed
 
-	private void savePreferences() {
-		SystemResources.prefs.confirmBeforeExit = chkConfirmBeforeExit.isSelected();
+	private void savePreferences() {		
+		if(SystemResources.prefs.confirmBeforeExit != chkConfirmBeforeExit.isSelected()) {
+			logger.logConfig("Changing preference: key='%s', old value='%b', new value='%b' ...", 
+					AppPreferences.KEY_CONFIRM_BEFORE_EXIT, 
+					SystemResources.prefs.confirmBeforeExit,
+					chkConfirmBeforeExit.isSelected());
+			SystemResources.prefs.confirmBeforeExit = chkConfirmBeforeExit.isSelected();
+		}
+		
+		String mappedSelectedValue = null;
+		switch(comboThemeClass.getSelectedItem().toString()) {
+			case "Mac OS X":		mappedSelectedValue = AppPreferences.THEME_MACOSX; break;
+			case "Metal":			mappedSelectedValue = AppPreferences.THEME_METAL; break;
+			case "Motif/CDE":		mappedSelectedValue = AppPreferences.THEME_MOTIF; break;
+			case "Windows":			mappedSelectedValue = AppPreferences.THEME_WINDOWS; break;
+			case "Windows Classic":	mappedSelectedValue = AppPreferences.THEME_WINDOWSCLASSIC; break;
+			case "Ubuntu":			mappedSelectedValue = AppPreferences.THEME_UBUNTU; break;
+			default: 
+				throw new AssertionError("Should not get here: Unhandled value for theme class name: " + 
+						comboThemeClass.getSelectedItem());
+		}
+		if(!SystemResources.prefs.themeClassName.equals(mappedSelectedValue)) {
+			logger.logConfig("Changing preference: key='%s', old value='%s', new value='%s' ...",
+					AppPreferences.KEY_THEME_CLASS_NAME,
+					SystemResources.prefs.themeClassName,
+					mappedSelectedValue);
+			SystemResources.prefs.themeClassName = mappedSelectedValue;
+			JOptionPane.showMessageDialog(	this,
+											"Changes to application theme will be effective from next startup.",
+											"Theme preference saved",
+											JOptionPane.INFORMATION_MESSAGE);
+		}
+		
+		mappedSelectedValue = null;
+		switch(comboLanguage.getSelectedItem().toString()) {
+			case "English (US)":	mappedSelectedValue = AppPreferences.LANG_ENGLISH; break;
+			case "French":			mappedSelectedValue = AppPreferences.LANG_FRENCH; break;
+			case "German":			mappedSelectedValue = AppPreferences.LANG_GERMAN; break;
+			default: 
+				throw new AssertionError("Should not get here: Unhandled value for app language: " +
+						comboLanguage.getSelectedItem());
+		}
+		if(!SystemResources.prefs.language.equals(mappedSelectedValue)) {
+			logger.logConfig("Changing preference: key='%s', old value='%s', new value='%s' ...", 
+					AppPreferences.KEY_LANGUAGE,
+					SystemResources.prefs.language,
+					mappedSelectedValue);
+			SystemResources.prefs.language = mappedSelectedValue;
+			JOptionPane.showMessageDialog(	this,
+											"Changes to application language will be effective from next startup.",
+											"Language preference saved",
+											JOptionPane.INFORMATION_MESSAGE);
+		}
 	}
-
+	
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel appTitleLabel;
     private javax.swing.JButton btnApply;
     private javax.swing.JButton btnCancel;
     private javax.swing.JButton btnOK;
     private javax.swing.JCheckBox chkConfirmBeforeExit;
+    private javax.swing.JComboBox<String> comboLanguage;
+    private javax.swing.JComboBox<String> comboThemeClass;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
     // End of variables declaration//GEN-END:variables
 }

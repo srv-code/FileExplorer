@@ -6,9 +6,12 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 import javax.swing.JOptionPane;
+import javax.swing.UnsupportedLookAndFeelException;
 
 
 public class AppPreferences {
@@ -25,15 +28,32 @@ public class AppPreferences {
 	
 	private ActivityLogger logger = ActivityLogger.getInstance();
     
+	/* preference nodes */
+	private final String NODE_PATH_MISC = "misc";
     
-    /* Fields can be get or set from outside. */
-    // Path: /FileExplorer/gui
-//    public Color bgColor, fgColor;
-//    public String fontName, listType, language;
-	private final String prefNodePath_Misc = "misc";
-	public boolean confirmBeforeExit = true; // default value set
-	final private String keyString_ConfirmBeforeExit = "confirm_before_exit";
-    
+    /* preference key strings */	
+	public static final String KEY_CONFIRM_BEFORE_EXIT	= "confirm_exit";	
+	public static final String KEY_LANGUAGE				= "lang";	
+	public static final String KEY_THEME_CLASS_NAME		= "theme";
+	
+	/* preference values */
+	public static final String LANG_ENGLISH	= "en";
+	public static final String LANG_FRENCH	= "fr";
+	public static final String LANG_GERMAN	= "ge";
+	
+	public static final String THEME_MACOSX				= "macosx";
+	public static final String THEME_METAL				= "metal";
+	public static final String THEME_MOTIF				= "motif";
+	public static final String THEME_WINDOWS			= "windows";
+	public static final String THEME_WINDOWSCLASSIC		= "windows_classic";
+	public static final String THEME_UBUNTU				= "ubuntu";
+	
+	/* current session values */
+	public boolean confirmBeforeExit	= true; // default value set
+	public String language				= LANG_ENGLISH; // default value set
+	public String themeClassName		= THEME_MACOSX; // default value set
+	
+	
     public void loadUserPreferences() {
 		String prefBeingLoaded = null;
 		Preferences prefNode = null;
@@ -51,7 +71,7 @@ public class AppPreferences {
 				String usernames;
 				List<String> usernameList;
 				for(String host: hosts) {
-					usernames = prefNode.get(host, "");			
+					usernames = prefNode.get(host, "");
 					usernameList = new ArrayList<>();
 					if(usernames.length()>0) {
 						for(String name: usernames.split(usernameListDelimiter))
@@ -64,11 +84,23 @@ public class AppPreferences {
 			}
 			
 			/* load misc prefs */
+			prefNode = userPrefs.node(NODE_PATH_MISC);
+			
 			prefBeingLoaded = "confirm before exit";
-			prefNode = userPrefs.node(prefNodePath_Misc);
 			logger.logInfo("Loading preference: '%s' from node path: '%s' ...", 
 					prefBeingLoaded, prefNode.absolutePath());
-			confirmBeforeExit = prefNode.getBoolean(keyString_ConfirmBeforeExit, true);
+			confirmBeforeExit = prefNode.getBoolean(KEY_CONFIRM_BEFORE_EXIT, confirmBeforeExit);
+			
+			prefBeingLoaded = "theme name";
+			logger.logInfo("Loading preference: '%s' from node path: '%s' ...", 
+					prefBeingLoaded, prefNode.absolutePath());
+			themeClassName = prefNode.get(KEY_THEME_CLASS_NAME, themeClassName);
+//			System.out.println("  // loaded: themeClassName=" + themeClassName);
+						
+			prefBeingLoaded = "language";
+			logger.logInfo("Loading preference: '%s' from node path: '%s' ...", 
+					prefBeingLoaded, prefNode.absolutePath());
+			language = prefNode.get(KEY_LANGUAGE, language);
 		} catch(BackingStoreException e) {
 			JOptionPane.showMessageDialog(	null,
 											"Cannot load preference: " + prefBeingLoaded + ".\nReason: " + e.getMessage(),
@@ -96,11 +128,22 @@ public class AppPreferences {
 				prefNode.put(entry.getKey(), sbUserNames.toString());
 			}
 			
-			prefBeingStored = "comfirm before exit";
-			prefNode = userPrefs.node(prefNodePath_Misc);
+			prefNode = userPrefs.node(NODE_PATH_MISC);
+			
+			prefBeingStored = "confirm before exit";
 			logger.logInfo("Storing preference: '%s' to node path: '%s' ...", 
 					prefBeingStored, prefNode.absolutePath());
-			prefNode.putBoolean(keyString_ConfirmBeforeExit, confirmBeforeExit);
+			prefNode.putBoolean(KEY_CONFIRM_BEFORE_EXIT, confirmBeforeExit);
+			
+			prefBeingStored = "theme name";
+			logger.logInfo("Storing preference: '%s' to node path: '%s' ...", 
+					prefBeingStored, prefNode.absolutePath());
+			prefNode.put(KEY_THEME_CLASS_NAME, themeClassName);
+						
+			prefBeingStored = "language";
+			logger.logInfo("Storing preference: '%s' to node path: '%s' ...", 
+					prefBeingStored, prefNode.absolutePath());
+			prefNode.put(KEY_LANGUAGE, language);
 		} catch(Exception e) {
 			JOptionPane.showMessageDialog(	null,
 											"Cannot store preference: " + prefBeingStored + ".\nReason: " + e.getMessage(),
@@ -135,17 +178,16 @@ public class AppPreferences {
 		throw new UnsupportedOperationException("Not developed yet");
 	}
 	
-	/** 
-	 * Sets the look and feel of the application on priority basis
-	 * of the provided look and feel class names
-	 */
 	public void setAppLookAndFeel() {
-		for(int i=0; i<SystemResources.LOOKnFEEL_CLASSNAMES.size(); i++) {
-			try {
-				javax.swing.UIManager.setLookAndFeel(SystemResources.LOOKnFEEL_CLASSNAMES.get(i));
-				return;
-			} catch(Exception e) {}
+		try {
+			javax.swing.UIManager.setLookAndFeel(SystemResources.mapThemeClasses.get(themeClassName));
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(	null,
+											"Cannot set application theme to '" + themeClassName + 
+													"'.\nReason: " + e,
+											"Theme load failure",
+											JOptionPane.ERROR_MESSAGE);
+			logger.logSevere(e, "Cannot set theme '%s'. Reason: %s", themeClassName, e);
 		}
-		System.err.println("Warning: Cannot set predefined L&F: " + SystemResources.LOOKnFEEL_CLASSNAMES); // TODO log warning
 	}
 }
