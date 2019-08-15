@@ -28,8 +28,10 @@ public class AppPreferences {
 	
 	private ActivityLogger logger = ActivityLogger.getInstance();
     
-	/* preference nodes */
+	/* preference nodes and paths */
+	private final Preferences userPrefs = Preferences.userNodeForPackage(this.getClass());
 	private final String NODE_PATH_MISC = "misc";
+	private final String prefNodePath_RemoteServerProfiles = "remote_servers/profiles";	
     
     /* preference key strings */	
 	public static final String KEY_CONFIRM_BEFORE_EXIT	= "confirm_exit";	
@@ -52,6 +54,10 @@ public class AppPreferences {
 	public boolean confirmBeforeExit	= true; // default value set
 	public String language				= LANG_ENGLISH; // default value set
 	public String themeClassName		= THEME_MACOSX; // default value set
+	
+	/* Related to remote servers */	
+	private final String usernameListDelimiter = ";";
+	public final Map<String,List<String>> remoteServerProfilesMap = new HashMap<>();
 	
 	
     public void loadUserPreferences() {
@@ -129,21 +135,33 @@ public class AppPreferences {
 			}
 			
 			prefNode = userPrefs.node(NODE_PATH_MISC);
-			
-			prefBeingStored = "confirm before exit";
-			logger.logInfo("Storing preference: '%s' to node path: '%s' ...", 
-					prefBeingStored, prefNode.absolutePath());
-			prefNode.putBoolean(KEY_CONFIRM_BEFORE_EXIT, confirmBeforeExit);
-			
-			prefBeingStored = "theme name";
-			logger.logInfo("Storing preference: '%s' to node path: '%s' ...", 
-					prefBeingStored, prefNode.absolutePath());
-			prefNode.put(KEY_THEME_CLASS_NAME, themeClassName);
-						
-			prefBeingStored = "language";
-			logger.logInfo("Storing preference: '%s' to node path: '%s' ...", 
-					prefBeingStored, prefNode.absolutePath());
-			prefNode.put(KEY_LANGUAGE, language);
+			if(needsResettingMiscPrefs) {
+				try {
+					logger.logConfig("Resetting all application preferences from path='%s'...", userPrefs.absolutePath());
+					prefNode.removeNode();
+				} catch(BackingStoreException e) {
+					JOptionPane.showMessageDialog(	null,
+													"Cannot reset application preferences. Reason: " + e,
+													"Preference remova; failure",
+													JOptionPane.ERROR_MESSAGE);
+					logger.logSevere(e, "Cannot reset application preferences. Reason: %s", e);
+				}
+			} else {
+				prefBeingStored = "confirm before exit";
+				logger.logInfo("Storing preference: '%s' to node path: '%s' ...", 
+						prefBeingStored, prefNode.absolutePath());
+				prefNode.putBoolean(KEY_CONFIRM_BEFORE_EXIT, confirmBeforeExit);
+
+				prefBeingStored = "theme name";
+				logger.logInfo("Storing preference: '%s' to node path: '%s' ...", 
+						prefBeingStored, prefNode.absolutePath());
+				prefNode.put(KEY_THEME_CLASS_NAME, themeClassName);
+
+				prefBeingStored = "language";
+				logger.logInfo("Storing preference: '%s' to node path: '%s' ...", 
+						prefBeingStored, prefNode.absolutePath());
+				prefNode.put(KEY_LANGUAGE, language);
+			}
 		} catch(Exception e) {
 			JOptionPane.showMessageDialog(	null,
 											"Cannot store preference: " + prefBeingStored + ".\nReason: " + e.getMessage(),
@@ -154,15 +172,14 @@ public class AppPreferences {
 		}
 	}
 	
-	private final Preferences userPrefs = Preferences.userNodeForPackage(this.getClass());
+	private boolean needsResettingMiscPrefs = false;
 	
-	/***** Related to remote servers *****/
-	private final String prefNodePath_RemoteServerProfiles = "remote_servers/profiles";	
-	private final String usernameListDelimiter = ";";
-	public final Map<String,List<String>> remoteServerProfilesMap = new HashMap<>();
-	/*---- Related to remote servers ----*/
-    
-    /*
+	/** resets all the preferences */
+	public void resetAll() {
+		needsResettingMiscPrefs = true; // marks for resetting
+	}
+	
+	/*
     public void loadSystemPreferences() {}
     
     public void storeSystemPreferences() {}
