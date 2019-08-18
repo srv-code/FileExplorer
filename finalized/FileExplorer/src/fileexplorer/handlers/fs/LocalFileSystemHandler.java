@@ -9,18 +9,22 @@ import javax.swing.JOptionPane;
 
 public class LocalFileSystemHandler extends FileSystemHandler {
 	
-	protected LocalFileSystemHandler(final String absolutePath) throws FileNotFoundException, InvalidPathException {
+	protected LocalFileSystemHandler(final String absolutePath) throws IOException {
 //		super(absolutePath);
 		userHomeDirectory = getFileAttributes(getUserHomeDirectoryPath());
 //		isRemoteHandler = false;
 		currentWorkingDirectory = absolutePath==null ? userHomeDirectory : getFileAttributes(absolutePath);
-				
-		fileSystemID = String.format("Local@%s.%s",
-				System.getProperty("os.name"), System.getProperty("os.version"));
 	}
 	
+	
+	@Override
 	public String getCurrentUsername() {
 		return System.getProperty("user.name");
+	}
+	
+	@Override 
+	public String getCurrentHostname() {
+		return System.getProperty("os.name");
 	}
 	
 	public String getUserHomeDirectoryPath() {
@@ -398,5 +402,9 @@ public class LocalFileSystemHandler extends FileSystemHandler {
 				delete(f);
 		}
 		deleteFile(file);
+	}
+
+	@Override
+	public void close() throws IOException { // nothing to do
 	}
 }

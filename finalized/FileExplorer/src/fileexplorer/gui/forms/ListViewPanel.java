@@ -2,6 +2,7 @@ package fileexplorer.gui.forms;
 
 import fileexplorer.handlers.fs.FileAttributes;
 import fileexplorer.handlers.fs.FileSystemHandler;
+import fileexplorer.handlers.fs.RemoteFileSystemHandler;
 import fileexplorer.handlers.fs.nav.NavigationException;
 import fileexplorer.handlers.shared.ActivityLogger;
 import fileexplorer.handlers.shared.BookmarkHandler;
@@ -18,7 +19,6 @@ import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import javax.swing.table.*;
 import javax.swing.tree.*;
-import java.nio.file.InvalidPathException;
 import java.nio.file.FileAlreadyExistsException;
 import java.util.*;
 
@@ -27,7 +27,7 @@ import java.util.*;
  *
  * @author soura
  */
-public class ListViewForm extends JPanel {
+public class ListViewPanel extends JPanel {
 	private FileSystemHandler fileSystemHandler = null;
 	private IconRegistry iconRegistry = IconRegistry.getInstance();
 	private DefaultTableModel tableModel = null;
@@ -40,18 +40,31 @@ public class ListViewForm extends JPanel {
 	private static final ActivityLogger logger = SystemResources.getActivityLogger();
 	private BookmarkHandler bookmarkHandler;
 	
+	private boolean isRemoteListing;
+	private final String remoteHostname;
+	private final String remoteUsername;
+	
 	
 	/**
 	 * Creates new form ListViewForm
 	 */
-	public ListViewForm(final JLabel lblTabTitle, final FileSystemHandler fileSystemHandler, final BookmarkHandler bookmarkHandler) {
+	public ListViewPanel(final JLabel lblTabTitle, final FileSystemHandler fileSystemHandler, final BookmarkHandler bookmarkHandler) {
 		logger.logInfo("Initializing ListViewFrame...");
 		this.lblTabTitle = lblTabTitle;
 		this.fileSystemHandler = fileSystemHandler;
 		this.bookmarkHandler = bookmarkHandler;
 		
+		if(fileSystemHandler instanceof RemoteFileSystemHandler) {
+			RemoteFileSystemHandler remoteHandler = (RemoteFileSystemHandler)fileSystemHandler;
+			isRemoteListing = true;
+			remoteHostname = remoteHandler.getCurrentHostname();
+			remoteUsername = remoteHandler.getCurrentUsername();
+		} else
+			remoteHostname = remoteUsername = null;
+		
 //		logger.logInfo("Info: Initializing ListViewFrame components...");
 		initComponents();
+		lblAddressIcon.setText(isRemoteListing ? "Remote:" : "Local:");
 		tableFileList.setShowHorizontalLines(false);
 		tableFileList.setShowVerticalLines(false);
 		toolbarOptions.setLayout(new BoxLayout(toolbarOptions, BoxLayout.X_AXIS));
@@ -773,7 +786,7 @@ public class ListViewForm extends JPanel {
     private void btnGoToParentDirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGoToParentDirActionPerformed
         try {
             loadPath(fileSystemHandler.getCurrentParent(), true);
-        } catch(FileNotFoundException e) {
+        } catch(IOException e) {
 			logger.logSevere(e, "(Logic) Cannot move to parent directory from '%s': ", 
 					fileSystemHandler.getCurrentWorkingDirectory().absolutePath, e);
             JOptionPane.showMessageDialog(	this,
@@ -803,7 +816,7 @@ public class ListViewForm extends JPanel {
         try {
             //			System.out.println("  // home: " + userHomeDirectoryPath);
             loadPath(fileSystemHandler.getHomeDirectory(), true);
-        } catch(FileNotFoundException e) {
+        } catch(IOException e) {
             JOptionPane.showMessageDialog(	this,
                 "Cannot move to user home directory: " + e,
                 "Navigation error",
@@ -897,7 +910,17 @@ public class ListViewForm extends JPanel {
     }//GEN-LAST:event_menuPasteActionPerformed
 
 	private void updateTabTitleBar(final FileAttributes dir) {
-		lblTabTitle.setText("".equals(dir.name) ? dir.absolutePath : dir.name);
+		StringBuilder sbLabelText = new StringBuilder();
+		if(isRemoteListing)
+			sbLabelText	.insert(0, remoteHostname)
+						.append('@')
+						.append(remoteUsername)
+						.append(':');
+		if("".equals(dir.name)) 
+			sbLabelText.append(dir.absolutePath);
+		else 
+			sbLabelText.append(dir.name);				
+		lblTabTitle.setText(sbLabelText.toString());
 	}
 	
 	private void setTable() {
@@ -924,7 +947,7 @@ public class ListViewForm extends JPanel {
 	private void loadPath(final String dirPath, final boolean registerInHistory) {
 		try {
 			loadPath(fileSystemHandler.getFileAttributes(dirPath), registerInHistory);
-		} catch(FileNotFoundException e) {
+		} catch(IOException e) {
 			JOptionPane.showMessageDialog(	this,
 											"Folder path does not exist: " + dirPath,
 											"Invalid folder path",
@@ -992,8 +1015,8 @@ public class ListViewForm extends JPanel {
 							e1);
 				}
 				try {
-					fileSystemHandler.setCurrentWorkingDirectoryToHomeDirectory();
-				} catch(FileNotFoundException e1) {
+					fileSystemHandler.resetCurrentWorkingDirectory();
+				} catch(IOException e1) {
 					JOptionPane.showMessageDialog(SystemResources.formFileExplorer,
 													String.format("Cannot move to home directory from: %s!",
 															fileSystemHandler.getCurrentWorkingDirectory().absolutePath),
@@ -1058,7 +1081,7 @@ public class ListViewForm extends JPanel {
 			fileSystemHandler.navigateTo(dir, registerInHistory);			
 //			lastVisitedPath = dir.absolutePath;
 			logger.logInfo("Navigated to folder: %s", dir.absolutePath);
-		} catch(FileNotFoundException|InvalidPathException e) {
+		} catch(IOException e) {
 			logger.logSevere(e, "Cannot navigate to path %s. Reason: %s", dir.absolutePath, e);
 			JOptionPane.showMessageDialog(	this,
 											String.format("Cannot navigate to path!\n  Path: %s\n  Reason: %s", 
@@ -1112,7 +1135,7 @@ public class ListViewForm extends JPanel {
 
 			// update navigation button status 
 			
-		} catch(InvalidPathException|FileNotFoundException e) {
+		} catch(IOException e) {
 			JOptionPane.showMessageDialog(	this,
 											"Invalid path: " + path,
 											"Path error",
@@ -1234,9 +1257,9 @@ public class ListViewForm extends JPanel {
         }
 	}
 	
-	public static ListViewForm init(final JLabel lblTabTitle, final FileSystemHandler fileSystemHandler, final BookmarkHandler bookmarkHandler) {
+	public static ListViewPanel init(final JLabel lblTabTitle, final FileSystemHandler fileSystemHandler, final BookmarkHandler bookmarkHandler) {
 		/* Create and display the form */
-		return new ListViewForm(lblTabTitle, fileSystemHandler, bookmarkHandler);
+		return new ListViewPanel(lblTabTitle, fileSystemHandler, bookmarkHandler);
 	}
 	
 	private void setTableRows(final FileAttributes[] files) {
@@ -1257,6 +1280,17 @@ public class ListViewForm extends JPanel {
 		return String.format(
 			"<html><style>table{border-collapse: collapse;} td{padding: 0px;} .attr{color: green;} .value{color: blue;}</style> <table><tr><td class='attr'>Name:</td><td class='value'>%s</td></tr><tr><td class='attr'>Type:</td><td class='value'>%s</td></tr><tr><td class='attr'>Size:</td><td class='value'>%s</td></tr><tr><td class='attr'>Modified:</td><td class='value'>%s</td></tr></table></html>",
 			file.name, file.type, file.sizeInWords, file.lastModifiedDateString);
+	}
+	
+	public void closeHandler() {
+		logger.logConfig("Closing file system handler [ID=%s] of tab [text=%s]...", 
+				fileSystemHandler,
+				lblTabTitle.getText());
+		try {
+			fileSystemHandler.close();
+		} catch(IOException e) {
+			logger.logSevere(e, "Closing file system handler failed. Reason: %s", e);
+		}
 	}
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

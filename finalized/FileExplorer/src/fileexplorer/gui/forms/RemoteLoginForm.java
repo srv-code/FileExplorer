@@ -8,7 +8,6 @@ import fileexplorer.handlers.shared.AppPreferences;
 import fileexplorer.handlers.shared.SystemResources;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.nio.file.InvalidPathException;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JOptionPane;
@@ -140,13 +139,16 @@ public class RemoteLoginForm extends javax.swing.JFrame {
                                 .addComponent(chkAddToBookmark)
                                 .addGap(0, 0, Short.MAX_VALUE))))
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(175, 175, 175)
-                        .addComponent(btnLogin))
-                    .addGroup(layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 63, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(txtServerBookmarkName, javax.swing.GroupLayout.PREFERRED_SIZE, 346, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(175, 175, 175)
+                                .addComponent(btnLogin))
+                            .addGroup(layout.createSequentialGroup()
+                                .addContainerGap()
+                                .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 63, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(txtServerBookmarkName, javax.swing.GroupLayout.PREFERRED_SIZE, 346, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -231,10 +233,7 @@ public class RemoteLoginForm extends javax.swing.JFrame {
 		
 		try {
 			/* attempting to connect to remote server */
-			remoteHandler = (RemoteFileSystemHandler)FileSystemHandler.getRemoteHandler();
-			remoteHandler.host = host;
-			remoteHandler.username = username;
-			remoteHandler.password = password;
+			remoteHandler = (RemoteFileSystemHandler)FileSystemHandler.getRemoteHandler(host, username, password);
 			
 			logger.logConfig("Connecting to remote server [host=%s, username=%s]...", host, username);
 			remoteHandler.connect();
@@ -308,11 +307,11 @@ public class RemoteLoginForm extends javax.swing.JFrame {
 		} catch(Exception e) {
 			JOptionPane.showMessageDialog(	this,
 											"Cannot load directory listing of remote server " + 
-													remoteHandler.host + ".\nReason: " + e,
+													remoteHandler.getCurrentHostname() + ".\nReason: " + e,
 											"Remote server operation failed",
 											JOptionPane.ERROR_MESSAGE);
 			logger.logSevere(e, "Cannot load directory listing of remote server %s. Reason: %s", 
-					remoteHandler.host, e);
+					remoteHandler.getCurrentHostname(), e);
 		}
 	}
 	
@@ -326,7 +325,7 @@ public class RemoteLoginForm extends javax.swing.JFrame {
         /* load remote server profiles from preference map */
 		comboUserName.addItem(SystemResources.ANONYMOUS_USERNAME);
 		txtUserPassword.setText(SystemResources.ANONYMOUS_PASSWORD);
-		System.out.println("  // will load hostnames: " + SystemResources.prefs.remoteServerProfilesMap.keySet());
+//		System.out.println("  // will load hostnames: " + SystemResources.prefs.remoteServerProfilesMap.keySet());
 		for(String hostString: SystemResources.prefs.remoteServerProfilesMap.keySet()) {
 			System.out.println("  // host added: " + hostString);
 			comboServerHostName.addItem(hostString);
@@ -350,18 +349,17 @@ public class RemoteLoginForm extends javax.swing.JFrame {
 			txtUserPassword.setText(SystemResources.ANONYMOUS_PASSWORD);
 		} else {
 			/* load the associated usernames from map */
+			comboUserName.removeAllItems();
 			String hostName = null;
 			if(comboServerHostName.getSelectedItem() == null)
 				return;
-			else
-				hostName = comboServerHostName.getSelectedItem().toString().trim();
+			hostName = comboServerHostName.getSelectedItem().toString().trim();
 			if(hostName.length()==0) /* blank input */
-				return;			
+				return;
 			List<String> usernameList = SystemResources.prefs.remoteServerProfilesMap.get(hostName);
 			if(usernameList==null) /* new server host name */
 				return;
-			System.out.printf("  // users to add for host=%s: %s\n", hostName, usernameList);
-			comboUserName.removeAllItems();
+//			System.out.printf("  // users to add for host=%s: %s\n", hostName, usernameList);			
 			for(String usernameString: usernameList)
 				comboUserName.addItem(usernameString);
 		}

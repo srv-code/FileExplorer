@@ -25,7 +25,7 @@ import javax.swing.JOptionPane;
 public class FilePropertiesForm extends javax.swing.JFrame {
 
 	private FileAttributes[] files;
-	private final ListViewForm listViewForm;
+	private final ListViewPanel listViewForm;
 	private final IconRegistry iconRegistry = IconRegistry.getInstance();
 	
 	/**
@@ -33,7 +33,7 @@ public class FilePropertiesForm extends javax.swing.JFrame {
 	 * @param type If multiples files are specified then this parameter has no 
 	 *		significance as a constant icon will be used.
 	 */
-	public FilePropertiesForm(final FileAttributes[] files, final String type, final ListViewForm listViewForm) {
+	public FilePropertiesForm(final FileAttributes[] files, final String type, final ListViewPanel listViewForm) {
 		this.files = files;
 		this.listViewForm = listViewForm;
 		initComponents();
@@ -397,7 +397,7 @@ public class FilePropertiesForm extends javax.swing.JFrame {
 //		return init(files, type.toString(), fsHandler);
 //	}
 	
-	static void init(final FileAttributes[] files, final String type, final ListViewForm listViewForm) {
+	static void init(final FileAttributes[] files, final String type, final ListViewPanel listViewForm) {
 		/* Create and display the form */
 		java.awt.EventQueue.invokeLater(new Runnable() {
 			public void run() {

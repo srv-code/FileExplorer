@@ -4,19 +4,19 @@ import org.apache.commons.net.ftp.*;
 import fileexplorer.handlers.fs.nav.NavigationException;
 import fileexplorer.handlers.fs.nav.NavigationHistoryHandler;
 import java.awt.Desktop;
+import java.io.Closeable;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.AccessDeniedException;
 import java.nio.file.FileAlreadyExistsException;
-import java.nio.file.InvalidPathException;
 import java.util.List;
 
 
 /**
  * Abstract class for general reference.
  */
-public abstract class FileSystemHandler {
-	protected String fileSystemID;
+public abstract class FileSystemHandler implements Closeable {
+//	protected String fileSystemID;
 	protected FileAttributes userHomeDirectory = null, defaultStartLocation = null;
 	protected final Desktop desktop = Desktop.getDesktop();
 	public final boolean isDesktopSupported = Desktop.isDesktopSupported();
@@ -38,7 +38,7 @@ public abstract class FileSystemHandler {
 	
 	protected FileAttributes checkIfDirectory(final FileAttributes file) throws IOException {
 		if(!file.isDirectory)
-			throw new InvalidPathException(file.absolutePath, "Path is not a directory");
+			throw new IOException("Path is not a directory: " + file.absolutePath);
 		return file;
 	}
 	
@@ -48,11 +48,14 @@ public abstract class FileSystemHandler {
 	
 //	public abstract Object getAttribute(final String key);
 	
-//	protected FileSystemHandler(final String fileSystemID) throws FileNotFoundException, InvalidPathException {
-//		this.fileSystemID = fileSystemID;
-////		navigateTo(absolutePath, true);
-////		historyHandler.clear();
+//	protected FileSystemHandler() throws IOException {
+//		this.fileSystemID = ;
+//		navigateTo(absolutePath, true);
+//		historyHandler.clear();
 //	}
+	
+	public abstract String getCurrentUsername();
+	public abstract String getCurrentHostname();
 	
 	public abstract FileAttributes rename(final FileAttributes file, final String newName) throws IOException;
 	
@@ -104,21 +107,21 @@ public abstract class FileSystemHandler {
 //		return dir;
 //	}
 	
-	public FileAttributes getCurrentParent() throws FileNotFoundException {
+	public FileAttributes getCurrentParent() throws IOException {
 		return getParent(currentWorkingDirectory);
 	}
 		
-	public abstract FileAttributes getParent(final FileAttributes file) throws FileNotFoundException;
+	public abstract FileAttributes getParent(final FileAttributes file) throws IOException;
 	
 	public abstract boolean canGoToParent();
 	
 	public abstract FileAttributes getFileAttributes(final String absolutePath) throws IOException;
 	
-//	public FileAttributes createNewFile(final String name) throws IOException, FileAlreadyExistsException {
+//	public FileAttributes createNewFile(final String name) throws IOException {
 //		return createNew(name, false);
 //	}
 //	
-//	public FileAttributes createNewDirectory(final String name) throws IOException, FileAlreadyExistsException {
+//	public FileAttributes createNewDirectory(final String name) throws IOException {
 //		return createNew(name, true);
 //	}
 	
@@ -134,6 +137,17 @@ public abstract class FileSystemHandler {
 	
 	public abstract void printFile(FileAttributes file) throws IllegalArgumentException, IOException;
 	
+	public abstract void close() throws IOException;
+	
+	@Override
+	public String toString() {
+		return String.format("%s#%x@%s$%s",
+						getClass().getSimpleName(),
+						hashCode(),
+						getCurrentHostname(),
+						getCurrentUsername());
+	}
+	
 	/** 
 	 * Returns the proper FileSystem subclass object. Detects for local/remote file.
 	 */
@@ -142,11 +156,13 @@ public abstract class FileSystemHandler {
 //				new RemoteFileSystemHandler(absolutePath) : new LocalFileSystemHandler(absolutePath);
 //	}
 	
-	public static FileSystemHandler getRemoteHandler() throws IOException {
-		return new RemoteFileSystemHandler();
+	public static FileSystemHandler getRemoteHandler(	final String host, 
+														final String username, 
+														final String password) throws IOException {
+		return new RemoteFileSystemHandler(host, username, password);
 	}
 	
-	public static FileSystemHandler getLocalHandler(final String path) throws FileNotFoundException {
+	public static FileSystemHandler getLocalHandler(final String path) throws IOException {
 		return new LocalFileSystemHandler(path);
 	}
 }

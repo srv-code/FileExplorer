@@ -11,12 +11,13 @@ import fileexplorer.handlers.shared.*;
 import fileexplorer.handlers.shared.SystemResources.IconRegistry;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.nio.file.InvalidPathException;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
@@ -75,7 +76,7 @@ public class FileExplorerForm extends javax.swing.JFrame {
 		panelFolderListLoad.setVisible(false); // initial state 
 		try {   
 			localFileSystemHandler = (LocalFileSystemHandler)FileSystemHandler.getLocalHandler(null);
-		} catch(FileNotFoundException|InvalidPathException e) {
+		} catch(IOException e) {
 			logger.logFatal(e, "Cannot set up bookmarks. Reason: %s", e);
 		}
 		if(!localFileSystemHandler.isDesktopSupported) {
@@ -106,7 +107,7 @@ public class FileExplorerForm extends javax.swing.JFrame {
 				fileSystemHandler = FileSystemHandler.getLocalHandler(dirPath);
 				addNewTab(fileSystemHandler);
 				return;
-			} catch(FileNotFoundException|InvalidPathException e) {
+			} catch(IOException e) {
 				JOptionPane.showMessageDialog(	this,
 												"Unable to load path: " + dirPath + "\nReason: " + e + "\nLoading user home folder",
 												"Path load failure",
@@ -128,8 +129,9 @@ public class FileExplorerForm extends javax.swing.JFrame {
 	}
 	
 	public void addNewTab(final FileSystemHandler fileSystemHandler) {
+		final boolean isRemote = fileSystemHandler instanceof RemoteFileSystemHandler;		
 		JLabel lblTabTitle = new JLabel(null, 
-			fileSystemHandler instanceof RemoteFileSystemHandler ? iconRegistry.remoteTabIcon_small : iconRegistry.localTabIcon_small,
+			isRemote ? iconRegistry.remoteTabIcon_small : iconRegistry.localTabIcon_small,
 			SwingConstants.RIGHT);
 		lblTabTitle.setIconTextGap(5);
 		JButton btnTabClose = new JButton(iconRegistry.closeTabButton_small);
@@ -137,7 +139,7 @@ public class FileExplorerForm extends javax.swing.JFrame {
 		btnTabClose.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					closeCurrentTab();
+					closeSelectedTab();
 				}
 			});
 		
@@ -147,7 +149,7 @@ public class FileExplorerForm extends javax.swing.JFrame {
 		tabComponent.add(btnTabClose, BorderLayout.EAST);
 		
 		// Assign tab component		
-		tabbedPane.add(ListViewForm.init(lblTabTitle, fileSystemHandler, bookmarkHandler));		
+		tabbedPane.add(ListViewPanel.init(lblTabTitle, fileSystemHandler, bookmarkHandler));		
 		int currentTabIdx = tabbedPane.getTabCount()-1;
 		tabbedPane.setTabComponentAt(currentTabIdx, tabComponent);
 		tabbedPane.setSelectedIndex(currentTabIdx); // set focus
@@ -168,9 +170,11 @@ public class FileExplorerForm extends javax.swing.JFrame {
 		}
 	}
 	
-	private void closeCurrentTab() {
+	private void closeSelectedTab() {
 		if(tabbedPane.getTabCount() > 1) {
-			tabbedPane.remove(tabbedPane.getSelectedIndex());
+			ListViewPanel selectedPanel = (ListViewPanel)tabbedPane.getComponentAt(tabbedPane.getSelectedIndex());
+			selectedPanel.closeHandler();
+			tabbedPane.remove(selectedPanel);
 		}
 	}
 	
@@ -637,7 +641,15 @@ public class FileExplorerForm extends javax.swing.JFrame {
     }//GEN-LAST:event_formWindowClosed
 
     private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
-        if(SystemResources.prefs.confirmBeforeExit) {
+        // close all open handlers
+		for(int i=0, count=tabbedPane.getTabCount(); i<count; i++) {
+			ListViewPanel selectedPanel = (ListViewPanel)tabbedPane.getComponentAt(tabbedPane.getSelectedIndex());
+			selectedPanel.closeHandler();
+			tabbedPane.remove(selectedPanel);
+		}
+		
+		// get close confirmation
+		if(SystemResources.prefs.confirmBeforeExit) {
 			if(JOptionPane.showConfirmDialog(this,
 					"Do you want to Exit ?", "Exit Confirmation",
 					JOptionPane.YES_NO_OPTION) == JOptionPane.NO_OPTION)
@@ -658,8 +670,8 @@ public class FileExplorerForm extends javax.swing.JFrame {
 			formRemoteLogin.requestFocus();
     }//GEN-LAST:event_menuitemConnectRemoteServerActionPerformed
 
-	private ListViewForm getSelectedForm() {
-		return (ListViewForm)tabbedPane.getSelectedComponent();
+	private ListViewPanel getSelectedForm() {
+		return (ListViewPanel)tabbedPane.getSelectedComponent();
 	}
 	
 	private DefaultMutableTreeNode selectedBookmarkNode = null;
@@ -793,7 +805,7 @@ public class FileExplorerForm extends javax.swing.JFrame {
 		try {
 			FilePropertiesForm.init(new FileAttributes[] { localFileSystemHandler.getFileAttributes(item.absolutePath) },
 						((BookmarkedItem)selectedBookmarkNode.getUserObject()).type, null);
-		} catch(FileNotFoundException|InvalidPathException e) {
+		} catch(IOException e) {
 			JOptionPane.showMessageDialog(	this,
 							String.format("Cannot fetch bookmarked %s: %s\nReason: %s", 
 									item.type, item.absolutePath, e),
@@ -811,7 +823,7 @@ public class FileExplorerForm extends javax.swing.JFrame {
     }//GEN-LAST:event_menuitemViewPreferencesActionPerformed
 
     private void menuitemCloseCurrentTabActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuitemCloseCurrentTabActionPerformed
-        closeCurrentTab();
+        closeSelectedTab();
     }//GEN-LAST:event_menuitemCloseCurrentTabActionPerformed
 
     private void menuitemCloseAllButCurrentTabActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuitemCloseAllButCurrentTabActionPerformed

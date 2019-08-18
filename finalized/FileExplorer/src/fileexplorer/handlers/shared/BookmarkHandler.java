@@ -3,6 +3,7 @@ package fileexplorer.handlers.shared;
 import fileexplorer.handlers.fs.FileAttributes;
 import fileexplorer.handlers.fs.LocalFileSystemHandler;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.*;
 import javax.swing.JTree;
 import javax.swing.tree.*;
@@ -61,7 +62,7 @@ public class BookmarkHandler {
 										BookmarkedItem.TYPE_SYSTEM_DRIVE,
 										file.absolutePath));
 			}
-		} catch(FileNotFoundException e) {
+		} catch(IOException e) {
 			logger.logSevere(e, "Cannot add system roots to bookmark tree node: %s", e);
 		}
 

@@ -5,7 +5,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.AccessDeniedException;
 import java.nio.file.FileAlreadyExistsException;
-import java.nio.file.InvalidPathException;
 import java.util.List;
 
 
@@ -15,12 +14,37 @@ import java.util.List;
  * therefore all those methods will throw IOException.
  */
 public class RemoteFileSystemHandler extends FileSystemHandler {
-	public String host, username, password;
+	private String host, username, password;
 	private FTPClient ftpClient;
 	
-	protected RemoteFileSystemHandler() throws IOException {
+	protected RemoteFileSystemHandler(	final String host, 
+										final String username, 
+										final String password) throws IOException {
 //		super(absolutePath);
+		this.host = host;
+		this.username = username;
+		this.password = password;
 		currentWorkingDirectory = getFileAttributes(ROOT_PATH);
+		
+		ftpClient = new FTPClient();
+	}
+	
+	public void setCredentials(final String host, final String username, final String password) throws IOException {
+		if(ftpClient.isConnected()) // muust disconnect last connection to start a new
+			throw new IOException("Last connection is alive: host=" + this.host + ", user: " + this.username);
+		this.host = host;
+		this.username = username;
+		this.password = password;
+	}
+	
+	@Override 
+	public String getCurrentHostname() {
+		return host;
+	}
+	
+	@Override 
+	public String getCurrentUsername() {
+		return username;
 	}
 	
 	private static boolean isSessionAlive = false;
@@ -48,6 +72,7 @@ public class RemoteFileSystemHandler extends FileSystemHandler {
 	private final int FTP_PORT = 21;
 	
 	public void connect() throws IOException {
+//		System.out.printf("  // host=%s, FTP_PORT=%d\n", host, FTP_PORT);
 		ftpClient.connect(host, FTP_PORT);
 
 		int replyCode = ftpClient.getReplyCode();
@@ -210,4 +235,13 @@ public class RemoteFileSystemHandler extends FileSystemHandler {
 	public void printFile(FileAttributes file) throws IllegalArgumentException, IOException {
 		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
 	}	
+
+	@Override
+	public void close() throws IOException {		
+//		ftpClient.getStatus(); // testing if session is alive
+//		System.out.printf("  // Logging out FTP session, host=%s...\n", host);
+		ftpClient.logout();
+//		System.out.printf("  // Disconnecting FTP session, host=%s...\n", host);
+		ftpClient.disconnect();
+	}
 }
