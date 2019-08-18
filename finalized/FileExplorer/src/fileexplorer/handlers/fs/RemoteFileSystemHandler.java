@@ -9,23 +9,56 @@ import java.nio.file.InvalidPathException;
 import java.util.List;
 
 
+/**
+ * Needs checking of the connection status at each stage.
+ * So all public methods have ensureConnectivity() at the start,
+ * therefore all those methods will throw IOException.
+ */
 public class RemoteFileSystemHandler extends FileSystemHandler {
-	final private String host, username, password;
-	final private FTPClient ftpClient;
+	public String host, username, password;
+	private FTPClient ftpClient;
 	
-	protected RemoteFileSystemHandler(	final FTPClient ftpClient, 
-										final String host, 
-										final String username, 
-										final String password) 
-									throws FileNotFoundException, InvalidPathException {
+	protected RemoteFileSystemHandler() throws IOException {
 //		super(absolutePath);
-		this.ftpClient=ftpClient;
-		this.host=host;
-		this.username=username;
-		this.password=password;
-		this.fileSystemID = "Remote@" + host;
-		
 		currentWorkingDirectory = getFileAttributes(ROOT_PATH);
+	}
+	
+	private static boolean isSessionAlive = false;
+	private boolean reinitialiseSession = false;
+	
+	private void ensureConnectivity() throws IOException {
+		if(isSessionAlive) {
+			isSessionAlive = false;
+			try {
+				ftpClient.getStatus();
+				isSessionAlive = true;
+			} catch (IOException e) {
+				reinitialiseSession();
+				isSessionAlive = true;
+			}
+		}
+	}
+	
+	private void reinitialiseSession() throws IOException {
+		reinitialiseSession = true;
+		connect();
+		reinitialiseSession = false; // reset flag
+	}
+	
+	private final int FTP_PORT = 21;
+	
+	public void connect() throws IOException {
+		ftpClient.connect(host, FTP_PORT);
+
+		int replyCode = ftpClient.getReplyCode();
+		if (!FTPReply.isPositiveCompletion(replyCode))
+			throw new IOException("Connection failed. (Reply code:" + replyCode + ")");
+
+		if (!ftpClient.login(username, password))
+			throw new IOException("Log in failed. (Reply code: " + ftpClient.getReplyCode() + ")");
+		
+		// use local passive mode to pass firewall		
+		ftpClient.enterLocalPassiveMode();
 	}
 
 	@Override
@@ -80,22 +113,21 @@ public class RemoteFileSystemHandler extends FileSystemHandler {
 	}
 
 	@Override
-	public FileAttributes getFileAttributes(String absolutePath) throws FileNotFoundException {
-		if(absolutePath.equals(ROOT_PATH)) { // build by hand
+	public FileAttributes getFileAttributes(String absolutePath) throws IOException {
+		if(absolutePath.equals(ROOT_PATH)) // build by hand
 			return new FileAttributes(true, true, true, true, false, false, false, "/", "/", 0L, 4096L);
-		} else {
-			FTPFile file = null; 
-			try{
-				file = getFile(absolutePath);
-			} catch(IOException e) {
-				throw new FileNotFoundException(absolutePath + "(" + e.getMessage() + ")");
-			}
-				
-			if(file == null) 
-				throw new FileNotFoundException(absolutePath);
-			
-			return getFileAttributes(file, absolutePath);
+		ensureConnectivity();
+		FTPFile file = null; 
+		try {
+			file = getFile(absolutePath);
+		} catch(IOException e) {
+			throw new FileNotFoundException(absolutePath + "(" + e.getMessage() + ")");
 		}
+
+		if(file == null) 
+			throw new FileNotFoundException(absolutePath);
+
+		return getFileAttributes(file, absolutePath);
 	}
 	
 	private FileAttributes getFileAttributes(final FTPFile file, final String absolutePath) throws FileNotFoundException {
@@ -144,7 +176,8 @@ public class RemoteFileSystemHandler extends FileSystemHandler {
 	}
 
 	@Override
-	public FileAttributes[] listFiles(FileAttributes dir) throws InvalidPathException, FileNotFoundException, AccessDeniedException {
+	public FileAttributes[] listFiles(FileAttributes dir) throws IOException {
+		ensureConnectivity();
 		FileAttributes[] fileAttributesList = null;
 		try {
 			checkIfDirectory(dir);
@@ -159,12 +192,12 @@ public class RemoteFileSystemHandler extends FileSystemHandler {
 	}
 
 	@Override
-	public FileAttributes getHomeDirectory() throws FileNotFoundException {
+	public FileAttributes getHomeDirectory() throws IOException {
 		return getRootDirectory();
 	}
 
 	@Override
-	public FileAttributes getRootDirectory() throws FileNotFoundException {
+	public FileAttributes getRootDirectory() throws IOException {
 		return getFileAttributes(ROOT_PATH);
 	}
 
@@ -176,7 +209,5 @@ public class RemoteFileSystemHandler extends FileSystemHandler {
 	@Override
 	public void printFile(FileAttributes file) throws IllegalArgumentException, IOException {
 		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-	}
-	
-	
+	}	
 }

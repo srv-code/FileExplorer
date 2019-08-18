@@ -31,12 +31,12 @@ public abstract class FileSystemHandler {
 		return currentWorkingDirectory;
 	}
 	
-	public FileAttributes setCurrentWorkingDirectoryToHomeDirectory() throws FileNotFoundException {
+	public FileAttributes resetCurrentWorkingDirectory() throws IOException {
 		currentWorkingDirectory = getHomeDirectory();
 		return currentWorkingDirectory;
 	}
 	
-	protected FileAttributes checkIfDirectory(final FileAttributes file) throws InvalidPathException {
+	protected FileAttributes checkIfDirectory(final FileAttributes file) throws IOException {
 		if(!file.isDirectory)
 			throw new InvalidPathException(file.absolutePath, "Path is not a directory");
 		return file;
@@ -69,11 +69,11 @@ public abstract class FileSystemHandler {
 	
 //	public abstract boolean isPathAbsolute(final String path);
 
-	public FileAttributes navigateTo(final String path, final boolean registerInHistory) throws FileNotFoundException, InvalidPathException {
+	public FileAttributes navigateTo(final String path, final boolean registerInHistory) throws IOException {
 		return navigateTo(getFileAttributes(path), registerInHistory);
 	}
 	
-	public FileAttributes navigateTo(final FileAttributes file, final boolean registerInHistory) throws FileNotFoundException, InvalidPathException {		
+	public FileAttributes navigateTo(final FileAttributes file, final boolean registerInHistory) throws IOException {
 		currentWorkingDirectory = checkIfDirectory(file);
 		if(registerInHistory) 
 			historyHandler.append(file);
@@ -112,7 +112,7 @@ public abstract class FileSystemHandler {
 	
 	public abstract boolean canGoToParent();
 	
-	public abstract FileAttributes getFileAttributes(final String absolutePath) throws FileNotFoundException;
+	public abstract FileAttributes getFileAttributes(final String absolutePath) throws IOException;
 	
 //	public FileAttributes createNewFile(final String name) throws IOException, FileAlreadyExistsException {
 //		return createNew(name, false);
@@ -122,13 +122,13 @@ public abstract class FileSystemHandler {
 //		return createNew(name, true);
 //	}
 	
-	public abstract FileAttributes createNew(final String name, final boolean isDirectory) throws IOException, FileAlreadyExistsException;
+	public abstract FileAttributes createNew(final String name, final boolean isDirectory) throws IOException;
 	
-	public abstract FileAttributes[] listFiles(final FileAttributes dir) throws InvalidPathException, FileNotFoundException, AccessDeniedException;
+	public abstract FileAttributes[] listFiles(final FileAttributes dir) throws IOException;
 //	public abstract List<FileAttributes> listRoots() throws FileNotFoundException;
 	
-	public abstract FileAttributes getHomeDirectory() throws FileNotFoundException;
-	public abstract FileAttributes getRootDirectory() throws FileNotFoundException;
+	public abstract FileAttributes getHomeDirectory() throws IOException;
+	public abstract FileAttributes getRootDirectory() throws IOException;
 	
 	public abstract void openFile(final FileAttributes file) throws UnsupportedOperationException, IOException;
 	
@@ -137,20 +137,16 @@ public abstract class FileSystemHandler {
 	/** 
 	 * Returns the proper FileSystem subclass object. Detects for local/remote file.
 	 */
-//	public static FileSystemHandler getHandler(final String absolutePath) throws FileNotFoundException, InvalidPathException {
+//	public static FileSystemHandler getHandler(final String absolutePath) throws FileNotFoundException {
 //		return absolutePath.toLowerCase().startsWith("ftp") ? 
 //				new RemoteFileSystemHandler(absolutePath) : new LocalFileSystemHandler(absolutePath);
 //	}
 	
-	public static FileSystemHandler getRemoteHandler(	final FTPClient ftpClient,
-														final String address, 
-														final String username, 
-														final String password) 
-												throws FileNotFoundException, InvalidPathException {
-		return new RemoteFileSystemHandler(ftpClient, address, username, password);
+	public static FileSystemHandler getRemoteHandler() throws IOException {
+		return new RemoteFileSystemHandler();
 	}
 	
-	public static FileSystemHandler getLocalHandler(final String path) throws FileNotFoundException, InvalidPathException {
+	public static FileSystemHandler getLocalHandler(final String path) throws FileNotFoundException {
 		return new LocalFileSystemHandler(path);
 	}
 }

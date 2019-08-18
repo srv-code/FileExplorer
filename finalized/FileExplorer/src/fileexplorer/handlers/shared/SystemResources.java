@@ -47,7 +47,7 @@ public class SystemResources {
     public final static String ACCOUNT_USER_HOME_PATH = System.getProperty("user.home");
 //    public final static String LOOK_AND_FEEL_CLASS_NAME = "com.sun.java.swing.plaf.windows.WindowsLookAndFeel";
 	
-	public final static int FTP_PORT = 21;
+//	public final static int FTP_PORT = 21;
 	public final static String ANONYMOUS_USERNAME = "anonymous";
 	public final static String ANONYMOUS_PASSWORD = "";
 	

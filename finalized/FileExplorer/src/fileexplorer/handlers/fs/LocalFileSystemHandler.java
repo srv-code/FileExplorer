@@ -106,7 +106,7 @@ public class LocalFileSystemHandler extends FileSystemHandler {
 	}
 
 	@Override
-	public FileAttributes[] listFiles(final FileAttributes dir) throws InvalidPathException, FileNotFoundException, AccessDeniedException {
+	public FileAttributes[] listFiles(final FileAttributes dir) throws IOException {
 		File dirToList = new File(checkIfDirectory(dir).absolutePath);
 		File[] fileList = dirToList.listFiles();
 		if(fileList == null) 
@@ -119,7 +119,7 @@ public class LocalFileSystemHandler extends FileSystemHandler {
 	}
 
 //	@Override
-	public List<FileAttributes> listRoots() throws FileNotFoundException {
+	public List<FileAttributes> listRoots() throws IOException {
 		File[] roots = File.listRoots();
 		List<FileAttributes> fileAttributesList = new ArrayList<>();
 		for(File root : roots ) {

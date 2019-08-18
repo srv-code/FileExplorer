@@ -1,6 +1,7 @@
 package fileexplorer.gui.forms;
 
 import fileexplorer.handlers.fs.FileSystemHandler;
+import fileexplorer.handlers.fs.RemoteFileSystemHandler;
 import org.apache.commons.net.ftp.*;
 import fileexplorer.handlers.shared.ActivityLogger;
 import fileexplorer.handlers.shared.AppPreferences;
@@ -19,6 +20,7 @@ import javax.swing.JOptionPane;
 public class RemoteLoginForm extends javax.swing.JFrame {	
 	private static ActivityLogger logger = SystemResources.getActivityLogger();
 	final private FTPClient ftpClient = new FTPClient();
+	private RemoteFileSystemHandler remoteHandler;
 	
 	/**
 	 * Creates new form RemoteLoginForm
@@ -194,13 +196,13 @@ public class RemoteLoginForm extends javax.swing.JFrame {
 //	private String host, username, password, bookmarkName;
 	
     private void btnLoginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLoginActionPerformed
-		final String hostName = comboServerHostName.getSelectedItem()==null? "" : comboServerHostName.getSelectedItem().toString().trim();
-		final String userName = comboUserName.getSelectedItem()==null ? "" : comboUserName.getSelectedItem().toString().trim();
+		final String host = comboServerHostName.getSelectedItem()==null? "" : comboServerHostName.getSelectedItem().toString().trim();
+		final String username = comboUserName.getSelectedItem()==null ? "" : comboUserName.getSelectedItem().toString().trim();
 		final String password = new String(txtUserPassword.getPassword()).trim();
 		final String bookmarkName = chkAddToBookmark.isSelected() ? txtServerBookmarkName.getText().trim() : null;
 		
 		/* validating inputs */
-		if(hostName.length()==0) {
+		if(host.length()==0) {
 			comboServerHostName.requestFocus();
 			JOptionPane.showMessageDialog(	this,
 											"Please enter a valid host address",
@@ -209,7 +211,7 @@ public class RemoteLoginForm extends javax.swing.JFrame {
 			return;
 		}
 		
-		if(userName.length()==0) {
+		if(username.length()==0) {
 			comboUserName.requestFocus();
 			JOptionPane.showMessageDialog(	this,
 											"Please enter a valid username",
@@ -229,26 +231,32 @@ public class RemoteLoginForm extends javax.swing.JFrame {
 		
 		try {
 			/* attempting to connect to remote server */
-			connectToServer(hostName, SystemResources.FTP_PORT, userName, password);
-			logger.logConfig("Connection successful to remote server %s as user '%s'", hostName, userName);
+			remoteHandler = (RemoteFileSystemHandler)FileSystemHandler.getRemoteHandler();
+			remoteHandler.host = host;
+			remoteHandler.username = username;
+			remoteHandler.password = password;
+			
+			logger.logConfig("Connecting to remote server [host=%s, username=%s]...", host, username);
+			remoteHandler.connect();
+			logger.logConfig("Login successful to remote server %s as user '%s'", host, username);
 			
 			/* save this remote server profile to map & combo box */
-			saveRemoteServerProfile(hostName, userName);
+			saveRemoteServerProfile(host, username);
 			
 			/* adding remote server to bookmark pane */
 			if(chkAddToBookmark.isSelected()) {
-				logger.logInfo("Adding remote server %s to bookmark pane...", hostName);
-				SystemResources.formFileExplorer.bookmarkHandler.addRemoteServer(bookmarkName, hostName);
+				logger.logInfo("Adding remote server %s to bookmark pane...", host);
+				SystemResources.formFileExplorer.bookmarkHandler.addRemoteServer(bookmarkName, host);
 			}
 			
 			/* creating a new tab with server's root listing */
-			addNewTab(hostName, userName, password);
+			addNewTab();
 			
 			/* close this window */
 			dispose();
 		} catch(IOException e) {
 			JOptionPane.showMessageDialog(	this,
-											"Cannot connect to remote server: " + hostName + 
+											"Cannot connect to remote server: " + host + 
 													"\nReason: " + e,
 											"Remote server connection failed",
 											JOptionPane.ERROR_MESSAGE);
@@ -256,58 +264,55 @@ public class RemoteLoginForm extends javax.swing.JFrame {
 		}
     }//GEN-LAST:event_btnLoginActionPerformed
 
-	private void saveRemoteServerProfile(	final String hostName, 
-											final String userName) {
+	private void saveRemoteServerProfile(	final String host, 
+											final String username) {
 		/* saving to map */
-		List<String> userNameList = SystemResources.prefs.remoteServerProfilesMap.get(hostName);
+		List<String> userNameList = SystemResources.prefs.remoteServerProfilesMap.get(host);
 		if(userNameList == null) {
 			userNameList = new ArrayList<>();
-			SystemResources.prefs.remoteServerProfilesMap.put(hostName, userNameList);
+			SystemResources.prefs.remoteServerProfilesMap.put(host, userNameList);
 		}
 		
-		if(!userNameList.contains(userName) && !userName.equals(SystemResources.ANONYMOUS_USERNAME))
-			userNameList.add(userName);
+		if(!userNameList.contains(username) && !username.equals(SystemResources.ANONYMOUS_USERNAME))
+			userNameList.add(username);
 		
 		/* adding to combo boxes */
 		boolean isNew = true;
 		for(int i=0, len=comboServerHostName.getItemCount(); i<len; i++) {
-			if(hostName.equals(comboServerHostName.getItemAt(i))) {
+			if(host.equals(comboServerHostName.getItemAt(i))) {
 				isNew = false;
 				break;
 			}
 		}
 		
 		if(isNew) 
-			comboServerHostName.addItem(hostName);
+			comboServerHostName.addItem(host);
 		
-		if(!userName.equals(SystemResources.ANONYMOUS_USERNAME)) {
+		if(!username.equals(SystemResources.ANONYMOUS_USERNAME)) {
 			isNew = true;
 			for(int i=0, len=comboUserName.getItemCount(); i<len; i++) {
-				if(userName.equals(comboUserName.getItemAt(i))) {
+				if(username.equals(comboUserName.getItemAt(i))) {
 					isNew = false;
 					break;
 				}
 			}
 			
 			if(isNew) 
-				comboUserName.addItem(userName);
+				comboUserName.addItem(username);
 		}
 	}
 	
-	private void addNewTab(final String hostName, final String userName, final String password) {
+	private void addNewTab() {
 		try {
-			SystemResources.formFileExplorer
-						.addNewTab(
-								FileSystemHandler.getRemoteHandler(
-										ftpClient, hostName, userName, password));
-		} catch(FileNotFoundException|InvalidPathException e) {
+			SystemResources.formFileExplorer.addNewTab(remoteHandler);
+		} catch(Exception e) {
 			JOptionPane.showMessageDialog(	this,
-											"Cannot load directory listing of remote server " + hostName
-												+ ".\nReason: " + e,
+											"Cannot load directory listing of remote server " + 
+													remoteHandler.host + ".\nReason: " + e,
 											"Remote server operation failed",
 											JOptionPane.ERROR_MESSAGE);
 			logger.logSevere(e, "Cannot load directory listing of remote server %s. Reason: %s", 
-					hostName, e);
+					remoteHandler.host, e);
 		}
 	}
 	
@@ -362,43 +367,43 @@ public class RemoteLoginForm extends javax.swing.JFrame {
 		}
 	}
 	
-	private void logServerReply(final FTPClient ftpClient, final String hostName) {
-		String[] replies = ftpClient.getReplyStrings();
-        if (replies != null && replies.length > 0) {
-			for (String reply : replies)
-                logger.logConfig("Remote server (%s) reply: %s", hostName, reply);
-        }
-	}
-	
-	private void connectToServer(	final String hostName, 
-									final int port, 
-									final String userName, 
-									final String  password) 
-											throws IOException {
-		logger.logInfo("Connecting to remote server '%s'...", hostName);
-		ftpClient.connect(hostName, port);
-		logServerReply(ftpClient, hostName);
-		int replyCode = ftpClient.getReplyCode();
-
-		if (FTPReply.isPositiveCompletion(replyCode))
-			logger.logConfig("Connected to remote server: %s, reply code: %d", hostName, replyCode);
-		else
-			throw new IOException("Connection failed. (Server: " + hostName + ", Reply code:" + replyCode + ")");
-
-		logger.logConfig("Logging in to remote server %s...", hostName);
-		boolean success = ftpClient.login(userName, password);
-		logServerReply(ftpClient, hostName);
-		if (success)
-			logger.logConfig("Logged in to remote server: %s, user: '%s'", hostName, userName);
-		else
-			throw new IOException("Log in failed. (Server: " + hostName + ", username: '" + userName + 
-					"', reply code: " + ftpClient.getReplyCode() + ")");
-		
-		// use local passive mode to pass firewall
-		logger.logConfig("Entering local passive mode in remote server %s...", hostName);
-		ftpClient.enterLocalPassiveMode();
-		logger.logConfig("Entered local passive mode in remote server %s", hostName);
-	}
+//	private void logServerReply(final FTPClient ftpClient, final String hostName) {
+//		String[] replies = ftpClient.getReplyStrings();
+//        if (replies != null && replies.length > 0) {
+//			for (String reply : replies)
+//                logger.logConfig("Remote server (%s) reply: %s", hostName, reply);
+//        }
+//	}
+//	
+//	private void connectToServer(	final String hostName, 
+//									final int port, 
+//									final String userName, 
+//									final String  password) 
+//											throws IOException {
+//		logger.logInfo("Connecting to remote server '%s'...", hostName);
+//		ftpClient.connect(hostName, port);
+//		logServerReply(ftpClient, hostName);
+//		int replyCode = ftpClient.getReplyCode();
+//
+//		if (FTPReply.isPositiveCompletion(replyCode))
+//			logger.logConfig("Connected to remote server: %s, reply code: %d", hostName, replyCode);
+//		else
+//			throw new IOException("Connection failed. (Server: " + hostName + ", Reply code:" + replyCode + ")");
+//
+//		logger.logConfig("Logging in to remote server %s...", hostName);
+//		boolean success = ftpClient.login(userName, password);
+//		logServerReply(ftpClient, hostName);
+//		if (success)
+//			logger.logConfig("Logged in to remote server: %s, user: '%s'", hostName, userName);
+//		else
+//			throw new IOException("Log in failed. (Server: " + hostName + ", username: '" + userName + 
+//					"', reply code: " + ftpClient.getReplyCode() + ")");
+//		
+//		// use local passive mode to pass firewall
+//		logger.logConfig("Entering local passive mode in remote server %s...", hostName);
+//		ftpClient.enterLocalPassiveMode();
+//		logger.logConfig("Entered local passive mode in remote server %s", hostName);
+//	}
 	
 	private static RemoteLoginForm form = null;
 	
