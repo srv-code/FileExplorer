@@ -251,9 +251,9 @@ public class LocalFileSystemHandler extends FileSystemHandler {
 		File dst = new File(dstPath.absolutePath).getCanonicalFile();
 
 		if(!src.exists())
-			throw new IOException("non-existent source path: " + src);
+			throw new IOException("Non-existent source path: " + src);
 		if(!dst.exists())
-			throw new IOException("non-existent destination path: " + dst);
+			throw new IOException("Non-existent destination path: " + dst);
 		if(dst.getPath().startsWith(src.getPath()))
 			throw new IOException("Destination path is a subpath of the source path");
 

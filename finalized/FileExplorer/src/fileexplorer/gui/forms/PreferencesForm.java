@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package fileexplorer.gui.forms;
 
 import fileexplorer.handlers.shared.ActivityLogger;
@@ -10,10 +5,7 @@ import fileexplorer.handlers.shared.AppPreferences;
 import fileexplorer.handlers.shared.SystemResources;
 import javax.swing.JOptionPane;
 
-/**
- *
- * @author soura
- */
+
 public class PreferencesForm extends javax.swing.JFrame {
 	private final ActivityLogger logger = ActivityLogger.getInstance();
 	/**

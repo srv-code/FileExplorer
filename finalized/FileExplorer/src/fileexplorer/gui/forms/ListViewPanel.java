@@ -16,7 +16,6 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import javax.swing.*;
 import java.io.*;
-import java.lang.reflect.InvocationTargetException;
 import javax.swing.table.*;
 import javax.swing.tree.*;
 import java.nio.file.FileAlreadyExistsException;
@@ -166,7 +165,7 @@ public class ListViewPanel extends JPanel {
 		@Override 
 		public void actionPerformed(ActionEvent e) {
 			System.out.println("  // cmd=" + e.getActionCommand());
-			FilePropertiesForm.init(	selectedFiles, 
+			PropertiesForm.init(	selectedFiles, 
 										iconRegistry.getFileIcon(selectedFiles[0], IconSize.BIG), 
 										fileSystemHandler);
 		}
@@ -179,7 +178,7 @@ public class ListViewPanel extends JPanel {
 		@Override 
 		public void actionPerformed(ActionEvent e) {
 			System.out.println("  // cmd=" + e.getActionCommand());
-			FilePropertiesForm.init(	selectedFiles, 
+			PropertiesForm.init(	selectedFiles, 
 										iconRegistry.getFileIcon(selectedFiles[0], IconSize.BIG), 
 										fileSystemHandler);
 		}
@@ -551,8 +550,7 @@ public class ListViewPanel extends JPanel {
                 "Desktop operation failure",
                 JOptionPane.ERROR_MESSAGE);
 
-            System.err.printf("Err: Cannot open directory: %s. Reason: %s\n",
-                selectedFiles[0].absolutePath, e); // log error
+            logger.logSevere(e, "Cannot open directory: %s. Reason: %s", selectedFiles[0].absolutePath, e);
         }
     }//GEN-LAST:event_menuOpenUsingSystemActionPerformed
 
@@ -597,10 +595,10 @@ public class ListViewPanel extends JPanel {
             JOptionPane.QUESTION_MESSAGE,
             null, null, selectedFiles[0].name);
 		if(newName != null)
-			rename(selectedFiles[0], newName);
+			renameFile(selectedFiles[0], newName);
     }//GEN-LAST:event_menuRenameActionPerformed
 
-	FileAttributes rename(final FileAttributes file, String newName) {
+	FileAttributes renameFile(final FileAttributes file, String newName) {
 		FileAttributes newFile = null;
 		String type = file.isDirectory ? FileAttributes.TYPE_FOLDER : FileAttributes.TYPE_FILE;
 		try {
@@ -614,8 +612,8 @@ public class ListViewPanel extends JPanel {
 		} catch(IOException e) {
 			JOptionPane.showMessageDialog(	this,
 							"Cannot rename the " + type + ": "+ file.name,
-					"File operation failure",
-					JOptionPane.ERROR_MESSAGE);
+							"File renaming failure",
+							JOptionPane.ERROR_MESSAGE);
 			logger.logSevere(e, "Failed renaming a %s: %s", type, file.absolutePath);
 		}
 		return newFile;
@@ -732,7 +730,7 @@ public class ListViewPanel extends JPanel {
     }//GEN-LAST:event_menuDeleteActionPerformed
 
     private void menuPropertiesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuPropertiesActionPerformed
-        FilePropertiesForm.init(	selectedFiles,
+        PropertiesForm.init(	selectedFiles,
 									selectedFiles[0].type,
 									this);
     }//GEN-LAST:event_menuPropertiesActionPerformed
@@ -1239,22 +1237,22 @@ public class ListViewPanel extends JPanel {
 	void openBookmarkNode(final DefaultMutableTreeNode node, final boolean openLocation) {
 //		System.out.printf("  // open bookmark: %s, openLocation=%b\n", 
 //				((BookmarkedItem)node.getUserObject()).absolutePath, openLocation);
-		BookmarkedItem item = (BookmarkedItem)node.getUserObject();
+		BookmarkedItem item = (BookmarkedItem)node.getUserObject();		
 		FileAttributes file = null, targetFile = null;
 		try {
 			file = fileSystemHandler.getFileAttributes(item.absolutePath);
 			targetFile = openLocation ? fileSystemHandler.getParent(file) : file;
 			openFile(targetFile);
-            if(openLocation)
+			if(openLocation)
 				findAndSelectInList(file);
-        } catch(Exception e) {
-            JOptionPane.showMessageDialog(	this,
-                "Cannot retieve bookmarked item: " + item.absolutePath + "\nReason: " + e,
-                "File operation failure",
-                JOptionPane.ERROR_MESSAGE);
-            logger.logSevere(e, "Cannot open %s bookmarked item %s. Reason: %s", 
-					openLocation ? "location of" : "", e);					
-        }
+		} catch(Exception e) {
+			JOptionPane.showMessageDialog(	this,
+				"Cannot retieve bookmarked item: " + item.absolutePath + "\nReason: " + e,
+				"File operation failure",
+				JOptionPane.ERROR_MESSAGE);
+			logger.logSevere(e, "Cannot open%s bookmarked item (name=%s, location=%s). Reason: %s",
+					openLocation ? " location of" : "", item.name, item.absolutePath, e);
+		}
 	}
 	
 	public static ListViewPanel init(final JLabel lblTabTitle, final FileSystemHandler fileSystemHandler, final BookmarkHandler bookmarkHandler) {
@@ -1290,6 +1288,29 @@ public class ListViewPanel extends JPanel {
 			fileSystemHandler.close();
 		} catch(IOException e) {
 			logger.logSevere(e, "Closing file system handler failed. Reason: %s", e);
+		}
+	}
+	
+	public void renameBookmarkedNode(final DefaultMutableTreeNode bookmarkedNode, final String newName) {
+		bookmarkHandler.rename(bookmarkedNode, newName);
+		BookmarkedItem item = (BookmarkedItem)bookmarkedNode.getUserObject();
+		logger.logInfo("Bookmarked item renamed. Item: name=%s, type=%s, path=%s", 
+				item.name, item.type, item.absolutePath);
+		try { // if file is in current view then reload the listing
+			if(!BookmarkedItem.TYPE_REMOTE_SERVER.equals(item.type)) {
+				if(fileSystemHandler.getParent(
+						fileSystemHandler.getFileAttributes(item.absolutePath))
+						.equals(fileSystemHandler.getCurrentWorkingDirectory())) { // file is in current view
+					updateTableList(true);
+				}
+			}
+		} catch(IOException e) {
+			JOptionPane.showMessageDialog(	this,
+                "Cannot determine the parent of the bookmarked item!",
+                "Bookmarked item opertion  failure",
+                JOptionPane.ERROR_MESSAGE);
+            logger.logSevere(e, "Cannot determine the parent of the bookmarked item (name=%s, path=%s). Reason: %s", 
+					item.name, item.absolutePath, e);
 		}
 	}
 

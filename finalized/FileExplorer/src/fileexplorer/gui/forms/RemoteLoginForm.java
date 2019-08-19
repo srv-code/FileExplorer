@@ -4,28 +4,38 @@ import fileexplorer.handlers.fs.FileSystemHandler;
 import fileexplorer.handlers.fs.RemoteFileSystemHandler;
 import org.apache.commons.net.ftp.*;
 import fileexplorer.handlers.shared.ActivityLogger;
-import fileexplorer.handlers.shared.AppPreferences;
 import fileexplorer.handlers.shared.SystemResources;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
 
-/**
- *
- * @author soura
- */
 public class RemoteLoginForm extends javax.swing.JFrame {	
 	private static ActivityLogger logger = SystemResources.getActivityLogger();
 	final private FTPClient ftpClient = new FTPClient();
 	private RemoteFileSystemHandler remoteHandler;
+	private String bookmarkedHostname;
 	
 	/**
 	 * Creates new form RemoteLoginForm
 	 */
-	public RemoteLoginForm() {
+	public RemoteLoginForm(final String bookmarkedHostname) {
 		initComponents();
+		this.bookmarkedHostname = bookmarkedHostname;
+	}
+	
+	/**
+	 * Selects the host name from the drop down, if present
+	 * else creates a entry.
+	 */
+	private void selectHostname(final String hostnameString) {
+		int idx = getComboBoxItemIndex(comboServerHostName, hostnameString);
+//		System.out.printf("  // checking for host: %s, idx=%d\n", hostnameString, idx);
+		if(idx == -1) // make new entry 
+			comboServerHostName.addItem(hostnameString);
+		else // select item
+			comboServerHostName.setSelectedIndex(idx);
 	}
 
 	/**
@@ -276,29 +286,20 @@ public class RemoteLoginForm extends javax.swing.JFrame {
 			userNameList.add(username);
 		
 		/* adding to combo boxes */
-		boolean isNew = true;
-		for(int i=0, len=comboServerHostName.getItemCount(); i<len; i++) {
-			if(host.equals(comboServerHostName.getItemAt(i))) {
-				isNew = false;
-				break;
-			}
-		}
-		
-		if(isNew) 
+		if(getComboBoxItemIndex(comboServerHostName, host) == -1) 
 			comboServerHostName.addItem(host);
 		
 		if(!username.equals(SystemResources.ANONYMOUS_USERNAME)) {
-			isNew = true;
-			for(int i=0, len=comboUserName.getItemCount(); i<len; i++) {
-				if(username.equals(comboUserName.getItemAt(i))) {
-					isNew = false;
-					break;
-				}
-			}
-			
-			if(isNew) 
+			if(getComboBoxItemIndex(comboUserName, username) == -1) 
 				comboUserName.addItem(username);
 		}
+	}
+	
+	private int getComboBoxItemIndex(final JComboBox<String> combo, final String item) {
+		for(int i=0, len=combo.getItemCount(); i<len; i++)
+			if(item.equals(combo.getItemAt(i)))
+				return i;
+		return -1;
 	}
 	
 	private void addNewTab() {
@@ -327,9 +328,12 @@ public class RemoteLoginForm extends javax.swing.JFrame {
 		txtUserPassword.setText(SystemResources.ANONYMOUS_PASSWORD);
 //		System.out.println("  // will load hostnames: " + SystemResources.prefs.remoteServerProfilesMap.keySet());
 		for(String hostString: SystemResources.prefs.remoteServerProfilesMap.keySet()) {
-			System.out.println("  // host added: " + hostString);
+//			System.out.println("  // host added: " + hostString);
 			comboServerHostName.addItem(hostString);
 		}
+		
+		if(bookmarkedHostname != null)
+			selectHostname(bookmarkedHostname);
     }//GEN-LAST:event_formWindowOpened
 
     private void formWindowClosed(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosed
@@ -405,11 +409,11 @@ public class RemoteLoginForm extends javax.swing.JFrame {
 	
 	private static RemoteLoginForm form = null;
 	
-	public static void init() {		
+	public static void init(final String bookmarkedHostname) {
 		/* Create and display the form */
 		java.awt.EventQueue.invokeLater(new Runnable() {
 			public void run() {
-				SystemResources.formFileExplorer.formRemoteLogin = new RemoteLoginForm();
+				SystemResources.formFileExplorer.formRemoteLogin = new RemoteLoginForm(bookmarkedHostname);
 				SystemResources.formFileExplorer.formRemoteLogin.setVisible(true);
 				logger.logInfo("RemoteLoginForm initialized");
 			}

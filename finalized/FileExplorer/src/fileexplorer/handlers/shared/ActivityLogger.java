@@ -130,6 +130,7 @@ public class ActivityLogger implements AutoCloseable {
         } catch(Exception e) {
             System.err.printf("ERR: Cannot write to log file. File='%s', Timestamp=%s, Exception=%s\n", 
                     file.getAbsolutePath(), new Date(), e);
+			e.printStackTrace(System.err);
         }
     }
 	

@@ -6,16 +6,13 @@ import fileexplorer.handlers.fs.LocalFileSystemHandler;
 import fileexplorer.handlers.fs.RemoteFileSystemHandler;
 import fileexplorer.handlers.shared.SystemHandler;
 import javax.swing.*;
-
 import fileexplorer.handlers.shared.*;
 import fileexplorer.handlers.shared.SystemResources.IconRegistry;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -665,7 +662,7 @@ public class FileExplorerForm extends javax.swing.JFrame {
     private void menuitemConnectRemoteServerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuitemConnectRemoteServerActionPerformed
 //        this.dispatchEvent(new java.awt.event.WindowEvent(this, java.awt.event.WindowEvent.WINDOW_CLOSING));
 		if(formRemoteLogin == null)
-			RemoteLoginForm.init();
+			RemoteLoginForm.init(null);
 		else 
 			formRemoteLogin.requestFocus();
     }//GEN-LAST:event_menuitemConnectRemoteServerActionPerformed
@@ -718,7 +715,12 @@ public class FileExplorerForm extends javax.swing.JFrame {
                 if(evt.getClickCount() == 2) { // do double-click action
                     // do popupBookmarkedItems's Open action
                     //					System.out.println("  // double clicked");
-                    getSelectedForm().openBookmarkNode(selectedBookmarkNode, false);
+					
+					BookmarkedItem selectedItem = (BookmarkedItem)selectedBookmarkNode.getUserObject();
+					if(BookmarkedItem.TYPE_REMOTE_SERVER.equals(selectedItem.type))
+						RemoteLoginForm.init(selectedItem.absolutePath);
+					else 
+						getSelectedForm().openBookmarkNode(selectedBookmarkNode, false);
                 }
             }
         }
@@ -771,7 +773,7 @@ public class FileExplorerForm extends javax.swing.JFrame {
     }//GEN-LAST:event_menuBookmarkOpenInNewTabActionPerformed
 
     private void menuBookmarkOpenLocationActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuBookmarkOpenLocationActionPerformed
-        getSelectedForm().openBookmarkNode(selectedBookmarkNode, true);            
+        getSelectedForm().openBookmarkNode(selectedBookmarkNode, true);
     }//GEN-LAST:event_menuBookmarkOpenLocationActionPerformed
 
     private void menuBookmarkRenameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuBookmarkRenameActionPerformed
@@ -803,13 +805,13 @@ public class FileExplorerForm extends javax.swing.JFrame {
     private void menuBookmarkPropertiesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuBookmarkPropertiesActionPerformed
         BookmarkedItem item = (BookmarkedItem)selectedBookmarkNode.getUserObject();
 		try {
-			FilePropertiesForm.init(new FileAttributes[] { localFileSystemHandler.getFileAttributes(item.absolutePath) },
-						((BookmarkedItem)selectedBookmarkNode.getUserObject()).type, null);
+			PropertiesForm.init(new FileAttributes[] { localFileSystemHandler.getFileAttributes(item.absolutePath) },
+						item.type, getSelectedForm());
 		} catch(IOException e) {
 			JOptionPane.showMessageDialog(	this,
 							String.format("Cannot fetch bookmarked %s: %s\nReason: %s", 
 									item.type, item.absolutePath, e),
-							"Fault bookmarked item",
+							"Corrupted bookmarked item",
 							JOptionPane.ERROR_MESSAGE);
 			logger.logSevere(e, "Cannot fetch bookmarked %s: %s. Reason: %s", item.type, item.absolutePath, e);
 		}

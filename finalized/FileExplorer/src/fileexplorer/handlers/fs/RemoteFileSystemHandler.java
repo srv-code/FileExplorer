@@ -140,7 +140,7 @@ public class RemoteFileSystemHandler extends FileSystemHandler {
 	@Override
 	public FileAttributes getFileAttributes(String absolutePath) throws IOException {
 		if(absolutePath.equals(ROOT_PATH)) // build by hand
-			return new FileAttributes(true, true, true, true, false, false, false, "/", "/", 0L, 4096L);
+			return new FileAttributes(true, true, true, true, false, false, false, "root", "/", 0L, 4096L);
 		ensureConnectivity();
 		FTPFile file = null; 
 		try {
@@ -186,13 +186,10 @@ public class RemoteFileSystemHandler extends FileSystemHandler {
 		String parent = path.substring(0, divIdx);
 		String child = path.substring(divIdx);
 
-		FTPFile file = null;
-		for(FTPFile f : ftpClient.listFiles(parent))
-			if(f.getName().equals(child)) {
-				file = f;
-				break;
-			}
-		return file;
+		for(FTPFile file : ftpClient.listFiles(parent))
+			if(file.getName().equals(child))
+				return file;
+		return null;
 	}
 
 	@Override
@@ -209,7 +206,8 @@ public class RemoteFileSystemHandler extends FileSystemHandler {
 			FTPFile[] fileList = ftpClient.listFiles(dir.absolutePath);
 			fileAttributesList = new FileAttributes[fileList.length];
 			for(int i=0; i<fileList.length; i++)
-				fileAttributesList[i] = getFileAttributes(fileList[i], dir.absolutePath+"/"+fileList[i].getName());
+				fileAttributesList[i] = getFileAttributes(fileList[i], 
+						(dir.absolutePath.equals("/") ? "" : dir.absolutePath) + "/" + fileList[i].getName());
 		} catch(Exception e) {
 			throw new AccessDeniedException(dir.absolutePath);
 		}
