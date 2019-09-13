@@ -162,6 +162,7 @@ public class AppPreferences {
 						prefBeingStored, prefNode.absolutePath());
 				prefNode.put(KEY_LANGUAGE, language);
 			}
+			prefNode.flush();
 		} catch(Exception e) {
 			JOptionPane.showMessageDialog(	null,
 											"Cannot store preference: " + prefBeingStored + ".\nReason: " + e.getMessage(),

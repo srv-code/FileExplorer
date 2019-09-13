@@ -884,29 +884,41 @@ public class ListViewPanel extends JPanel {
 				pasteLocation,
 				SystemResources.filesToPaste.length);
 
-		for(int i=0, len=SystemResources.filesToPaste.length; i<len; i++) {
-			currentFile = SystemResources.filesToPaste[i];
+		int i=0;
+		for(int len=SystemResources.filesToPaste.length; i<len; i++) {
+//			currentFile = SystemResources.filesToPaste[i];
 			try {
-				if(SystemResources.pasteOperation == SystemResources.PasteOperation.COPY)
-					fileSystemHandler.copy(currentFile, pasteLocation);
-				else 
-					fileSystemHandler.move(currentFile, pasteLocation);
+				performTransfer(	SystemResources.filesToPaste[i], 
+									pasteLocation, 
+									SystemResources.pasteOperation==SystemResources.pasteOperation.COPY);
 				updateTableList(true);
 				logger.logInfo("  source: '%s'", SystemResources.filesToPaste[i].absolutePath);
 			} catch(IOException e) {
+				logger.logSevere(e, "Cannot perform: operation=%s, file='%s'. (Reason: %s)", 
+						SystemResources.pasteOperation, SystemResources.filesToPaste[i], e);
 				JOptionPane.showMessageDialog(	this,
 												String.format("Cannot %s '%s'\nReason: %s",
 														SystemResources.pasteOperation.toString().toLowerCase(),
-														currentFile.absolutePath,
+														SystemResources.filesToPaste[i].absolutePath,
 														e.getMessage()),
 												"File operation failure",
-												JOptionPane.ERROR_MESSAGE);			
-				logger.logSevere(e, "Cannot perform: operation=%s, file='%s'. (Reason: %s)", 
-						SystemResources.pasteOperation, currentFile, e);
+												JOptionPane.ERROR_MESSAGE);
+			} finally {
+				/* final update in case an error is encountered */
+				updateTableList(true);
 			}
 		}
     }//GEN-LAST:event_menuPasteActionPerformed
 
+	private void performTransfer(	final FileAttributes currentFile, 
+									final FileAttributes pasteLocation,
+									final boolean doCopy) throws IOException {
+		if(doCopy)
+			fileSystemHandler.copy(currentFile, pasteLocation);
+		else 
+			fileSystemHandler.move(currentFile, pasteLocation);
+	}
+	
 	private void updateTabTitleBar(final FileAttributes dir) {
 		StringBuilder sbLabelText = new StringBuilder();
 		if(isRemoteListing)
@@ -914,7 +926,7 @@ public class ListViewPanel extends JPanel {
 						.append('@')
 						.append(remoteUsername)
 						.append(':');
-		if("".equals(dir.name)) 
+		if("".equals(dir.name))
 			sbLabelText.append(dir.absolutePath);
 		else 
 			sbLabelText.append(dir.name);				
