@@ -113,6 +113,7 @@ public class RemoteFileSystemHandler extends FileSystemHandler {
 
 	@Override
 	public long[] copy(FileAttributes src, FileAttributes dst) throws IOException {
+		// paste(src.absolutePath, dst.absolutePath, false);
 		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
 	}
 
@@ -125,6 +126,63 @@ public class RemoteFileSystemHandler extends FileSystemHandler {
 	public long[] delete(FileAttributes root) throws IOException {
 		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
 	}
+	
+	
+	/**
+	 * <p>Copies from the source path recursively to the destination path.</p>
+	 * @param srcPath Has to be absolute.
+	 * @param dstPath Has to be absolute.
+	 * @return Number of files/directories copied under srcPath.
+	 * */ /* 
+	private void paste(final String srcPath, final String dstPath, final boolean move) throws IOException {
+		FTPFile src = getFile(srcPath);
+		if(src == null)
+			throw new IOException("Non-existent source path: " + srcPath);
+		if(getFile(dstPath) == null)
+			throw new IOException("Non-existent destination path: " + dstPath);
+		if(dstPath.startsWith(srcPath))
+			throw new IOException("Destination path is a subpath of the source path");
+
+		// Renames dst file name if already present in dst path
+		int renameAttempt = 0;
+		final String actFname = src.getName();
+		String modFname = actFname;
+		String newDstPath;
+		while(pathExists(newDstPath=dstPath+"/"+modFname)) {
+//			if(showDebugInfo)
+//				System.out.println("Already exists in dst dir: " + modFname);
+			StringBuilder tmpName = new StringBuilder(actFname.length() + 5);
+
+			if(src.isDirectory()) { /* No extension checking for directories */ /* 
+				tmpName .insert(0, actFname)
+						.append(" (").append(++renameAttempt).append(")");
+			} else { // Extension checking for files
+				int dotIdx = actFname.lastIndexOf('.');
+				String ext = actFname.substring(dotIdx == -1 ? actFname.length() : dotIdx);
+				String base = actFname.substring(0, dotIdx == -1 ? actFname.length() : dotIdx);
+				tmpName	.insert(0, base)
+						.append(" (").append(++renameAttempt).append(")")
+						.append(ext);
+			}
+			modFname = tmpName.toString();
+		}
+
+		cpDirCount = cpFileCount = rmDirCount = rmFileCount = 0L; // initialize counters
+
+		if(move)
+			move(getParentPath(srcPath), src, newDstPath);
+		else
+			copy(getParentPath(srcPath), src, newDstPath);
+
+//		System.out.printf("Count: dirs=%d, files=%d, total=%d \n",
+//				dirCount, fileCount, dirCount+fileCount);
+		if(showDebugInfo) {
+			System.out.printf("[Copied:  dirs=%d, files=%d, total=%d]\n", cpDirCount, cpFileCount, cpDirCount+cpFileCount);
+			if (move)
+				System.out.printf("[Removed: dirs=%d, files=%d, total=%d]\n", rmDirCount, rmFileCount, rmDirCount+rmFileCount);
+		}
+	}
+	*/
 
 	@Override
 	public FileAttributes getParent(FileAttributes file) throws FileNotFoundException {

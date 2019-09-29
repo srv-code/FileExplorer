@@ -168,6 +168,6 @@ public class ActivityLogger implements AutoCloseable {
         if(writer != null)
 			writer.close();
 		isClosed = true;
-//        System.out.println("Info: ActivityLogger closed");
+//        System.out.println("INFO: ActivityLogger closed");
     }
 }

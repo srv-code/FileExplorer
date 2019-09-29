@@ -56,7 +56,7 @@ public class RemoteLoginForm extends javax.swing.JFrame {
         btnLogin = new javax.swing.JButton();
         txtUserPassword = new javax.swing.JPasswordField();
         txtServerBookmarkName = new javax.swing.JTextField();
-        jLabel5 = new javax.swing.JLabel();
+        lblServerBookmarkName = new javax.swing.JLabel();
         comboServerHostName = new javax.swing.JComboBox<>();
         comboUserName = new javax.swing.JComboBox<>();
 
@@ -107,8 +107,8 @@ public class RemoteLoginForm extends javax.swing.JFrame {
 
         txtServerBookmarkName.setEnabled(false);
 
-        jLabel5.setText("Name:");
-        jLabel5.setEnabled(false);
+        lblServerBookmarkName.setText("Name:");
+        lblServerBookmarkName.setEnabled(false);
 
         comboServerHostName.setEditable(true);
         comboServerHostName.addActionListener(new java.awt.event.ActionListener() {
@@ -155,7 +155,7 @@ public class RemoteLoginForm extends javax.swing.JFrame {
                                 .addComponent(btnLogin))
                             .addGroup(layout.createSequentialGroup()
                                 .addContainerGap()
-                                .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 63, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(lblServerBookmarkName, javax.swing.GroupLayout.PREFERRED_SIZE, 63, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                                 .addComponent(txtServerBookmarkName, javax.swing.GroupLayout.PREFERRED_SIZE, 346, javax.swing.GroupLayout.PREFERRED_SIZE)))
                         .addGap(0, 0, Short.MAX_VALUE)))
@@ -185,7 +185,7 @@ public class RemoteLoginForm extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 9, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(txtServerBookmarkName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel5))
+                    .addComponent(lblServerBookmarkName))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(btnLogin)
                 .addContainerGap())
@@ -317,7 +317,8 @@ public class RemoteLoginForm extends javax.swing.JFrame {
 	}
 	
     private void chkAddToBookmarkActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chkAddToBookmarkActionPerformed
-        txtServerBookmarkName.setEnabled(chkAddToBookmark.isSelected());
+        lblServerBookmarkName.setEnabled(chkAddToBookmark.isSelected());
+		txtServerBookmarkName.setEnabled(chkAddToBookmark.isSelected());
     }//GEN-LAST:event_chkAddToBookmarkActionPerformed
 
     private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
@@ -430,7 +431,7 @@ public class RemoteLoginForm extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
-    private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel lblServerBookmarkName;
     private javax.swing.JTextField txtServerBookmarkName;
     private javax.swing.JPasswordField txtUserPassword;
     // End of variables declaration//GEN-END:variables

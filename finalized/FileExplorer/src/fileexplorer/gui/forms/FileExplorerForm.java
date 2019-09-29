@@ -638,19 +638,19 @@ public class FileExplorerForm extends javax.swing.JFrame {
     }//GEN-LAST:event_formWindowClosed
 
     private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
-        // close all open handlers
-		for(int i=0, count=tabbedPane.getTabCount(); i<count; i++) {
-			ListViewPanel selectedPanel = (ListViewPanel)tabbedPane.getComponentAt(tabbedPane.getSelectedIndex());
-			selectedPanel.closeHandler();
-			tabbedPane.remove(selectedPanel);
-		}
-		
-		// get close confirmation
+        // get close confirmation
 		if(SystemResources.prefs.confirmBeforeExit) {
 			if(JOptionPane.showConfirmDialog(this,
 					"Do you want to Exit ?", "Exit Confirmation",
 					JOptionPane.YES_NO_OPTION) == JOptionPane.NO_OPTION)
 				return;
+		}
+		logger.logInfo("Closing all opened tabs and connections...");
+		// close all open handlers
+		for(int i=0, count=tabbedPane.getTabCount(); i<count; i++) {
+			ListViewPanel selectedPanel = (ListViewPanel)tabbedPane.getComponentAt(tabbedPane.getSelectedIndex());
+			selectedPanel.closeHandler();
+			tabbedPane.remove(selectedPanel);
 		}
 		logger.logInfo("Window closing...");
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -847,8 +847,7 @@ public class FileExplorerForm extends javax.swing.JFrame {
     private void btnCancelTableUpdateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelTableUpdateActionPerformed
         SwingWorker worker = getSelectedForm().currentUpdateTableListWorker;
 		if(worker != null)
-			worker.cancel(true);
-			
+			worker.cancel(true);			
     }//GEN-LAST:event_btnCancelTableUpdateActionPerformed
 
     

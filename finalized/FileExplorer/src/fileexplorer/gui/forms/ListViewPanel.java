@@ -578,12 +578,14 @@ public class ListViewPanel extends JPanel {
     private void menuCutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuCutActionPerformed
 //		SystemResources.pasteOperation = SystemResources.PasteOperation.CUT;
 //		SystemResources.filesToPaste = selectedFiles;
+//		SystemResources.fileSystemHandlerToPaste = fileSystemHandler;
     }//GEN-LAST:event_menuCutActionPerformed
 
     private void menuCopyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuCopyActionPerformed
 		/* @test_feature */
 		SystemResources.pasteOperation = SystemResources.PasteOperation.COPY;
 		SystemResources.filesToPaste = selectedFiles;
+		SystemResources.fileSystemHandlerToPaste = fileSystemHandler;
 		logger.logInfo("%d items copied", selectedFiles.length);
     }//GEN-LAST:event_menuCopyActionPerformed
 
@@ -968,7 +970,7 @@ public class ListViewPanel extends JPanel {
 	}
 
 	private void loadPath(final FileAttributes dir, final boolean registerInHistory) {
-		System.out.println("Info: Loading path " + dir.absolutePath + "...");
+//		logger.logInfo("Loading directory listing '%s' ...", dir.absolutePath);
 		FileAttributes cwd = fileSystemHandler.getCurrentWorkingDirectory();
 		if(!dir.equals(cwd)) { // eliminate redundant loading for same path
 			navigateTo(dir, registerInHistory);
@@ -1086,11 +1088,11 @@ public class ListViewPanel extends JPanel {
 
 	/* Only change the currentWorkingDirectory */
 	private void navigateTo(final FileAttributes dir, final boolean registerInHistory) {
-		System.out.println("Info: Navigating to " + dir.absolutePath);  // TODO log info
+		logger.logInfo("Navigating to directory '%s' ...", dir.absolutePath);
 		try {
 			fileSystemHandler.navigateTo(dir, registerInHistory);			
 //			lastVisitedPath = dir.absolutePath;
-			logger.logInfo("Navigated to folder: %s", dir.absolutePath);
+//			logger.logInfo("Navigated to folder: %s", dir.absolutePath);
 		} catch(IOException e) {
 			logger.logSevere(e, "Cannot navigate to path %s. Reason: %s", dir.absolutePath, e);
 			JOptionPane.showMessageDialog(	this,
@@ -1175,7 +1177,7 @@ public class ListViewPanel extends JPanel {
 //				System.out.println("Info: Directory loaded: " + file.absolutePath);
 			} else {
 				fileSystemHandler.openFile(file); // opens file using system
-				System.out.println("Info: Opened file: " + file.absolutePath); // log Info
+				logger.logInfo("Opened file: %s", file.absolutePath);
 			}
 		} catch(Exception e) {
 			String msg = "Unable to open "+ (file.isDirectory ? "folder" : "file") +": " + file.absolutePath + "\nReason: " + e;

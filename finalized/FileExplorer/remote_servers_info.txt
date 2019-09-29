@@ -1,0 +1,7 @@
+name=gnu2, addr=ftp.mozilla.org/pub/firefox/releases, user=anonymous, pwd=
+name=gnu, addr=ftp.gnu.org, user=anonymous, pwd=
+name=vm-win7, addr=10.0.2.15, user=ftpuser1, pwd=11111
+name=mozilla, addr=ftp.mozilla.org, user=anonymous, pwd=
+name=dlptest, addr=ftp.dlptest.com, user=dlpuser@dlptest.com, pwd=5p2tvn92R0di8FdiLCfzeeT0b
+name=localhost_registered,	addr=localhost, user=ftpuser1, pwd=11111
+name=localhost_anonymous,	addr=localhost, user=anonymous, pwd=

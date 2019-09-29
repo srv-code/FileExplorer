@@ -35,6 +35,14 @@ public class BookmarkHandler {
 				
 		tree.getSelectionModel()
 			.setSelectionMode(javax.swing.tree.TreeSelectionModel.SINGLE_TREE_SELECTION);
+		
+		/* load from preferences */
+		for(BookmarkedItem item: AppPreferences.getInstance().localBookmarkedItemList)
+			add(treeNodeBookmarks, item);
+		for(BookmarkedItem item: AppPreferences.getInstance().remoteServerBookmarkedItemList)
+			add(treeNodeRemoteServers, item);
+		refreshNode(treeNodeBookmarks);
+		expandAllNodes();
 	}
 	
 	public static BookmarkHandler getInstance(	final JTree tree, 
@@ -110,6 +118,22 @@ public class BookmarkHandler {
 		return this;
 	}
 	
+	public BookmarkedItem[] getLocalPathBookmarks() {
+		BookmarkedItem[] items = new BookmarkedItem[treeNodeBookmarks.getChildCount()];
+		Enumeration<DefaultMutableTreeNode> nodes = treeNodeBookmarks.children();
+		for(int i=0; nodes.hasMoreElements(); i++)
+			items[i] = (BookmarkedItem)nodes.nextElement().getUserObject();		
+		return items;
+	}
+	
+	public BookmarkedItem[] getRemoteServerBookmarks() {
+		BookmarkedItem[] items = new BookmarkedItem[treeNodeRemoteServers.getChildCount()];
+		Enumeration<DefaultMutableTreeNode> nodes = treeNodeRemoteServers.children();
+		for(int i=0; nodes.hasMoreElements(); i++)
+			items[i] = (BookmarkedItem)nodes.nextElement().getUserObject();		
+		return items;
+	}
+	
 	public BookmarkHandler addRemoteServer(final String name, final String host) {
 		add(treeNodeRemoteServers, new BookmarkedItem(name, BookmarkedItem.TYPE_REMOTE_SERVER, host));
 		refreshNode(treeNodeRemoteServers);
@@ -164,7 +188,7 @@ public class BookmarkHandler {
 	public BookmarkHandler removeAllSiblings(final DefaultMutableTreeNode childNode) {
 		((DefaultMutableTreeNode)childNode.getParent()).removeAllChildren();
 		refreshNode(childNode);
-//		System.out.printf("Info: All %d sibling bookmark items removed from node '%s'\n", childCount, parentNode.getUserObject()); // TODO log info
+//		System.out.printf("INFO: All %d sibling bookmark items removed from node '%s'\n", childCount, parentNode.getUserObject()); // TODO log info
 		return this;
 	}
 
@@ -181,6 +205,6 @@ public class BookmarkHandler {
 		BookmarkedItem oldItem = (BookmarkedItem)node.getUserObject();
 		node.setUserObject(new BookmarkedItem(newName, oldItem.type, oldItem.absolutePath));
 		refreshNode(node);
-//		System.out.printf("Info: Bookmark renamed from '%s' to '%s'\n", oldItem.name, newName); // log Info
+//		System.out.printf("INFO: Bookmark renamed from '%s' to '%s'\n", oldItem.name, newName); // log INFO
 	}
 }

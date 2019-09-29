@@ -11,7 +11,7 @@ public class SystemHandler implements AutoCloseable {
     public static SystemHandler getInstance() {
         if(instance == null) {
             instance = new SystemHandler();
-            System.out.println("Info: SystemHandler initialized");
+            System.out.println("INFO: SystemHandler initialized");
         }
         return instance;
 	}
@@ -23,16 +23,16 @@ public class SystemHandler implements AutoCloseable {
     
     public void init() throws IOException {
         if(SystemResources.APP_DIR.exists()) {
-			System.out.println("Info: Temp app dir: " + SystemResources.APP_DIR);
+			System.out.println("INFO: Temp app dir: " + SystemResources.APP_DIR);
 		} else {
             if(SystemResources.APP_DIR.mkdirs())
-                System.out.println("Info: Temp app dir created: " + SystemResources.APP_DIR);
+                System.out.println("INFO: Temp app dir created: " + SystemResources.APP_DIR);
             else
                 throw new IOException("Fatal err: Cannot create temp app dir " + SystemResources.APP_DIR + "!");
         }
         
         try {
-			System.out.println("Info: Initializing ActivityLogger...");
+			System.out.println("INFO: Initializing ActivityLogger...");
             logger = SystemResources.logger = ActivityLogger.getInstance();
 			logger.logConfig("ActivityLogger initialized, log file: "
 					+ logger.getFile().getAbsolutePath());
@@ -71,6 +71,6 @@ public class SystemHandler implements AutoCloseable {
             System.err.println("ERR: Cannot close logger. (Exc: " + e + ")");
         }
         
-        System.out.println("Info: SystemHandler closing...");
+        System.out.println("INFO: SystemHandler closing...");
     }
 }

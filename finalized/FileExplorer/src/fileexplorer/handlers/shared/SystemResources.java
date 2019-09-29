@@ -2,6 +2,7 @@ package fileexplorer.handlers.shared;
 
 import fileexplorer.gui.forms.*;
 import fileexplorer.handlers.fs.FileAttributes;
+import fileexplorer.handlers.fs.FileSystemHandler;
 
 import java.io.File;
 import java.io.IOException;
@@ -72,6 +73,7 @@ public class SystemResources {
 	public static enum PasteOperation { CUT, COPY, NONE; };
 	public static PasteOperation pasteOperation = PasteOperation.NONE;
 	public static FileAttributes[] filesToPaste = null;
+	public static FileSystemHandler fileSystemHandlerToPaste = null;
 	
 //	public final static List<JTextField> addressBarList = new ArrayList<>();
 //	public final static List<JToggleButton> bookmarkIndicatorList = new ArrayList<>();
