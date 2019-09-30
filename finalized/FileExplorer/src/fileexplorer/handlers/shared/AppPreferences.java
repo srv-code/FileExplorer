@@ -54,7 +54,7 @@ public class AppPreferences {
 	
 	/* Related to remote servers */	
 	private final String usernameListDelimiter = ";";
-	public final Map<String,List<String>> remoteServerProfilesMap = new HashMap<>();
+	public final Map<String,List<String>> remoteServerProfilesCacheMap = new HashMap<>();
 	
 	/* Related to local bookmarks */
 	public final List<BookmarkedItem> localBookmarkedItemList = new ArrayList<>();
@@ -100,19 +100,18 @@ public class AppPreferences {
 			logger.logInfo("Loading preference: '%s' from node path: '%s' ...", 
 					prefBeingLoaded, prefNode.absolutePath());
 			for(String nodeName: prefNode.childrenNames()) {
-				System.out.println("  // node: " + nodeName); // DEBUG
+//				System.out.println("  // node: " + nodeName); // DEBUG
 				Preferences newNode = prefNode.node(nodeName);
 				if(newNode.get(BOOKMARKEDITEM_KEY_PATH, null) == null)
-					logger.logSevere(null, "Cannot load bookmarked remote server: %s={%s=%s, %s=%s, %s=%s}",
+					logger.logSevere(null, "Cannot load bookmarked remote server: %s={%s=%s, %s=%s}",
 							nodeName,
 							BOOKMARKEDITEM_KEY_NAME, newNode.get(BOOKMARKEDITEM_KEY_NAME, null),
-							BOOKMARKEDITEM_KEY_TYPE, newNode.get(BOOKMARKEDITEM_KEY_TYPE, null),
 							BOOKMARKEDITEM_KEY_PATH, newNode.get(BOOKMARKEDITEM_KEY_PATH, null));
 				else 
 					remoteServerBookmarkedItemList.add(
 							new BookmarkedItem(
 								newNode.get(BOOKMARKEDITEM_KEY_NAME, null),
-								newNode.get(BOOKMARKEDITEM_KEY_TYPE, null),
+								BookmarkedItem.TYPE_REMOTE_SERVER,
 								newNode.get(BOOKMARKEDITEM_KEY_PATH, null)));
 			}
 			
@@ -137,7 +136,7 @@ public class AppPreferences {
 								usernameList.add(name);
 					}
 //					System.out.printf("  // loaded into map: [key=%s, value=%s]\n", host, usernameList); // DEBUG
-					remoteServerProfilesMap.put(host, usernameList);
+					remoteServerProfilesCacheMap.put(host, usernameList);
 				}
 			}
 						
@@ -183,9 +182,9 @@ public class AppPreferences {
 			for(BookmarkedItem item: SystemResources.formFileExplorer.bookmarkHandler.getLocalPathBookmarks()) {				
 //				System.out.println("  // item: " + item); // DEBUG
 				Preferences newNode = prefNode.node(String.valueOf(++itemID));
-				newNode.put("name", item.name);
-				newNode.put("type", item.type);
-				newNode.put("path", item.absolutePath);
+				newNode.put(BOOKMARKEDITEM_KEY_NAME, item.name);
+				newNode.put(BOOKMARKEDITEM_KEY_TYPE, item.type);
+				newNode.put(BOOKMARKEDITEM_KEY_PATH, item.absolutePath);
 			}
 			prefNode.flush();
 			
@@ -198,9 +197,8 @@ public class AppPreferences {
 			for(BookmarkedItem item: SystemResources.formFileExplorer.bookmarkHandler.getRemoteServerBookmarks()) {
 //				System.out.println("  // item: " + item); // DEBUG
 				Preferences newNode = prefNode.node(String.valueOf(++itemID));
-				newNode.put("name", item.name);
-				newNode.put("type", item.type);
-				newNode.put("path", item.absolutePath);
+				newNode.put(BOOKMARKEDITEM_KEY_NAME, item.name);
+				newNode.put(BOOKMARKEDITEM_KEY_PATH, item.absolutePath);
 			}
 			prefNode.flush();
 			
@@ -209,7 +207,7 @@ public class AppPreferences {
 			prefNode = userPrefs.node(prefNodePath_RemoteServerCache);
 			logger.logInfo("Storing preference: '%s' to node path: '%s' ...", 
 					prefBeingStored, prefNode.absolutePath());
-			for(Map.Entry<String,List<String>> entry: remoteServerProfilesMap.entrySet()) {
+			for(Map.Entry<String,List<String>> entry: remoteServerProfilesCacheMap.entrySet()) {
 				StringBuilder sbUserNames = new StringBuilder();
 				for(String name: entry.getValue())
 					sbUserNames.append(name).append(usernameListDelimiter);

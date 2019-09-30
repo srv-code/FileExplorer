@@ -805,8 +805,11 @@ public class FileExplorerForm extends javax.swing.JFrame {
     private void menuBookmarkPropertiesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuBookmarkPropertiesActionPerformed
         BookmarkedItem item = (BookmarkedItem)selectedBookmarkNode.getUserObject();
 		try {
-			PropertiesForm.init(new FileAttributes[] { localFileSystemHandler.getFileAttributes(item.absolutePath) },
-						item.type, getSelectedForm());
+			if(BookmarkedItem.TYPE_REMOTE_SERVER.equals(item.type))
+				PropertiesForm.init(getSelectedForm(), selectedBookmarkNode, item.name, item.absolutePath);
+			else
+				PropertiesForm.init(getSelectedForm(), selectedBookmarkNode,
+									new FileAttributes[] { localFileSystemHandler.getFileAttributes(item.absolutePath) });
 		} catch(IOException e) {
 			JOptionPane.showMessageDialog(	this,
 							String.format("Cannot fetch bookmarked %s: %s\nReason: %s", 

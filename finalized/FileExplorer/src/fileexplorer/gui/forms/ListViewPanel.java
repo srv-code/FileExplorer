@@ -732,9 +732,7 @@ public class ListViewPanel extends JPanel {
     }//GEN-LAST:event_menuDeleteActionPerformed
 
     private void menuPropertiesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuPropertiesActionPerformed
-        PropertiesForm.init(	selectedFiles,
-									selectedFiles[0].type,
-									this);
+        PropertiesForm.init(this, null, selectedFiles);
     }//GEN-LAST:event_menuPropertiesActionPerformed
 
     private void btnGoBackInHistoryActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGoBackInHistoryActionPerformed
@@ -800,7 +798,7 @@ public class ListViewPanel extends JPanel {
 
     private void btnReloadPathActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnReloadPathActionPerformed
         try {
-            System.out.println("  // reload: " + fileSystemHandler.getCurrentWorkingDirectory().absolutePath);
+//            System.out.println("  // reload: " + fileSystemHandler.getCurrentWorkingDirectory().absolutePath);
             updateTableList(true);
         } catch(Exception e) {
             String msg = "Unable to reload current folder: " + fileSystemHandler.getCurrentWorkingDirectory().absolutePath + "\nReason: " + e;

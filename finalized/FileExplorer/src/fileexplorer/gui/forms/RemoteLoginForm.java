@@ -276,10 +276,10 @@ public class RemoteLoginForm extends javax.swing.JFrame {
 	private void saveRemoteServerProfile(	final String host, 
 											final String username) {
 		/* saving to map */
-		List<String> userNameList = SystemResources.prefs.remoteServerProfilesMap.get(host);
+		List<String> userNameList = SystemResources.prefs.remoteServerProfilesCacheMap.get(host);
 		if(userNameList == null) {
 			userNameList = new ArrayList<>();
-			SystemResources.prefs.remoteServerProfilesMap.put(host, userNameList);
+			SystemResources.prefs.remoteServerProfilesCacheMap.put(host, userNameList);
 		}
 		
 		if(!userNameList.contains(username) && !username.equals(SystemResources.ANONYMOUS_USERNAME))
@@ -327,8 +327,8 @@ public class RemoteLoginForm extends javax.swing.JFrame {
         /* load remote server profiles from preference map */
 		comboUserName.addItem(SystemResources.ANONYMOUS_USERNAME);
 		txtUserPassword.setText(SystemResources.ANONYMOUS_PASSWORD);
-//		System.out.println("  // will load hostnames: " + SystemResources.prefs.remoteServerProfilesMap.keySet());
-		for(String hostString: SystemResources.prefs.remoteServerProfilesMap.keySet()) {
+//		System.out.println("  // will load hostnames: " + SystemResources.prefs.remoteServerProfilesCacheMap.keySet());
+		for(String hostString: SystemResources.prefs.remoteServerProfilesCacheMap.keySet()) {
 //			System.out.println("  // host added: " + hostString);
 			comboServerHostName.addItem(hostString);
 		}
@@ -361,7 +361,7 @@ public class RemoteLoginForm extends javax.swing.JFrame {
 			hostName = comboServerHostName.getSelectedItem().toString().trim();
 			if(hostName.length()==0) /* blank input */
 				return;
-			List<String> usernameList = SystemResources.prefs.remoteServerProfilesMap.get(hostName);
+			List<String> usernameList = SystemResources.prefs.remoteServerProfilesCacheMap.get(hostName);
 			if(usernameList==null) /* new server host name */
 				return;
 //			System.out.printf("  // users to add for host=%s: %s\n", hostName, usernameList);			

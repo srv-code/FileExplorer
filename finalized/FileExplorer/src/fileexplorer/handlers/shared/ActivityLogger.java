@@ -136,9 +136,9 @@ public class ActivityLogger implements AutoCloseable {
 	
 	private long errorCount = 0L;
 	private void updateErrorCounter() {
-		errorCount++;
+		System.out.println("  // updateErrorCounter() called"); // DEBUG
 		if(SystemResources.formFileExplorer != null && SystemResources.formFileExplorer.lblErrorCount != null)
-			SystemResources.formFileExplorer.lblErrorCount.setText(String.valueOf(errorCount));
+			SystemResources.formFileExplorer.lblErrorCount.setText(String.valueOf(++errorCount));
 	}
     
 	@Deprecated 

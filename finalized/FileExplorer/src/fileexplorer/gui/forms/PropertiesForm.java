@@ -2,6 +2,7 @@ package fileexplorer.gui.forms;
 
 import fileexplorer.handlers.fs.FileAttributes;
 import fileexplorer.handlers.shared.ActivityLogger;
+import fileexplorer.handlers.shared.AppPreferences;
 import fileexplorer.handlers.shared.BookmarkedItem;
 import fileexplorer.handlers.shared.SystemResources.IconRegistry;
 import java.util.ArrayList;
@@ -12,177 +13,284 @@ import javax.swing.tree.DefaultMutableTreeNode;
 
 public class PropertiesForm extends javax.swing.JFrame {
 	private static final ActivityLogger logger = ActivityLogger.getInstance();
-	private FileAttributes[] files;
-	private final ListViewPanel listViewPanel;
 	private final IconRegistry iconRegistry = IconRegistry.getInstance();
+	
+	/* mandatory fields */ 
+	private final ListViewPanel listViewPanel;
+	private final boolean isRemoteServer;
 	private final boolean bookmarkOperation;
-	private final DefaultMutableTreeNode bookmarkedNode;
-	private final BookmarkedItem bookmarkedItem;
+	
+	/* optional fields */
+	private FileAttributes[] files;
+	private DefaultMutableTreeNode bookmarkedNode;
+	private BookmarkedItem bookmarkedItem;
+	private String serverName;
+	private String serverAddress;
+	
+	
+	private void initForm() {
+		setVisible(true);
+		setIconImage(iconRegistry.propertiesIcon_small.getImage());
+		initComponents();
+	}
+	
+	private void setUIComponentStates() {
+		if(isRemoteServer) {
+			lblTypeIcon.setIcon(iconRegistry.serverIcon_big);
+			txtName.addActionListener(evt -> renameIfModified(bookmarkedNode, txtName.getText().trim()));
+			
+			btnDynamicAction.setText("Connect...");
+			btnDynamicAction.addActionListener(evt -> {
+				dispose();
+				RemoteLoginForm.init(serverAddress);
+			});
+			
+			/* Set UI components */
+			txtName.setText(serverName);
+			lblPath.setText("Address");
+			txtPath.setText(serverAddress);
+			txtType.setText(BookmarkedItem.TYPE_REMOTE_SERVER);			
+			lblLocation.setText("Users last signed in");
+			StringBuilder sbUsers = new StringBuilder();
+			List<String> userList = AppPreferences.getInstance().remoteServerProfilesCacheMap.get(bookmarkedItem.absolutePath);
+			for(int i=0, len=userList.size(); i<len; i++) {
+				sbUsers.append(userList.get(i));
+				if(i < userList.size()-1)
+					sbUsers.append("; ");
+			}
+			txtLocation.setText(sbUsers.toString());
+			
+			/* Hide unnecessary UI components */
+			lblSize.setVisible(false);
+			txtSize.setVisible(false);
+			lblLastModified.setVisible(false);
+			txtLastModified.setVisible(false);
+			lblPermissions.setVisible(false);
+			chkReadable.setVisible(false);
+			chkWritable.setVisible(false);
+			chkExecutable.setVisible(false);
+			chkHidden.setVisible(false); 
+			separatorAttributes.setVisible(false);
+			
+			pack();
+		} else {
+			final boolean singleFileOperation = files.length==1;
+			
+			btnDynamicAction.setText("Apply");
+			btnDynamicAction.addActionListener(evt -> saveValuesIfModified());
+			
+			txtName.addActionListener(evt -> {
+				if(singleFileOperation)
+					renameIfModified(files[0], txtName.getText().trim());
+			});
+			
+			boolean canEdit = listViewPanel!=null;
+			txtName.setEditable(canEdit && singleFileOperation);
+			chkExecutable.setEnabled(canEdit);
+			chkReadable.setEnabled(canEdit);
+			chkWritable.setEnabled(canEdit);
+			
+			// set values to GUI components		
+			if(singleFileOperation) {
+				lblTypeIcon.setIcon(iconRegistry.getTypeIcon(files[0].type));
+				txtName.setText(BookmarkedItem.TYPE_SYSTEM_DRIVE.equals(files[0].type) ? files[0].absolutePath : files[0].name);
+				txtName.setCaretPosition(0);
+				
+				txtType.setText(files[0].type);
+				txtType.setCaretPosition(0);
+				
+				txtSize.setText(files[0].sizeInWords + " (" + files[0].size + " B)"); 
+				txtSize.setCaretPosition(0);
+				
+				txtLastModified.setText(files[0].lastModifiedDateString); 
+				txtLastModified.setCaretPosition(0);
+				
+				chkReadable.setSelected(files[0].isReadable);
+				chkWritable.setSelected(files[0].isWritable);
+				chkExecutable.setSelected(files[0].isExecutable);
+				chkHidden.setSelected(files[0].isHidden);
+			} else { // ignore type
+				lblTypeIcon.setIcon(iconRegistry.multipleFilesIcon_big);
+
+				StringBuilder names = new StringBuilder();
+				List<String> types = new ArrayList<>();
+				long totalSize = 0L;
+				long minLastModified = files[0].lastModified, maxLastModified = files[0].lastModified;
+				for(FileAttributes file : files) {
+					names.append(file.name).append("; ");
+					if(!types.contains(file.type))
+						types.add(file.type);
+					totalSize += file.size;
+					minLastModified = Math.min(file.lastModified, minLastModified);
+					maxLastModified = Math.max(file.lastModified, maxLastModified);
+				}
+
+				txtName.setText(names.toString()); 
+				txtName.setCaretPosition(0);
+					
+				StringBuilder tmpTypes = new StringBuilder();
+				for(String ftype : types)
+					tmpTypes.append(ftype).append("; ");
+				txtType.setText(tmpTypes.toString());
+				txtType.setCaretPosition(0);
+				
+				txtSize.setText(FileAttributes.getSizeInWords(totalSize) + " (" + totalSize + " B)"); 
+				txtSize.setCaretPosition(0);
+				
+				txtLastModified.setText(	FileAttributes.getlastModifiedDateString(minLastModified) + 
+											" - " + 
+											FileAttributes.getlastModifiedDateString(maxLastModified)); 
+				txtLastModified.setCaretPosition(0);
+			}
+			
+			// global values
+			txtPath.setText(BookmarkedItem.TYPE_SYSTEM_DRIVE.equals(files[0].type) ? "root" : files[0].absolutePath); 
+			txtPath.setCaretPosition(0);
+			txtLocation.setText(files[0].isLocal ? "Local" : "Remote"); 
+			txtLocation.setCaretPosition(0);
+		}
+	}
 	
 	/**
 	 * Creates new form PropertiesForm for remote servers.
 	 */
-	public PropertiesForm(final DefaultMutableTreeNode bookmarkedNode, final ListViewPanel listViewPanel) {
-		this.bookmarkOperation = true;
-		this.bookmarkedNode = bookmarkedNode;
-		this.bookmarkedItem = (BookmarkedItem)bookmarkedNode.getUserObject();
+	public PropertiesForm(	final ListViewPanel listViewPanel, final DefaultMutableTreeNode bookmarkedNode, 
+							final String serverName, final String serverAddress) {
 		this.listViewPanel = listViewPanel;
-		this.files = null;
+		this.isRemoteServer = true;
+		this.bookmarkOperation = bookmarkedNode!=null;
+		this.bookmarkedNode = bookmarkedNode;
+		this.bookmarkedItem = (BookmarkedItem) bookmarkedNode.getUserObject();
+		this.serverName = serverName;
+		this.serverAddress = serverAddress;
 		
-		
-		// change button's text and functionality
-		if(BookmarkedItem.TYPE_REMOTE_SERVER.equals(bookmarkedItem.type)) {
-			btnDynamicAction.setText("Connect...");
-			btnDynamicAction.addActionListener(new java.awt.event.ActionListener() {
-				public void actionPerformed(java.awt.event.ActionEvent evt) {
-					dispose();
-					RemoteLoginForm.init(bookmarkedItem.absolutePath);
-				}
-			});
-		} else {
-			btnDynamicAction.setText("Apply");
-			btnDynamicAction.addActionListener(new java.awt.event.ActionListener() {
-				public void actionPerformed(java.awt.event.ActionEvent evt) {
-					saveValuesIfModified();
-				}
-			});
-		}
-		
-		txtName.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-				renameIfModified(bookmarkedNode, txtName.getName().trim());
-            }
-        });
-		
-		// hide unnecessary labels and textboxes
-		lblSize.setVisible(false);
-		txtSize.setVisible(false);
-		lblLastModified.setVisible(false);
-		txtLastModified.setVisible(false);
-		lblPermissions.setVisible(false);
-		chkReadable.setVisible(false);
-		chkWritable.setVisible(false);
-		chkExecutable.setVisible(false);
-		chkHidden.setVisible(false);
+		initForm();
+		setUIComponentStates();
 	}
 	
 	/**
 	 * Creates new form PropertiesForm for local bookmarked files and folders.
-	 * @param type If multiples files are specified then this parameter has no 
-	 *		significance as a constant icon will be used.
 	 */
-	public PropertiesForm(final FileAttributes[] files, final String type, final ListViewPanel listViewForm) {
-		this.bookmarkOperation = false;
-		this.bookmarkedNode = null;
-		this.bookmarkedItem = null;
+	public PropertiesForm(final ListViewPanel listViewPanel, final DefaultMutableTreeNode bookmarkedNode, final FileAttributes[] files) {
+		this.listViewPanel = listViewPanel;
+		this.isRemoteServer = false;
+		this.bookmarkOperation = bookmarkedNode!=null;
+		this.bookmarkedNode = bookmarkedNode==null ? null : bookmarkedNode;
+		this.bookmarkedItem = bookmarkedNode==null ? null : (BookmarkedItem) bookmarkedNode.getUserObject();
 		this.files = files;
-		this.listViewPanel = listViewForm;
-		initComponents();
-		btnDynamicAction.setText("Apply");
-		btnDynamicAction.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                saveValuesIfModified();
-            }
-        });
 		
-		txtName.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {                
-				if(files.length == 1)
-					renameIfModified(files[0], txtName.getName().trim());
-            }
-        });
-		
-		boolean canEdit = listViewForm!=null;
-		txtName.setEditable(canEdit && files.length==1);
-		chkExecutable.setEnabled(canEdit);
-		chkReadable.setEnabled(canEdit);
-		chkWritable.setEnabled(canEdit);
-		
-		// set values to GUI components
-		if(files.length == 1) {
-			lblTypeIcon.setIcon(iconRegistry.getTypeIcon(type));
-			txtName.setText(BookmarkedItem.TYPE_SYSTEM_DRIVE.equals(type) ? files[0].absolutePath : files[0].name);
-				txtName.setCaretPosition(0);
-			txtType.setText(type);
-				txtType.setCaretPosition(0);
-			txtSize.setText(files[0].sizeInWords + " (" + files[0].size + " B)"); 
-				txtSize.setCaretPosition(0);
-			txtLastModified.setText(files[0].lastModifiedDateString); 
-				txtLastModified.setCaretPosition(0);
-			chkReadable.setSelected(files[0].isReadable);
-			chkWritable.setSelected(files[0].isWritable);
-			chkExecutable.setSelected(files[0].isExecutable);
-			chkHidden.setSelected(files[0].isHidden);
-		} else { // ignore type
-			lblTypeIcon.setIcon(iconRegistry.multipleFilesIcon_big);
-			
-			StringBuilder names = new StringBuilder();
-			List<String> types = new ArrayList<>();
-			long totalSize = 0L;
-			long minLastModified = files[0].lastModified, maxLastModified = files[0].lastModified;
-			for(FileAttributes file : files) {
-				names.append(file.name).append("; ");
-				if(!types.contains(file.type))
-					types.add(file.type);
-				totalSize += file.size;
-				minLastModified = Math.min(file.lastModified, minLastModified);
-				maxLastModified = Math.max(file.lastModified, maxLastModified);
-			}
-			
-			txtName.setText(names.toString()); 
-				txtName.setCaretPosition(0);
-			StringBuilder tmpTypes = new StringBuilder();
-			for(String ftype : types)
-				tmpTypes.append(ftype).append("; ");
-			txtType.setText(tmpTypes.toString());
-				txtType.setCaretPosition(0);
-			txtSize.setText(FileAttributes.getSizeInWords(totalSize) + " (" + totalSize + " B)"); 
-				txtSize.setCaretPosition(0);
-			txtLastModified.setText(	FileAttributes.getlastModifiedDateString(minLastModified) + 
-										" - " + 
-										FileAttributes.getlastModifiedDateString(maxLastModified)); 
-			txtLastModified.setCaretPosition(0);
-		}
-		
-		// global values
-		txtPath.setText(BookmarkedItem.TYPE_SYSTEM_DRIVE.equals(type) ? "root" : files[0].absolutePath); 
-			txtPath.setCaretPosition(0);
-		txtLocation.setText(files[0].isLocal ? "Local" : "Remote"); 
-			txtLocation.setCaretPosition(0);
+		initForm();
+		setUIComponentStates();
  	}
+	
+//	/**
+//	 * Creates new form PropertiesForm for remote servers.
+//	 */ 
+//	public PropertiesForm(final DefaultMutableTreeNode node, final ListViewPanel listViewPanel) {
+//		initForm();
+//		
+//		this.bookmarkOperation = true;
+//		this.bookmarkedNode = node;
+//		this.bookmarkedItem = (BookmarkedItem)node.getUserObject();
+//		this.listViewPanel = listViewPanel;
+//		this.files = null;
+//		
+//		setUIComponentStates();
+//		
+//		lblTypeIcon.setIcon(iconRegistry.getTypeIcon(bookmarkedItem.type));
+//		txtName.setText(bookmarkedItem.name);
+//		txtPath.setText(bookmarkedItem.absolutePath);
+//		txtType.setText(bookmarkedItem.type);
+		
+		/* change button's text and functionality depending on the type of bookmarked item selected */
+//		if(BookmarkedItem.TYPE_REMOTE_SERVER.equals(bookmarkedItem.type)) {
+//			lblPath.setText("Address");
+//			lblLocation.setText("Users last signed in");
+//			StringBuilder sbUsers = new StringBuilder();
+//			List<String> userList = AppPreferences.getInstance().remoteServerProfilesCacheMap.get(bookmarkedItem.absolutePath);
+//			for(int i=0, len=userList.size(); i<len; i++) {
+//				sbUsers.append(userList.get(i));
+//				if(i < userList.size()-1)
+//					sbUsers.append("; ");
+//			}
+//			txtLocation.setText(sbUsers.toString());
+//			
+//			btnDynamicAction.setText("Connect...");			
+//			btnDynamicAction.setSize(btnDynamicAction.getPreferredSize());
+//			btnDynamicAction.addActionListener(new java.awt.event.ActionListener() {
+//				public void actionPerformed(java.awt.event.ActionEvent evt) {
+//					dispose();
+//					RemoteLoginForm.init(bookmarkedItem.absolutePath);
+//				}
+//			});
+//			
+//			/* Hide unnecessary UI components */
+//			lblSize.setVisible(false);
+//			txtSize.setVisible(false);
+//			lblLastModified.setVisible(false);
+//			txtLastModified.setVisible(false);
+//			lblPermissions.setVisible(false);
+//			chkReadable.setVisible(false);
+//			chkWritable.setVisible(false);
+//			chkExecutable.setVisible(false);
+//			chkHidden.setVisible(false); 
+//			separatorAttributes.setVisible(false);
+//			
+//			pack();
+//		} else {
+//			btnDynamicAction.setText("Apply");
+//			btnDynamicAction.addActionListener(new java.awt.event.ActionListener() {
+//				public void actionPerformed(java.awt.event.ActionEvent evt) {
+//					saveValuesIfModified();
+//				}
+//			});
+//		}
+//		
+//		txtName.addActionListener(new java.awt.event.ActionListener() {
+//            public void actionPerformed(java.awt.event.ActionEvent evt) {
+//				renameIfModified(node, txtName.getText().trim());
+//            }
+//        });
+//	}
 
 	private void saveValuesIfModified() {
-		if(bookmarkOperation) {
+		if(bookmarkOperation)
 			renameIfModified(bookmarkedNode, txtName.getText().trim());
-		} else {
-			if(files.length == 1)
-				renameIfModified(files[0], txtName.getName().trim());
 		
-			FileAttributes tmpFile;
-			for(int i=0; i<files.length; i++) {			
-				if(files[i].isExecutable!=chkExecutable.isSelected()) {
-					tmpFile = listViewPanel.setExecuteFlag(files[i], chkExecutable.isSelected());
-					if(tmpFile == null)
-						chkExecutable.setSelected(!chkExecutable.isSelected()); // reverse the current selection status
-					else	
-						files[i] = tmpFile;
-				}
+		if(isRemoteServer) /* no need to do any file related operation */
+			return;
+		
+		if(files.length == 1)
+			renameIfModified(
+					files[0], 
+					txtName
+							.getText()
+							.trim());
 
-				if(files[i].isReadable!=chkReadable.isSelected()) {
-					tmpFile = listViewPanel.setReadFlag(files[i], chkReadable.isSelected());
-					if(tmpFile == null)
-						chkReadable.setSelected(!chkReadable.isSelected()); // reverse the current selection status
-					else
-						files[i] = tmpFile;
-				}
+		FileAttributes tmpFile;
+		for(int i=0; i<files.length; i++) {
+			if(files[i].isExecutable!=chkExecutable.isSelected()) {
+				tmpFile = listViewPanel.setExecuteFlag(files[i], chkExecutable.isSelected());
+				if(tmpFile == null)
+					chkExecutable.setSelected(!chkExecutable.isSelected()); // reverse the current selection status
+				else	
+					files[i] = tmpFile;
+			}
 
-				if(files[i].isWritable!=chkWritable.isSelected()) {
-					tmpFile = listViewPanel.setWriteFlag(files[i], chkWritable.isSelected());
-					if(tmpFile == null)
-						chkWritable.setSelected(!chkWritable.isSelected()); // reverse the current selection status
-					else
-						files[i] = tmpFile;
-				}
+			if(files[i].isReadable!=chkReadable.isSelected()) {
+				tmpFile = listViewPanel.setReadFlag(files[i], chkReadable.isSelected());
+				if(tmpFile == null)
+					chkReadable.setSelected(!chkReadable.isSelected()); // reverse the current selection status
+				else
+					files[i] = tmpFile;
+			}
+
+			if(files[i].isWritable!=chkWritable.isSelected()) {
+				tmpFile = listViewPanel.setWriteFlag(files[i], chkWritable.isSelected());
+				if(tmpFile == null)
+					chkWritable.setSelected(!chkWritable.isSelected()); // reverse the current selection status
+				else
+					files[i] = tmpFile;
 			}
 		}
 	}
@@ -218,10 +326,8 @@ public class PropertiesForm extends javax.swing.JFrame {
 			return;
 		}
 		
-		BookmarkedItem item = (BookmarkedItem)node.getUserObject();
-		if(!item.name.equals(newName)) {
+		if(!bookmarkedItem.name.equals(newName))
 			listViewPanel.renameBookmarkedNode(node, newName);
-		}
 	}
 	
 	/**
@@ -241,7 +347,7 @@ public class PropertiesForm extends javax.swing.JFrame {
         lblLocation = new javax.swing.JLabel();
         lblSize = new javax.swing.JLabel();
         lblLastModified = new javax.swing.JLabel();
-        jSeparator1 = new javax.swing.JSeparator();
+        separatorAttributes = new javax.swing.JSeparator();
         lblPermissions = new javax.swing.JLabel();
         chkReadable = new javax.swing.JCheckBox();
         chkWritable = new javax.swing.JCheckBox();
@@ -261,19 +367,19 @@ public class PropertiesForm extends javax.swing.JFrame {
         setAlwaysOnTop(true);
         setResizable(false);
 
-        lblName.setText("Name:");
+        lblName.setText("Name");
 
-        lblPath.setText("Path:");
+        lblPath.setText("Path");
 
-        lblType.setText("Type:");
+        lblType.setText("Type");
 
-        lblLocation.setText("Location:");
+        lblLocation.setText("Location");
 
-        lblSize.setText("Size:");
+        lblSize.setText("Size");
 
-        lblLastModified.setText("Last modified:");
+        lblLastModified.setText("Last modified");
 
-        lblPermissions.setText("Permissions:");
+        lblPermissions.setText("Permissions");
 
         chkReadable.setText("Readable");
 
@@ -350,11 +456,11 @@ public class PropertiesForm extends javax.swing.JFrame {
                         .addContainerGap())
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addGap(0, 0, Short.MAX_VALUE)
-                        .addComponent(btnOK, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(btnCancel)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(btnDynamicAction, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(btnOK, javax.swing.GroupLayout.PREFERRED_SIZE, 96, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(btnCancel, javax.swing.GroupLayout.PREFERRED_SIZE, 96, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(btnDynamicAction, javax.swing.GroupLayout.PREFERRED_SIZE, 96, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(12, 12, 12))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -369,10 +475,10 @@ public class PropertiesForm extends javax.swing.JFrame {
                                 .addGap(18, 18, 18)
                                 .addComponent(chkHidden)
                                 .addGap(2, 2, 2))
-                            .addComponent(jSeparator1)
+                            .addComponent(separatorAttributes)
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(lblLastModified)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 14, Short.MAX_VALUE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 17, Short.MAX_VALUE)
                                 .addComponent(txtLastModified, javax.swing.GroupLayout.PREFERRED_SIZE, 337, javax.swing.GroupLayout.PREFERRED_SIZE)))
                         .addContainerGap())))
         );
@@ -409,7 +515,7 @@ public class PropertiesForm extends javax.swing.JFrame {
                     .addComponent(lblLastModified)
                     .addComponent(txtLastModified, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(9, 9, 9)
-                .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(separatorAttributes, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(lblPermissions)
@@ -418,12 +524,11 @@ public class PropertiesForm extends javax.swing.JFrame {
                     .addComponent(chkExecutable)
                     .addComponent(chkHidden))
                 .addGap(16, 16, 16)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(btnOK, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(btnDynamicAction, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(btnCancel)))
-                .addContainerGap())
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(btnDynamicAction, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnCancel)
+                    .addComponent(btnOK, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         lblTypeIcon.getAccessibleContext().setAccessibleDescription("");
@@ -442,20 +547,20 @@ public class PropertiesForm extends javax.swing.JFrame {
 	
 //	private void setExecuteFlag() {
 //		for(FileAttributes file : files)
-//			listViewForm.setExecuteFlag(file, chkReadable.isSelected());
+//			listViewPanel.setExecuteFlag(file, chkReadable.isSelected());
 //	}
 //	
 //	private void setReadFlag() {
-//		listViewForm.setReadFlag(files, chkReadable.isSelected());
+//		listViewPanel.setReadFlag(files, chkReadable.isSelected());
 //	}
 //	
 //	private void setWriteFlag() {
-//		listViewForm.setWriteFlag(files, chkReadable.isSelected());
+//		listViewPanel.setWriteFlag(files, chkReadable.isSelected());
 //	}
 //	
 //	private void renameFile() {
 //		if(txtName.isEditable()) {
-//			listViewForm.renameFile(files[0], txtName.getText());
+//			listViewPanel.renameFile(files[0], txtName.getText());
 //		}
 //	}
 	
@@ -467,27 +572,40 @@ public class PropertiesForm extends javax.swing.JFrame {
 	/**
 	 * Specifically for files/folders (supports multiple items)
 	 */
-	static void init(final FileAttributes[] files, final String type, final ListViewPanel listViewPanel) {
+	static void init(final ListViewPanel listViewPanel, final DefaultMutableTreeNode bookmarkedNode, final FileAttributes[] files) {
 		/* Create and display the form */
-		logger.logInfo("Initializing PropertiesForm...");
+		logger.logInfo("Initializing PropertiesForm with files/folders info...");
 		java.awt.EventQueue.invokeLater(new Runnable() {
 			public void run() {
-//				System.out.println("files=" + files + ", icon=" + icon + ", type=" + type + ", fsHandler=" + fsHandler);
-				 new PropertiesForm(files, type, listViewPanel).setVisible(true);
+				new PropertiesForm(listViewPanel, bookmarkedNode, files);
 			}
 		});
 	}
 	
+//	/**
+//	 * Specifically for bookmarked items, i.e. for local files/folders 
+//	 * or remote servers (supports only singular operation)
+//	 */
+//	static void init(final DefaultMutableTreeNode bookmarkNode, final ListViewPanel listViewPanel) {
+//		/* Create and display the form */
+//		logger.logInfo("Initializing PropertiesForm with bookmarked item info...");
+//		java.awt.EventQueue.invokeLater(new Runnable() {
+//			public void run() {
+//				 new PropertiesForm(bookmarkNode, listViewPanel);
+//			}
+//		});
+//	}
+
 	/**
-	 * Specifically for bookmarked items, i.e. for local files/folders 
-	 * or remote servers (supports only singular operation)
-	 */
-	static void init(final DefaultMutableTreeNode bookmarkNode, final ListViewPanel listViewPanel) {
+	 * Specifically for remote servers
+	*/
+	static void init(	final ListViewPanel listViewPanel, final DefaultMutableTreeNode bookmarkedNode, 
+						final String serverName, final String serverAddress) {
 		/* Create and display the form */
-		logger.logInfo("Initializing PropertiesForm...");
+		logger.logInfo("Initializing PropertiesForm with bookmarked item info...");
 		java.awt.EventQueue.invokeLater(new Runnable() {
 			public void run() {
-				 new PropertiesForm(bookmarkNode, listViewPanel).setVisible(true);
+				 new PropertiesForm(listViewPanel, bookmarkedNode, serverName, serverAddress);
 			}
 		});
 	}
@@ -501,7 +619,6 @@ public class PropertiesForm extends javax.swing.JFrame {
     private javax.swing.JCheckBox chkHidden;
     private javax.swing.JCheckBox chkReadable;
     private javax.swing.JCheckBox chkWritable;
-    private javax.swing.JSeparator jSeparator1;
     private javax.swing.JLabel lblLastModified;
     private javax.swing.JLabel lblLocation;
     private javax.swing.JLabel lblName;
@@ -510,6 +627,7 @@ public class PropertiesForm extends javax.swing.JFrame {
     private javax.swing.JLabel lblSize;
     private javax.swing.JLabel lblType;
     private javax.swing.JLabel lblTypeIcon;
+    private javax.swing.JSeparator separatorAttributes;
     private javax.swing.JTextField txtLastModified;
     private javax.swing.JTextField txtLocation;
     private javax.swing.JTextField txtName;
