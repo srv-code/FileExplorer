@@ -16,7 +16,7 @@ public class AppPreferences {
     public static AppPreferences getInstance() {
         if(instance == null) {
             instance = new AppPreferences();
-            ActivityLogger.getInstance().logInfo("INFO: AppPreferences initialized");
+            ActivityLogger.getInstance().logInfo("AppPreferences initialized");
         }
         return instance;
     }
@@ -286,7 +286,7 @@ public class AppPreferences {
 													"'.\nReason: " + e,
 											"Theme load failure",
 											JOptionPane.ERROR_MESSAGE);
-			logger.logSevere(e, "Cannot set theme '%s'. Reason: %s", themeClassName, e);
+			logger.logSevere(e, "Cannot set theme '%s'. Reason: %s", themeClassName, e); 
 		}
 	}
 }

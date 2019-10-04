@@ -12,7 +12,7 @@ import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
 
 public class RemoteLoginForm extends javax.swing.JFrame {	
-	private static ActivityLogger logger = SystemResources.getActivityLogger();
+	private static ActivityLogger logger = ActivityLogger.getInstance();
 	final private FTPClient ftpClient = new FTPClient();
 	private RemoteFileSystemHandler remoteHandler;
 	private String bookmarkedHostname;

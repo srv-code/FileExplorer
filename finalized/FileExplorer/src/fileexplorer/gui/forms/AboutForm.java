@@ -1,6 +1,7 @@
 package fileexplorer.gui.forms;
 
 import fileexplorer.handlers.shared.SystemResources;
+import fileexplorer.handlers.shared.ActivityLogger;
 
 
 public class AboutForm extends javax.swing.JFrame {
@@ -11,7 +12,7 @@ public class AboutForm extends javax.swing.JFrame {
         initComponents();
 		setIconImage(SystemResources.IconRegistry.getInstance().propertiesIcon_small.getImage());
 //		setIconImage(new ImageIcon(AboutForm.class.getResource("/images/about_big.png")).getImage());
-		SystemResources.getActivityLogger().logInfo("AboutForm initialized");
+		ActivityLogger.getInstance().logInfo("AboutForm initialized");
 	}
 
     /**

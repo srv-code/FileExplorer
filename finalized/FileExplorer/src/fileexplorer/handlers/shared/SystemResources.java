@@ -5,8 +5,6 @@ import fileexplorer.handlers.fs.FileAttributes;
 import fileexplorer.handlers.fs.FileSystemHandler;
 
 import java.io.File;
-import java.io.IOException;
-import java.net.CookiePolicy;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -14,16 +12,34 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.swing.ImageIcon;
-import javax.swing.ImageIcon;
-import javax.swing.JTextField;
-import javax.swing.JToggleButton;
-import jdk.nashorn.internal.runtime.linker.NashornGuards;
 
 /**
  * Just a container of system wide 
  *   shareable resources.
  */
 public class SystemResources {
+	public static final String APP_NAME = "FileExplorer";
+	public static final float APP_VERSION = 0.9f;
+	
+	public static String[] getHelpText() {
+		List<String> text = new ArrayList<>();
+		
+		text.add("Name:    " + APP_NAME);
+		text.add(String.format("Version: %.2f", APP_VERSION));
+		
+		text.add("Purpose: This is a modern file manager program developed to"
+				+ " facilitate the working with local as well as remote file"
+				+ " systems via FTP protocol.");
+		text.add("Usage:   " + APP_NAME + " [option1 [option2 ...]]");
+		text.add("Options: ");
+		text.add("    --nolog   : Disables the writing to the log file.");
+		text.add("    --debug   : Shows the debugging information in the console.");
+		text.add("    --version : Displays the application version and exits.");
+		text.add("    --help    : Displays this help menu and exits.");
+		
+		return text.toArray(new String[text.size()]);
+	}
+	
 	private SystemResources() {} // disable external instantiation
 	
 	/** Map of theme custom names and look and feel class names */
@@ -53,13 +69,6 @@ public class SystemResources {
 	public final static String ANONYMOUS_PASSWORD = "";
 	
     
-    /* Non-final fields - will be set only by SystemHandler, 
-     *   paired with public getters only */
-    static ActivityLogger logger = null;    
-    public static ActivityLogger getActivityLogger() {
-        return logger;
-    }
-    
     public static FileExplorerForm formFileExplorer = null; // TODO rectify
 //    public static FileExplorerForm getFileExplorerForm() {
 //        return formFileExplorer;
@@ -84,7 +93,7 @@ public class SystemResources {
 		public static IconRegistry getInstance() {
 			if(instance == null) {
 				instance = new IconRegistry();
-				getActivityLogger().logInfo("SystemResources.IconRegistry instantiated");
+				ActivityLogger.getInstance().logInfo("SystemResources.IconRegistry instantiated");
 			}
 			return instance;
 		}
@@ -207,7 +216,7 @@ public class SystemResources {
 						return (ImageIcon)record[ size==IconSize.SMALL ? 1 : 2 ];
 					}
 				}
-				logger.logWarning("No icon associated with type=" + type); // TODO log warning
+				ActivityLogger.getInstance().logWarning("No icon associated with type=" + type); // TODO log warning
 			}		
 			return size==IconSize.SMALL ? fileIcon_small : fileIcon_big;
 		}

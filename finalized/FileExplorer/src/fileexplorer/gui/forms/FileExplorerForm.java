@@ -24,7 +24,7 @@ public class FileExplorerForm extends javax.swing.JFrame {
 	// members of status bar
 	
 	
-	private static ActivityLogger logger = SystemResources.getActivityLogger();
+	private static ActivityLogger logger = ActivityLogger.getInstance();
 	private DefaultMutableTreeNode treeNodeQuickAccess;
     private DefaultMutableTreeNode treeNodeDrives;
     private DefaultMutableTreeNode treeNodeLibrary;

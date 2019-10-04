@@ -36,7 +36,7 @@ public class ListViewPanel extends JPanel {
 	private final int ICON_COLUMN_INDEX = 0;
 	
 	private final JLabel lblTabTitle;
-	private static final ActivityLogger logger = SystemResources.getActivityLogger();
+	private static final ActivityLogger logger = ActivityLogger.getInstance();
 	private BookmarkHandler bookmarkHandler;
 	
 	private boolean isRemoteListing;
@@ -61,7 +61,7 @@ public class ListViewPanel extends JPanel {
 		} else
 			remoteHostname = remoteUsername = null;
 		
-//		logger.logInfo("Info: Initializing ListViewFrame components...");
+//		logger.logInfo("Initializing ListViewFrame components...");
 		initComponents();
 		lblAddressIcon.setText(isRemoteListing ? "Remote:" : "Local:");
 		tableFileList.setShowHorizontalLines(false);

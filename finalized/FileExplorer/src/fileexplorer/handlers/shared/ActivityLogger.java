@@ -9,28 +9,37 @@ public class ActivityLogger implements AutoCloseable {
     private File file = null;
     private FileWriter writer;
     private List<String[]> logs = new ArrayList<>();
-	private boolean isClosed = true;
-
-    
-    private static ActivityLogger instance = null;
-    public static ActivityLogger getInstance() {
-        if(instance == null) {
-			try {
-				instance = new ActivityLogger(SystemResources.APP_DIR, SystemResources.LOG_FILE_NAME);
-			} catch(IOException e) {
-				System.err.println("Err: Cannot initialise ActivityLogger. Reason: " + e);
-			}
-        }
+	private boolean isClosed = true;	
+	private final boolean writeToLogFile;
+    private final boolean showDebugInfo;
+	
+	private static ActivityLogger instance = null;
+	
+    public static ActivityLogger getInstance(final boolean logWrite, final boolean showDebug) {
+        if(instance == null)
+			instance = new ActivityLogger(logWrite, showDebug);
         return instance;
     }
+	
+	/** To simplify getting the instance of the singleton object, 
+	 *  however can be null if not initialized using  the 
+	 *  getInstance(boolean logWrite, boolean showDebug) constructor. */
+	public static ActivityLogger getInstance() {
+		return instance;
+	}
     
-    private ActivityLogger(final File dir, final String filename) throws IOException { // disable external instantiation
-        file = new File(dir, filename);
-        writer = new FileWriter(file);
-		isClosed = false;
+    private ActivityLogger(final boolean logWrite, final boolean showDebug) { /* disable external instantiation */
+		this.writeToLogFile = logWrite;
+		this.showDebugInfo = showDebug;
+		this.isClosed = false;
     }
     
-    public File getFile() {
+    public File getFile() throws IOException {
+		if(writeToLogFile && file == null) { /* initialize all IO objects */
+            printToConsole(LogLevel.CONFIG, "Initializing I/O objects...");            
+			file = new File(SystemResources.APP_DIR, SystemResources.LOG_FILE_NAME);
+	        writer = new FileWriter(file);
+		}		
         return file;
     }
 
@@ -39,7 +48,7 @@ public class ActivityLogger implements AutoCloseable {
 			SystemResources.formFileExplorer.lblActivityStatus.setText(msg);
 	}
 
-    private static enum Level {
+    public static enum LogLevel {
     	FATAL,
 		SEVERE,
 		WARNING,
@@ -48,36 +57,56 @@ public class ActivityLogger implements AutoCloseable {
     }
     
     public ActivityLogger logConfig(final String formatString, final Object... args) {
-        log(null, Level.CONFIG, formatString, args);
+        log(null, LogLevel.CONFIG, formatString, args);
 		return this;
     }
     
     public ActivityLogger logInfo(final String formatString, final Object... args) {
-        log(null, Level.INFO, formatString, args);		
+        log(null, LogLevel.INFO, formatString, args);		
 		return this;
     }
     
     public ActivityLogger logWarning(final String formatString, final Object... args) {
-        log(null, Level.WARNING, formatString, args);
+        log(null, LogLevel.WARNING, formatString, args);
 		return this;
     }
     
     public ActivityLogger logSevere(final Throwable throwable, final String formatString, final Object... args) {
-        log(throwable, Level.SEVERE, formatString, args);
+        log(throwable, LogLevel.SEVERE, formatString, args);
 		updateErrorCounter();
 		return this;
     }
     
     public ActivityLogger logFatal(final Throwable throwable, final String formatString, final Object... args) {
-        log(throwable, Level.FATAL, formatString, args);
+        log(throwable, LogLevel.FATAL, formatString, args);
 		updateErrorCounter();
 		return this;
     }
+	
+    private void printToConsole(final String formatString, final Object... args) {
+        if(showDebugInfo)
+            System.out.printf(formatString, args);
+    }
+    
+	public void printToConsole(final LogLevel level, final String formatString, final Object... args) {
+		if(showDebugInfo)
+			System.out.printf("%tY/%<tm/%<td %<tH:%<tM:%<tS.%<tL %<ta    %8s    " + formatString + "\n", 
+                    new Date(), level, args);
+	}
+    
+    public void printErrorToConsole(final LogLevel level, final String message, final Throwable throwable) {
+        if(showDebugInfo) {
+            System.err.printf("%tY/%<tm/%<td %<tH:%<tM:%<tS.%<tL %<ta    %8s    %s%s\n", 
+                    new Date(), level, message, throwable==null ? "" : (" (" + throwable.getMessage() + ")"));
+            if(throwable != null)
+                throwable.printStackTrace(System.err);
+        }
+    }
 
     /** Does the main logging job */
-    private void log(final Throwable throwable, final Level level,
+    private void log(final Throwable throwable, final LogLevel level,
                     final String formatString, final Object... args) {
-        try {
+		try {
             // build the record 
             String[] record = new String[4];
             record[0] = String.format("%tY/%<tm/%<td %<tH:%<tM:%<tS.%<tL %<ta", new Date()); // date
@@ -88,10 +117,8 @@ public class ActivityLogger implements AutoCloseable {
             record[2] = e.getStackTrace()[2].toString(); // caller location
             record[3] = String.format(formatString, args); // log string
 			
-			if(level == Level.INFO) {
+			if(level == LogLevel.INFO)
 				updateStatusBar(record[3]);
-			}
-				
 
             // add record to list
             logs.add(record);
@@ -102,9 +129,8 @@ public class ActivityLogger implements AutoCloseable {
 					writer	.append(field)
 							.append("    ");
 				
-				// Print to console for east debugging
-				System.out.print(field);
-				System.out.print("    ");
+				printToConsole(field);
+				printToConsole("    ");
             }
 			
 			if(throwable != null) {
@@ -117,8 +143,11 @@ public class ActivityLogger implements AutoCloseable {
 								.append(element.toString())
 								.append(SystemResources.PLATFORM_LINE_SEPARATOR);					
 				}
-				System.err.println("\nStack trace:");
-				throwable.printStackTrace(System.err);
+				
+				if(showDebugInfo) {
+					System.err.println("\nStack trace:");
+					throwable.printStackTrace(System.err);
+				}
 			}
 			
 			if(writer!=null) {
@@ -126,17 +155,19 @@ public class ActivityLogger implements AutoCloseable {
 				writer.flush();
 			}
 			
-			System.out.println();
+			printToConsole("\n");
         } catch(Exception e) {
-            System.err.printf("ERR: Cannot write to log file. File='%s', Timestamp=%s, Exception=%s\n", 
-                    file.getAbsolutePath(), new Date(), e);
-			e.printStackTrace(System.err);
+			if(showDebugInfo) {
+				System.err.printf("ERR: Cannot write to log file. File='%s', Timestamp=%s, Exception=%s\n", 
+	                    file.getAbsolutePath(), new Date(), e);
+				e.printStackTrace(System.err);
+			}
         }
     }
 	
 	private long errorCount = 0L;
 	private void updateErrorCounter() {
-		System.out.println("  // updateErrorCounter() called"); // DEBUG
+		// System.out.println("  // updateErrorCounter() called"); // DEBUG
 		if(SystemResources.formFileExplorer != null && SystemResources.formFileExplorer.lblErrorCount != null)
 			SystemResources.formFileExplorer.lblErrorCount.setText(String.valueOf(++errorCount));
 	}
@@ -168,6 +199,6 @@ public class ActivityLogger implements AutoCloseable {
         if(writer != null)
 			writer.close();
 		isClosed = true;
-//        System.out.println("INFO: ActivityLogger closed");
+//        System.out.println("CONFIG: ActivityLogger closed");
     }
 }
