@@ -20,6 +20,7 @@ import javax.swing.table.*;
 import javax.swing.tree.*;
 import java.nio.file.FileAlreadyExistsException;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 
 
 /**
@@ -612,11 +613,11 @@ public class ListViewPanel extends JPanel {
 				logger.logInfo("Modified name attribute of %s: %s", type, file.absolutePath);
 			}
 		} catch(IOException e) {
+			logger.logSevere(e, "Failed renaming a %s: %s", type, file.absolutePath);
 			JOptionPane.showMessageDialog(	this,
 							"Cannot rename the " + type + ": "+ file.name,
 							"File renaming failure",
 							JOptionPane.ERROR_MESSAGE);
-			logger.logSevere(e, "Failed renaming a %s: %s", type, file.absolutePath);
 		}
 		return newFile;
 	}
@@ -858,7 +859,7 @@ public class ListViewPanel extends JPanel {
             //			System.out.printf("{v=%d,m=%d} ", viewRow, tableFileList.convertRowIndexToModel(viewRow));
 
             selectedFiles = new FileAttributes[selectedRows.length];
-            for(int i=0; i<selectedRows.length; i++) {
+            for(int i=0, len=selectedRows.length; i<len; i++) {
                 selectedFiles[i] = (FileAttributes)tableModel.getValueAt(tableFileList.convertRowIndexToModel(selectedRows[i]), FILE_OBJECT_COLUMN_INDEX);
             }
             //		System.out.println(", selectedFiles updated");
@@ -1081,7 +1082,17 @@ public class ListViewPanel extends JPanel {
 		if(SystemResources.formFileExplorer != null)
 			SystemResources.formFileExplorer.panelFolderListLoad.setVisible(true);
 		
-		new UpdateTableListWorker(loadFresh).execute();
+        try {
+            SwingWorker<Void, Void> worker = new UpdateTableListWorker(loadFresh);
+            worker.execute();
+            worker.get();
+        } catch(InterruptedException|ExecutionException e) {
+			logger.logSevere(e, "Failed updating current directory list: %s", e.getMessage());
+            JOptionPane.showMessageDialog(	this,
+							"Failed updating current directory list: " + e.getMessage(),
+							"File renaming failure",
+							JOptionPane.ERROR_MESSAGE);
+        }
 	}
 
 	/* Only change the currentWorkingDirectory */
@@ -1104,12 +1115,12 @@ public class ListViewPanel extends JPanel {
 	private FileAttributes[] setDirectoryFirstArrangement(final FileAttributes[] oldList) {
 		FileAttributes[] newList = new FileAttributes[oldList.length];
 		int j=0;
-		for(int i=0; i<oldList.length; i++) { // put dirs first
+		for(int i=0, len=oldList.length; i<len; i++) { // put dirs first
 			if(oldList[i].isDirectory)
 				newList[j++] = oldList[i];
 		}
 		
-		for(int i=0; i<oldList.length; i++) { // put files next
+		for(int i=0, len=oldList.length; i<len; i++) { // put files next
 			if(!oldList[i].isDirectory)
 				newList[j++] = oldList[i];
 		}
@@ -1190,18 +1201,19 @@ public class ListViewPanel extends JPanel {
 	}
 	
 	private void findAndSelectInList(final FileAttributes file) {
-		for(int row=0; row<tableModel.getRowCount(); row++) {
+        for(int row=0, len=tableModel.getRowCount(); row<len; row++) {            
 			if(file.equals(tableModel.getValueAt(row, FILE_OBJECT_COLUMN_INDEX))) {
+//                System.out.println("  // findAndSelectInList: match found!"); // DEBUG
 				tableFileList.changeSelection(row, 0, false, false);
 				return;
-			}	
+			}
 		}
+		logger.logSevere(null, "Cannot locate %s in its parent directory: %s", 
+				file.isDirectory ? "directory" : "file", file.absolutePath);
 		JOptionPane.showMessageDialog(	this,
 					"Cannot locate " + (file.isDirectory ? "folder" : "file") + " in its parent folder!",
 					"Cannot locate file",
 					JOptionPane.ERROR_MESSAGE);
-		logger.logSevere(null, "Cannot locate %s in its parent directory: %s", 
-				file.isDirectory ? "directory" : "file", file.absolutePath);
 	}
 	
 	private void bookmarkCurrentWorkingDirectory() {
@@ -1254,7 +1266,9 @@ public class ListViewPanel extends JPanel {
 		try {
 			file = fileSystemHandler.getFileAttributes(item.absolutePath);
 			targetFile = openLocation ? fileSystemHandler.getParent(file) : file;
+//            System.out.printf("  // dir=%s, file=%s\n", targetFile, file); // DEBUG
 			openFile(targetFile);
+            // Thread.sleep(1000);  // DEBUG
 			if(openLocation)
 				findAndSelectInList(file);
 		} catch(Exception e) {
@@ -1317,12 +1331,12 @@ public class ListViewPanel extends JPanel {
 				}
 			}
 		} catch(IOException e) {
+            logger.logSevere(e, "Cannot determine the parent of the bookmarked item (name=%s, path=%s). Reason: %s", 
+					item.name, item.absolutePath, e);
 			JOptionPane.showMessageDialog(	this,
                 "Cannot determine the parent of the bookmarked item!",
                 "Bookmarked item opertion  failure",
                 JOptionPane.ERROR_MESSAGE);
-            logger.logSevere(e, "Cannot determine the parent of the bookmarked item (name=%s, path=%s). Reason: %s", 
-					item.name, item.absolutePath, e);
 		}
 	}
 

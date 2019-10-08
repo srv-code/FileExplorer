@@ -77,8 +77,7 @@ public class AppPreferences {
 			prefNode = userPrefs.node(prefNodePath_LocalPathBookmarks);
 			logger.logInfo("Loading preference: '%s' from node path: '%s' ...", 
 					prefBeingLoaded, prefNode.absolutePath());
-			for(String nodeName: prefNode.childrenNames()) {
-//				System.out.println("  // node: " + nodeName); // DEBUG
+			for(String nodeName: prefNode.childrenNames()) {				
 				Preferences newNode = prefNode.node(nodeName);
 				if(newNode.get(BOOKMARKEDITEM_KEY_PATH, null) == null)
 					logger.logSevere(null, "Cannot load bookmarked local path: %s={%s=%s, %s=%s, %s=%s}",
@@ -86,12 +85,19 @@ public class AppPreferences {
 							BOOKMARKEDITEM_KEY_NAME, newNode.get(BOOKMARKEDITEM_KEY_NAME, null),
 							BOOKMARKEDITEM_KEY_TYPE, newNode.get(BOOKMARKEDITEM_KEY_TYPE, null),
 							BOOKMARKEDITEM_KEY_PATH, newNode.get(BOOKMARKEDITEM_KEY_PATH, null));
-				else 
+				else {
 					localBookmarkedItemList.add(
 							new BookmarkedItem(
 								newNode.get(BOOKMARKEDITEM_KEY_NAME, null),
 								newNode.get(BOOKMARKEDITEM_KEY_TYPE, null),
 								newNode.get(BOOKMARKEDITEM_KEY_PATH, null)));
+                    
+                    System.out.printf("  // loadUserPreferences: local path: node={name=%s, item={name=%s, type=%s, path=%s}}\n",
+                        nodeName, 
+                        newNode.get(BOOKMARKEDITEM_KEY_NAME, null),
+                        newNode.get(BOOKMARKEDITEM_KEY_TYPE, null),
+                        newNode.get(BOOKMARKEDITEM_KEY_PATH, null)); // DEBUG
+                }
 			}
 			
 			/* load bookmarked remote servers */
@@ -178,6 +184,7 @@ public class AppPreferences {
 			prefNode = userPrefs.node(prefNodePath_LocalPathBookmarks);
 			logger.logInfo("Storing preference: '%s' to node path: '%s' ...", 
 					prefBeingStored, prefNode.absolutePath());
+            removeAllChildrenNodes(prefNode);
 			int itemID = 0;
 			for(BookmarkedItem item: SystemResources.formFileExplorer.bookmarkHandler.getLocalPathBookmarks()) {				
 //				System.out.println("  // item: " + item); // DEBUG
@@ -185,6 +192,12 @@ public class AppPreferences {
 				newNode.put(BOOKMARKEDITEM_KEY_NAME, item.name);
 				newNode.put(BOOKMARKEDITEM_KEY_TYPE, item.type);
 				newNode.put(BOOKMARKEDITEM_KEY_PATH, item.absolutePath);
+                
+                System.out.printf("  // storeUserPreferences: local path: node={name=%s, item={name=%s, type=%s, path=%s}}\n",
+                        newNode.name(), 
+                        newNode.get(BOOKMARKEDITEM_KEY_NAME, null),
+                        newNode.get(BOOKMARKEDITEM_KEY_TYPE, null),
+                        newNode.get(BOOKMARKEDITEM_KEY_PATH, null)); // DEBUG
 			}
 			prefNode.flush();
 			
@@ -193,6 +206,7 @@ public class AppPreferences {
 			prefNode = userPrefs.node(prefNodePath_RemoteServerBookmarks);
 			logger.logInfo("Storing preference: '%s' to node path: '%s' ...", 
 					prefBeingStored, prefNode.absolutePath());
+            removeAllChildrenNodes(prefNode);
 			itemID = 0;
 			for(BookmarkedItem item: SystemResources.formFileExplorer.bookmarkHandler.getRemoteServerBookmarks()) {
 //				System.out.println("  // item: " + item); // DEBUG
@@ -207,6 +221,7 @@ public class AppPreferences {
 			prefNode = userPrefs.node(prefNodePath_RemoteServerCache);
 			logger.logInfo("Storing preference: '%s' to node path: '%s' ...", 
 					prefBeingStored, prefNode.absolutePath());
+            // removeAllChildrenNodes(prefNode);
 			for(Map.Entry<String,List<String>> entry: remoteServerProfilesCacheMap.entrySet()) {
 				StringBuilder sbUserNames = new StringBuilder();
 				for(String name: entry.getValue())
@@ -253,6 +268,27 @@ public class AppPreferences {
 					prefBeingStored, prefNode.absolutePath(), e.getMessage());
 		}
 	}
+    
+    private void removeAllChildrenNodes(final Preferences node) {
+        /* Approach 1: hard reset */
+//        Preferences parent = node.parent();
+//        String nodeName = node.name();
+//        node.removeNode();
+//        parent.node(nodeName);
+
+        /* Approach 2: soft reset */
+//        System.out.println("  // removeAllChildrenNodes: node=" + node.absolutePath());  // DEBUG
+        String childNodeNameBeingRemoved = null;
+        try {
+            for(String childNodeName: node.childrenNames()) {
+                node.node(childNodeNameBeingRemoved = childNodeName).removeNode();
+//                System.out.println("  // removeAllChildrenNodes: child removed=" + childNodeName);
+            }
+        } catch(BackingStoreException e) {
+            logger.logSevere(e, "Cannot remove child preference node (%s) from parent node (%s): %s", 
+                    node.name(), childNodeNameBeingRemoved, e.getMessage());
+        }
+    }
 	
 	private boolean needsResettingMiscPrefs = false;
 	

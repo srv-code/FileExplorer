@@ -268,7 +268,7 @@ public class PropertiesForm extends javax.swing.JFrame {
 							.trim());
 
 		FileAttributes tmpFile;
-		for(int i=0; i<files.length; i++) {
+		for(int i=0, len=files.length; i<len; i++) {
 			if(files[i].isExecutable!=chkExecutable.isSelected()) {
 				tmpFile = listViewPanel.setExecuteFlag(files[i], chkExecutable.isSelected());
 				if(tmpFile == null)

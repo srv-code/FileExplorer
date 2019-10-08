@@ -14,8 +14,7 @@ public class LocalFileSystemHandler extends FileSystemHandler {
 		userHomeDirectory = getFileAttributes(getUserHomeDirectoryPath());
 //		isRemoteHandler = false;
 		currentWorkingDirectory = absolutePath==null ? userHomeDirectory : getFileAttributes(absolutePath);
-	}
-	
+	}	
 	
 	@Override
 	public String getCurrentUsername() {
@@ -116,7 +115,7 @@ public class LocalFileSystemHandler extends FileSystemHandler {
 		if(fileList == null) 
 			throw new AccessDeniedException(dir.absolutePath);
 		FileAttributes[] fileAttributesList = new FileAttributes[fileList.length];
-		for(int i=0; i<fileList.length; i++) {
+		for(int i=0, len=fileList.length; i<len; i++) {
 			fileAttributesList[i] = getFileAttributes(fileList[i]);
 		}
 		return fileAttributesList;
@@ -127,7 +126,7 @@ public class LocalFileSystemHandler extends FileSystemHandler {
 		File[] roots = File.listRoots();
 		List<FileAttributes> fileAttributesList = new ArrayList<>();
 		for(File root : roots ) {
-//		for(int i=0; i<roots.length; i++) {
+//		for(int i=0, len=roots.length; i<len; i++) {
 			if(root.exists()) // Some drives (eg. DVD drives shows non-existent)
 				fileAttributesList.add(getFileAttributes(root));
 		}

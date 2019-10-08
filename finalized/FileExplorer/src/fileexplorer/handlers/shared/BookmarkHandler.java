@@ -2,6 +2,7 @@ package fileexplorer.handlers.shared;
 
 import fileexplorer.handlers.fs.FileAttributes;
 import fileexplorer.handlers.fs.LocalFileSystemHandler;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.*;
@@ -42,7 +43,6 @@ public class BookmarkHandler {
 		for(BookmarkedItem item: AppPreferences.getInstance().remoteServerBookmarkedItemList)
 			add(treeNodeRemoteServers, item);
 		refreshNode(treeNodeBookmarks);
-		expandAllNodes();
 	}
 	
 	public static BookmarkHandler getInstance(	final JTree tree, 
@@ -113,8 +113,7 @@ public class BookmarkHandler {
 		for(FileAttributes file : files)
 			add(treeNodeBookmarks, 
 				new BookmarkedItem("".equals(file.name) ? file.absolutePath : file.name, 
-						file.type, file.absolutePath));
-		refreshNode(treeNodeBookmarks);
+						file.type, file.absolutePath));		
 		return this;
 	}
 	
@@ -135,14 +134,14 @@ public class BookmarkHandler {
 	}
 	
 	public BookmarkHandler addRemoteServer(final String name, final String host) {
-		add(treeNodeRemoteServers, new BookmarkedItem(name, BookmarkedItem.TYPE_REMOTE_SERVER, host));
-		refreshNode(treeNodeRemoteServers);
+		add(treeNodeRemoteServers, new BookmarkedItem(name, BookmarkedItem.TYPE_REMOTE_SERVER, host));		
 		return this;
 	}
 	
 	private void add(final DefaultMutableTreeNode node, final BookmarkedItem item) {
 		if(!itemAlreadyPresent(node, item))
 			node.add(new DefaultMutableTreeNode(item));
+        refreshNode(node);
 	}
 	
 	private void expandAllNodes() {
@@ -187,8 +186,8 @@ public class BookmarkHandler {
 	
 	public BookmarkHandler removeAllSiblings(final DefaultMutableTreeNode childNode) {
 		((DefaultMutableTreeNode)childNode.getParent()).removeAllChildren();
-		refreshNode(childNode);
 //		System.out.printf("INFO: All %d sibling bookmark items removed from node '%s'\n", childCount, parentNode.getUserObject()); // TODO log info
+        refreshNode(childNode);
 		return this;
 	}
 
@@ -203,7 +202,11 @@ public class BookmarkHandler {
 
 	public void rename(final DefaultMutableTreeNode node, final String newName) {
 		BookmarkedItem oldItem = (BookmarkedItem)node.getUserObject();
-		node.setUserObject(new BookmarkedItem(newName, oldItem.type, oldItem.absolutePath));
+        String newPath = 
+            BookmarkedItem.TYPE_REMOTE_SERVER.equals(oldItem.type) ? 
+                oldItem.absolutePath : 
+                oldItem.absolutePath.substring(0, oldItem.absolutePath.lastIndexOf(File.separator)) + File.separator + newName;
+		node.setUserObject(new BookmarkedItem(newName, oldItem.type, newPath));
 		refreshNode(node);
 //		System.out.printf("INFO: Bookmark renamed from '%s' to '%s'\n", oldItem.name, newName); // log INFO
 	}

@@ -263,7 +263,7 @@ public class RemoteFileSystemHandler extends FileSystemHandler {
 			checkIfDirectory(dir);
 			FTPFile[] fileList = ftpClient.listFiles(dir.absolutePath);
 			fileAttributesList = new FileAttributes[fileList.length];
-			for(int i=0; i<fileList.length; i++)
+			for(int i=0, len=fileList.length; i<len; i++)
 				fileAttributesList[i] = getFileAttributes(fileList[i], 
 						(dir.absolutePath.equals("/") ? "" : dir.absolutePath) + "/" + fileList[i].getName());
 		} catch(Exception e) {

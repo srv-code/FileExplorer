@@ -717,6 +717,11 @@ public class FileExplorerForm extends javax.swing.JFrame {
                     //					System.out.println("  // double clicked");
 					
 					BookmarkedItem selectedItem = (BookmarkedItem)selectedBookmarkNode.getUserObject();
+                    System.out.printf("  // selectedItem: name=%s, type=%s, path=%s\n", 
+                            selectedItem.name, 
+                            selectedItem.type, 
+                            selectedItem.absolutePath); // DEBUG 
+                    
 					if(BookmarkedItem.TYPE_REMOTE_SERVER.equals(selectedItem.type))
 						RemoteLoginForm.init(selectedItem.absolutePath);
 					else 
@@ -773,6 +778,7 @@ public class FileExplorerForm extends javax.swing.JFrame {
     }//GEN-LAST:event_menuBookmarkOpenInNewTabActionPerformed
 
     private void menuBookmarkOpenLocationActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuBookmarkOpenLocationActionPerformed
+//        System.out.println("  // item=" + selectedBookmarkNode.getUserObject());  // DEBUG
         getSelectedForm().openBookmarkNode(selectedBookmarkNode, true);
     }//GEN-LAST:event_menuBookmarkOpenLocationActionPerformed
 
