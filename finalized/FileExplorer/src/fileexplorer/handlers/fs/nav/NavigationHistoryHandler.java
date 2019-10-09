@@ -6,7 +6,7 @@ import java.util.*;
 
 
 public class NavigationHistoryHandler {
-	private final List<FileAttributes> list = new ArrayList<>();
+	private final List<FileAttributes> list = new LinkedList<>();
 	private int position=-1;
 	private int lastPosition = -1;
 	
@@ -18,7 +18,7 @@ public class NavigationHistoryHandler {
 		lastPosition = position;
 		position=list.size()-1;
 	}
-			
+    
 	public FileAttributes removeCurrent() throws NavigationException {
 		try {
 			list.remove(position);
