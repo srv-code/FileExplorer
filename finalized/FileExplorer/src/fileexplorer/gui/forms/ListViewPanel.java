@@ -28,7 +28,7 @@ import java.util.concurrent.ExecutionException;
  * @author soura
  */
 public class ListViewPanel extends JPanel {
-	private FileSystemHandler fileSystemHandler = null;
+	FileSystemHandler fileSystemHandler = null;
 	private IconRegistry iconRegistry = IconRegistry.getInstance();
 	private DefaultTableModel tableModel = null;
 	private String lastVisitedPath = null;
@@ -38,7 +38,7 @@ public class ListViewPanel extends JPanel {
 	
 	private final JLabel lblTabTitle;
 	private static final ActivityLogger logger = ActivityLogger.getInstance();
-	private BookmarkHandler bookmarkHandler;
+	final BookmarkHandler bookmarkHandler;
 	
 	private boolean isRemoteListing;
 	private final String remoteHostname;
@@ -79,7 +79,7 @@ public class ListViewPanel extends JPanel {
 		
 		/*
 		// Setting Actions
-		System.out.println("Info: Attaching Actions...");
+//		System.out.println("Info: Attaching Actions...");
 		menuProperties.setAction(showPropertiesAction);
 		menuBookmarkProperties.setAction(showPropertiesAction);
 		*/
@@ -165,7 +165,7 @@ public class ListViewPanel extends JPanel {
 		
 		@Override 
 		public void actionPerformed(ActionEvent e) {
-			System.out.println("  // cmd=" + e.getActionCommand());
+			// System.out.println("  // cmd=" + e.getActionCommand());
 			PropertiesForm.init(	selectedFiles, 
 										iconRegistry.getFileIcon(selectedFiles[0], IconSize.BIG), 
 										fileSystemHandler);
@@ -178,7 +178,7 @@ public class ListViewPanel extends JPanel {
 	private final AbstractAction showPropertiesAction = new AbstractAction() {
 		@Override 
 		public void actionPerformed(ActionEvent e) {
-			System.out.println("  // cmd=" + e.getActionCommand());
+			// System.out.println("  // cmd=" + e.getActionCommand());
 			PropertiesForm.init(	selectedFiles, 
 										iconRegistry.getFileIcon(selectedFiles[0], IconSize.BIG), 
 										fileSystemHandler);
@@ -215,15 +215,9 @@ public class ListViewPanel extends JPanel {
         jSeparator5 = new javax.swing.JPopupMenu.Separator();
         menuProperties = new javax.swing.JMenuItem();
         toolbarOptions = new javax.swing.JToolBar();
-        btnGoBackInHistory = new javax.swing.JButton();
-        btnGoForwardInHistory = new javax.swing.JButton();
-        btnGoToParentDir = new javax.swing.JButton();
-        btnReloadPath = new javax.swing.JButton();
-        btnGoToHomeDir = new javax.swing.JButton();
         jSeparator3 = new javax.swing.JToolBar.Separator();
         lblAddressIcon = new javax.swing.JLabel();
         txtPathAddress = new javax.swing.JTextField();
-        btnBookmarkIndicator = new javax.swing.JToggleButton();
         jSeparator4 = new javax.swing.JToolBar.Separator();
         lblSearchIcon = new javax.swing.JLabel();
         txtSearchFiles = new javax.swing.JTextField();
@@ -530,7 +524,7 @@ public class ListViewPanel extends JPanel {
     private void menuPrintActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuPrintActionPerformed
         try {
             fileSystemHandler.printFile(selectedFiles[0]);
-            System.out.println("Info: Printed file: " + selectedFiles[0].absolutePath); // log info
+//            System.out.println("Info: Printed file: " + selectedFiles[0].absolutePath); // log info
         } catch(IllegalArgumentException|IOException e) {
             JOptionPane.showMessageDialog(	this,
                 "Cannot print file: " + selectedFiles[0].absolutePath + "\nReason: " + e,
@@ -544,7 +538,7 @@ public class ListViewPanel extends JPanel {
     private void menuOpenUsingSystemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuOpenUsingSystemActionPerformed
         try {
             fileSystemHandler.openFile(selectedFiles[0]);
-            System.out.println("Info: Opened directory using system: "+ selectedFiles[0].absolutePath);
+//            System.out.println("Info: Opened directory using system: "+ selectedFiles[0].absolutePath);
         } catch(IOException|UnsupportedOperationException e) {
             JOptionPane.showMessageDialog(	this,
                 "Cannot open folder: " + selectedFiles[0].absolutePath + "\nReason: " + e,
@@ -984,7 +978,6 @@ public class ListViewPanel extends JPanel {
 			this.loadFresh = loadFresh;
 		}
 		
-		
 		/* Main task. Executed in background thread. */
 		@Override
 		public Void doInBackground() {
@@ -1007,17 +1000,17 @@ public class ListViewPanel extends JPanel {
 				btnBookmarkIndicator.setSelected(bookmarkHandler.containsBookmarkFile(cwd));
 				updateTabTitleBar(cwd);
 				logger.logInfo("Folder list %s for path: %s", loadFresh ? "loaded" : "restored", cwd.absolutePath);
-			} catch(Exception e) {
-				JOptionPane.showMessageDialog(SystemResources.formFileExplorer,
-												String.format("Cannot update table list!\n  Path: %s\n  Reason: %s",
-														fileSystemHandler.getCurrentWorkingDirectory().absolutePath, e),
-												"Directory listing error",
-												JOptionPane.ERROR_MESSAGE);
-				logger.logSevere(e, "Cannot update table list: %s",  e);
-
-	//			System.out.println("  // reverting...");
-	//			System.out.println("  // before: cwd=" + fileSystemHandler.getCurrentWorkingDirectory() + 
-	//					", history=" + fileSystemHandler.historyHandler);			
+			} catch(Exception e) {     
+                logger.logSevere(e, "Cannot update table list: %s",  e);
+//				JOptionPane.showMessageDialog(SystemResources.formFileExplorer,
+//												String.format("Cannot update table list!\n  Path: %s\n  Reason: %s",
+//														fileSystemHandler.getCurrentWorkingDirectory().absolutePath, e),
+//												"Directory listing error",
+//												JOptionPane.ERROR_MESSAGE);
+                
+//				System.out.println("  // reverting...");
+//				System.out.println("  // before: cwd=" + fileSystemHandler.getCurrentWorkingDirectory() + 
+//						", history=" + fileSystemHandler.historyHandler);			
 				try {
 					fileSystemHandler.revertLastNavigation();
 				} catch(NavigationException e1) {
@@ -1028,13 +1021,13 @@ public class ListViewPanel extends JPanel {
 				try {
 					fileSystemHandler.resetCurrentWorkingDirectory();
 				} catch(IOException e1) {
-					JOptionPane.showMessageDialog(SystemResources.formFileExplorer,
-													String.format("Cannot move to home directory from: %s!",
-															fileSystemHandler.getCurrentWorkingDirectory().absolutePath),
-													"Directory listing error",
-													JOptionPane.ERROR_MESSAGE);
 					logger.logFatal(e1, "Cannot move to home directory from %s: %s",
 							fileSystemHandler.getCurrentWorkingDirectory().absolutePath, e1);
+//					JOptionPane.showMessageDialog(SystemResources.formFileExplorer,
+//													String.format("Cannot move to home directory from: %s!",
+//															fileSystemHandler.getCurrentWorkingDirectory().absolutePath),
+//													"Directory listing error",
+//													JOptionPane.ERROR_MESSAGE);
 				}
 
 	//			System.out.println("  // after: cwd=" + fileSystemHandler.getCurrentWorkingDirectory() + 
@@ -1150,7 +1143,7 @@ public class ListViewPanel extends JPanel {
 //			return;
 		
 		try {
-			System.out.printf("Info: Loading folder listing of '%s'...\n", path); // TODO log info and show in status bar
+			// System.out.printf("Info: Loading folder listing of '%s'...\n", path); // TODO log info and show in status bar
 			
 //			System.out.println("  // path loaded: " + path);
 
@@ -1163,7 +1156,7 @@ public class ListViewPanel extends JPanel {
 											JOptionPane.ERROR_MESSAGE);
 			txtPathAddress.setText(lastVisitedPath);
 		} catch(NullPointerException e) {
-			System.out.println("Err: Cannot visit directory: " + path); // TODO log error
+			// System.out.println("Err: Cannot visit directory: " + path); // TODO log error
 		}
 	}
 	*/
@@ -1341,12 +1334,12 @@ public class ListViewPanel extends JPanel {
 	}
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JToggleButton btnBookmarkIndicator;
-    private javax.swing.JButton btnGoBackInHistory;
-    private javax.swing.JButton btnGoForwardInHistory;
-    private javax.swing.JButton btnGoToHomeDir;
-    private javax.swing.JButton btnGoToParentDir;
-    private javax.swing.JButton btnReloadPath;
+    final javax.swing.JToggleButton btnBookmarkIndicator = new javax.swing.JToggleButton();
+    final javax.swing.JButton btnGoBackInHistory = new javax.swing.JButton();
+    final javax.swing.JButton btnGoForwardInHistory = new javax.swing.JButton();
+    final javax.swing.JButton btnGoToHomeDir = new javax.swing.JButton();
+    final javax.swing.JButton btnGoToParentDir = new javax.swing.JButton();
+    final javax.swing.JButton btnReloadPath = new javax.swing.JButton();
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JPopupMenu.Separator jSeparator1;
     private javax.swing.JPopupMenu.Separator jSeparator2;

@@ -9,6 +9,7 @@ import javax.swing.*;
 import fileexplorer.handlers.shared.*;
 import fileexplorer.handlers.shared.SystemResources.IconRegistry;
 import java.awt.BorderLayout;
+import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -19,6 +20,8 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
+import java.io.File;
+import java.io.IOException;
 
 public class FileExplorerForm extends javax.swing.JFrame {
 	// members of status bar
@@ -248,25 +251,15 @@ public class FileExplorerForm extends javax.swing.JFrame {
         menuitemConnectRemoteServer = new javax.swing.JMenuItem();
         menuitemExit = new javax.swing.JMenuItem();
         menuEdit = new javax.swing.JMenu();
-        menuitemSearch = new javax.swing.JMenuItem();
         menuitemEditAddressBar = new javax.swing.JMenuItem();
-        menuitemBookmarkCurrentFolder = new javax.swing.JMenuItem();
+        menuitemToggleCurrentFolderBookmark = new javax.swing.JMenuItem();
         menuitemGoToParentFolder = new javax.swing.JMenuItem();
         menuitemReloadCurrentFolder = new javax.swing.JMenuItem();
+        menuitemGoBackInHistory = new javax.swing.JMenuItem();
+        menuitemGoForwardInHistory = new javax.swing.JMenuItem();
+        menuitemGoToHomeDir = new javax.swing.JMenuItem();
         menuView = new javax.swing.JMenu();
-        menuitemViewDiagnostics = new javax.swing.JMenuItem();
-        jSeparator1 = new javax.swing.JPopupMenu.Separator();
-        menuTheme = new javax.swing.JMenu();
-        menuitemThemeMetalRadioButton = new javax.swing.JRadioButtonMenuItem();
-        menuitemThemeNimbuslRadioButton = new javax.swing.JRadioButtonMenuItem();
-        menuitemThemeMotifCDERadioButton = new javax.swing.JRadioButtonMenuItem();
-        menuitemThemeWindowsRadioButton = new javax.swing.JRadioButtonMenuItem();
-        menuitemThemeWindowsClassicRadioButton = new javax.swing.JRadioButtonMenuItem();
-        menuViewLanguage = new javax.swing.JMenu();
-        menuitemLangEnglishUSRadioButton = new javax.swing.JRadioButtonMenuItem();
-        menuitemLangFrenchRadioButton = new javax.swing.JRadioButtonMenuItem();
-        menuitemLangGermanRadioButton = new javax.swing.JRadioButtonMenuItem();
-        jSeparator2 = new javax.swing.JPopupMenu.Separator();
+        menuitemOpenSessionLogFile = new javax.swing.JMenuItem();
         menuitemViewPreferences = new javax.swing.JMenuItem();
         menuHelp = new javax.swing.JMenu();
         menuitemAbout = new javax.swing.JMenuItem();
@@ -508,10 +501,11 @@ public class FileExplorerForm extends javax.swing.JFrame {
         menubarMain.add(menuFile);
 
         menuEdit.setText(bundle.getString("FileExplorerForm.menuEdit.text")); // NOI18N
-
-        menuitemSearch.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F, java.awt.event.InputEvent.CTRL_MASK));
-        menuitemSearch.setText(bundle.getString("FileExplorerForm.menuitemSearch.text")); // NOI18N
-        menuEdit.add(menuitemSearch);
+        menuEdit.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                menuEditActionPerformed(evt);
+            }
+        });
 
         menuitemEditAddressBar.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_L, java.awt.event.InputEvent.CTRL_MASK));
         menuitemEditAddressBar.setText(bundle.getString("FileExplorerForm.menuitemEditAddressBar.text")); // NOI18N
@@ -522,12 +516,22 @@ public class FileExplorerForm extends javax.swing.JFrame {
         });
         menuEdit.add(menuitemEditAddressBar);
 
-        menuitemBookmarkCurrentFolder.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_D, java.awt.event.InputEvent.CTRL_MASK));
-        menuitemBookmarkCurrentFolder.setText(bundle.getString("FileExplorerForm.menuitemBookmarkCurrentFolder.text")); // NOI18N
-        menuEdit.add(menuitemBookmarkCurrentFolder);
+        menuitemToggleCurrentFolderBookmark.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_D, java.awt.event.InputEvent.CTRL_MASK));
+        menuitemToggleCurrentFolderBookmark.setText(bundle.getString("FileExplorerForm.menuitemToggleCurrentFolderBookmark.text")); // NOI18N
+        menuitemToggleCurrentFolderBookmark.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                menuitemToggleCurrentFolderBookmarkActionPerformed(evt);
+            }
+        });
+        menuEdit.add(menuitemToggleCurrentFolderBookmark);
 
         menuitemGoToParentFolder.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_UP, java.awt.event.InputEvent.ALT_MASK));
         menuitemGoToParentFolder.setText(bundle.getString("FileExplorerForm.menuitemGoToParentFolder.text")); // NOI18N
+        menuitemGoToParentFolder.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                menuitemGoToParentFolderActionPerformed(evt);
+            }
+        });
         menuEdit.add(menuitemGoToParentFolder);
 
         menuitemReloadCurrentFolder.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_R, java.awt.event.InputEvent.CTRL_MASK));
@@ -539,57 +543,44 @@ public class FileExplorerForm extends javax.swing.JFrame {
         });
         menuEdit.add(menuitemReloadCurrentFolder);
 
+        menuitemGoBackInHistory.setText(bundle.getString("FileExplorerForm.menuitemGoBackInHistory.text")); // NOI18N
+        menuitemGoBackInHistory.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                menuitemGoBackInHistoryActionPerformed(evt);
+            }
+        });
+        menuEdit.add(menuitemGoBackInHistory);
+
+        menuitemGoForwardInHistory.setText(bundle.getString("FileExplorerForm.menuitemGoForwardInHistory.text")); // NOI18N
+        menuitemGoForwardInHistory.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                menuitemGoForwardInHistoryActionPerformed(evt);
+            }
+        });
+        menuEdit.add(menuitemGoForwardInHistory);
+
+        menuitemGoToHomeDir.setText(bundle.getString("FileExplorerForm.menuitemGoToHomeDir.text")); // NOI18N
+        menuitemGoToHomeDir.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                menuitemGoToHomeDirActionPerformed(evt);
+            }
+        });
+        menuEdit.add(menuitemGoToHomeDir);
+
         menubarMain.add(menuEdit);
 
         menuView.setText(bundle.getString("FileExplorerForm.menuView.text")); // NOI18N
 
-        menuitemViewDiagnostics.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_D, java.awt.event.InputEvent.SHIFT_MASK | java.awt.event.InputEvent.CTRL_MASK));
-        menuitemViewDiagnostics.setText(bundle.getString("FileExplorerForm.menuitemViewDiagnostics.text")); // NOI18N
-        menuView.add(menuitemViewDiagnostics);
-        menuView.add(jSeparator1);
+        menuitemOpenSessionLogFile.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_L, java.awt.event.InputEvent.ALT_MASK));
+        menuitemOpenSessionLogFile.setText(bundle.getString("FileExplorerForm.menuitemOpenSessionLogFile.text")); // NOI18N
+        menuitemOpenSessionLogFile.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                menuitemOpenSessionLogFileActionPerformed(evt);
+            }
+        });
+        menuView.add(menuitemOpenSessionLogFile);
 
-        menuTheme.setText(bundle.getString("FileExplorerForm.menuTheme.text")); // NOI18N
-
-        btngpAppTheme.add(menuitemThemeMetalRadioButton);
-        menuitemThemeMetalRadioButton.setText("Metal"); // NOI18N
-        menuTheme.add(menuitemThemeMetalRadioButton);
-
-        btngpAppTheme.add(menuitemThemeNimbuslRadioButton);
-        menuitemThemeNimbuslRadioButton.setText("Nimbus"); // NOI18N
-        menuTheme.add(menuitemThemeNimbuslRadioButton);
-
-        btngpAppTheme.add(menuitemThemeMotifCDERadioButton);
-        menuitemThemeMotifCDERadioButton.setText("Motif/CDE"); // NOI18N
-        menuTheme.add(menuitemThemeMotifCDERadioButton);
-
-        btngpAppTheme.add(menuitemThemeWindowsRadioButton);
-        menuitemThemeWindowsRadioButton.setText("Windows"); // NOI18N
-        menuTheme.add(menuitemThemeWindowsRadioButton);
-
-        btngpAppTheme.add(menuitemThemeWindowsClassicRadioButton);
-        menuitemThemeWindowsClassicRadioButton.setText("Windows Classic"); // NOI18N
-        menuTheme.add(menuitemThemeWindowsClassicRadioButton);
-
-        menuView.add(menuTheme);
-
-        menuViewLanguage.setText(bundle.getString("FileExplorerForm.menuViewLanguage.text")); // NOI18N
-
-        btngpAppLanguage.add(menuitemLangEnglishUSRadioButton);
-        menuitemLangEnglishUSRadioButton.setText("English (US)"); // NOI18N
-        menuViewLanguage.add(menuitemLangEnglishUSRadioButton);
-
-        btngpAppLanguage.add(menuitemLangFrenchRadioButton);
-        menuitemLangFrenchRadioButton.setText("French"); // NOI18N
-        menuViewLanguage.add(menuitemLangFrenchRadioButton);
-
-        btngpAppLanguage.add(menuitemLangGermanRadioButton);
-        menuitemLangGermanRadioButton.setText("German"); // NOI18N
-        menuViewLanguage.add(menuitemLangGermanRadioButton);
-
-        menuView.add(menuViewLanguage);
-        menuView.add(jSeparator2);
-
-        menuitemViewPreferences.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_P, java.awt.event.InputEvent.CTRL_MASK));
+        menuitemViewPreferences.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_P, java.awt.event.InputEvent.ALT_MASK));
         menuitemViewPreferences.setText(bundle.getString("FileExplorerForm.menuitemViewPreferences.text")); // NOI18N
         menuitemViewPreferences.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -717,10 +708,10 @@ public class FileExplorerForm extends javax.swing.JFrame {
                     //					System.out.println("  // double clicked");
 					
 					BookmarkedItem selectedItem = (BookmarkedItem)selectedBookmarkNode.getUserObject();
-                    System.out.printf("  // selectedItem: name=%s, type=%s, path=%s\n", 
-                            selectedItem.name, 
-                            selectedItem.type, 
-                            selectedItem.absolutePath); // DEBUG 
+                    // System.out.printf("  // selectedItem: name=%s, type=%s, path=%s\n", 
+//                            selectedItem.name, 
+//                            selectedItem.type, 
+//                            selectedItem.absolutePath); // DEBUG 
                     
 					if(BookmarkedItem.TYPE_REMOTE_SERVER.equals(selectedItem.type))
 						RemoteLoginForm.init(selectedItem.absolutePath);
@@ -850,7 +841,7 @@ public class FileExplorerForm extends javax.swing.JFrame {
     }//GEN-LAST:event_menuitemEditAddressBarActionPerformed
 
     private void menuitemReloadCurrentFolderActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuitemReloadCurrentFolderActionPerformed
-         System.out.println("  // tabbedPane.getComponentAt(0)=" + tabbedPane.getComponentAt(0).getClass().getName());
+         // System.out.println("  // tabbedPane.getComponentAt(0)=" + tabbedPane.getComponentAt(0).getClass().getName());
     }//GEN-LAST:event_menuitemReloadCurrentFolderActionPerformed
 
     private void btnCancelTableUpdateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelTableUpdateActionPerformed
@@ -859,14 +850,58 @@ public class FileExplorerForm extends javax.swing.JFrame {
 			worker.cancel(true);			
     }//GEN-LAST:event_btnCancelTableUpdateActionPerformed
 
+    private void menuitemOpenSessionLogFileActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuitemOpenSessionLogFileActionPerformed
+        /* natively open current session log file */
+        logger.logInfo("Opening current session log file...");
+        File logFile = null;
+        try {
+            logFile = logger.getFile();
+            if(logFile == null)
+                JOptionPane.showMessageDialog(	this,
+                                "No log file created for this session",
+                                "Current session log file",
+                                JOptionPane.INFORMATION_MESSAGE);
+            else
+                Desktop.getDesktop().open(logFile);                
+        } catch(IOException e) {
+            logger.logSevere(e, "Failed opening current session log file. Log file: %s, Reason: %s", e);
+            JOptionPane.showMessageDialog(	this,
+                                "Failed opening current session log file (" + logFile.getAbsolutePath() + ")! Reason: " + e,
+                                "Current session log file",
+                                JOptionPane.ERROR_MESSAGE);
+        }
+    }//GEN-LAST:event_menuitemOpenSessionLogFileActionPerformed
+
+    private void menuitemToggleCurrentFolderBookmarkActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuitemToggleCurrentFolderBookmarkActionPerformed
+        getSelectedForm().btnBookmarkIndicator.doClick();
+    }//GEN-LAST:event_menuitemToggleCurrentFolderBookmarkActionPerformed
+
+    private void menuEditActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuEditActionPerformed
+        
+    }//GEN-LAST:event_menuEditActionPerformed
+
+    private void menuitemGoToParentFolderActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuitemGoToParentFolderActionPerformed
+        getSelectedForm().btnGoToParentDir.doClick();
+    }//GEN-LAST:event_menuitemGoToParentFolderActionPerformed
+
+    private void menuitemGoBackInHistoryActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuitemGoBackInHistoryActionPerformed
+        getSelectedForm().btnGoBackInHistory.doClick();
+    }//GEN-LAST:event_menuitemGoBackInHistoryActionPerformed
+
+    private void menuitemGoForwardInHistoryActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuitemGoForwardInHistoryActionPerformed
+        getSelectedForm().btnGoForwardInHistory.doClick();
+    }//GEN-LAST:event_menuitemGoForwardInHistoryActionPerformed
+
+    private void menuitemGoToHomeDirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuitemGoToHomeDirActionPerformed
+        getSelectedForm().btnGoToHomeDir.doClick();
+    }//GEN-LAST:event_menuitemGoToHomeDirActionPerformed
+
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnCancelTableUpdate;
     private javax.swing.ButtonGroup btngpAppLanguage;
     private javax.swing.ButtonGroup btngpAppTheme;
     private javax.swing.ButtonGroup btngpViewLayoutStyle;
-    private javax.swing.JPopupMenu.Separator jSeparator1;
-    private javax.swing.JPopupMenu.Separator jSeparator2;
     private javax.swing.JPopupMenu.Separator jSeparator8;
     private javax.swing.JPopupMenu.Separator jSeparator9;
     private javax.swing.JSplitPane jSplitPane1;
@@ -885,12 +920,9 @@ public class FileExplorerForm extends javax.swing.JFrame {
     private javax.swing.JMenu menuFile;
     private javax.swing.JMenu menuHelp;
     private javax.swing.JMenu menuTab;
-    private javax.swing.JMenu menuTheme;
     private javax.swing.JMenu menuView;
-    private javax.swing.JMenu menuViewLanguage;
     private javax.swing.JMenuBar menubarMain;
     private javax.swing.JMenuItem menuitemAbout;
-    private javax.swing.JMenuItem menuitemBookmarkCurrentFolder;
     private javax.swing.JMenuItem menuitemCloseAllButCurrentTab;
     private javax.swing.JMenuItem menuitemCloseCurrentTab;
     private javax.swing.JMenuItem menuitemConnectRemoteServer;
@@ -898,19 +930,14 @@ public class FileExplorerForm extends javax.swing.JFrame {
     private javax.swing.JMenuItem menuitemCreateNewFolder;
     private javax.swing.JMenuItem menuitemEditAddressBar;
     private javax.swing.JMenuItem menuitemExit;
+    private javax.swing.JMenuItem menuitemGoBackInHistory;
+    private javax.swing.JMenuItem menuitemGoForwardInHistory;
+    private javax.swing.JMenuItem menuitemGoToHomeDir;
     private javax.swing.JMenuItem menuitemGoToParentFolder;
-    private javax.swing.JRadioButtonMenuItem menuitemLangEnglishUSRadioButton;
-    private javax.swing.JRadioButtonMenuItem menuitemLangFrenchRadioButton;
-    private javax.swing.JRadioButtonMenuItem menuitemLangGermanRadioButton;
     private javax.swing.JMenuItem menuitemNewTab;
+    private javax.swing.JMenuItem menuitemOpenSessionLogFile;
     private javax.swing.JMenuItem menuitemReloadCurrentFolder;
-    private javax.swing.JMenuItem menuitemSearch;
-    private javax.swing.JRadioButtonMenuItem menuitemThemeMetalRadioButton;
-    private javax.swing.JRadioButtonMenuItem menuitemThemeMotifCDERadioButton;
-    private javax.swing.JRadioButtonMenuItem menuitemThemeNimbuslRadioButton;
-    private javax.swing.JRadioButtonMenuItem menuitemThemeWindowsClassicRadioButton;
-    private javax.swing.JRadioButtonMenuItem menuitemThemeWindowsRadioButton;
-    private javax.swing.JMenuItem menuitemViewDiagnostics;
+    private javax.swing.JMenuItem menuitemToggleCurrentFolderBookmark;
     private javax.swing.JMenuItem menuitemViewPreferences;
     public final javax.swing.JPanel panelFolderListLoad = new javax.swing.JPanel();
     private javax.swing.JPanel panelStatus;

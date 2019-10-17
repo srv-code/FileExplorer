@@ -2,6 +2,7 @@ package fileexplorer.gui.forms;
 
 import fileexplorer.handlers.shared.SystemResources;
 import fileexplorer.handlers.shared.ActivityLogger;
+import java.awt.Desktop;
 
 
 public class AboutForm extends javax.swing.JFrame {
@@ -100,9 +101,9 @@ public class AboutForm extends javax.swing.JFrame {
 //            System.out.println("Clicked on link: " + evt.getURL() + ", desc=" + evt.getDescription());
             try {
                 if(evt.getDescription().startsWith("mailto:"))
-                    java.awt.Desktop.getDesktop().mail(new java.net.URI(evt.getDescription()));
+                    Desktop.getDesktop().mail(new java.net.URI(evt.getDescription()));
                 else 
-                    java.awt.Desktop.getDesktop().browse(new java.net.URI(evt.getDescription()));
+                    Desktop.getDesktop().browse(new java.net.URI(evt.getDescription()));
             } catch (java.io.IOException | java.net.URISyntaxException exc) {
                 System.err.println("Exc: " + exc);
             }

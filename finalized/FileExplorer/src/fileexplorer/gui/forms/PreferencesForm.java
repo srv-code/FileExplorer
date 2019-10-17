@@ -14,6 +14,7 @@ public class PreferencesForm extends javax.swing.JFrame {
 	public PreferencesForm() {
 		initComponents();
 		syncUIElementsWithPrefValues();
+        setIconImage(SystemResources.IconRegistry.getInstance().appIcon_big.getImage());
 	}
 	
 	private void syncUIElementsWithPrefValues() {

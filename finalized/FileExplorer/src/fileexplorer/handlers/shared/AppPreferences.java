@@ -92,11 +92,11 @@ public class AppPreferences {
 								newNode.get(BOOKMARKEDITEM_KEY_TYPE, null),
 								newNode.get(BOOKMARKEDITEM_KEY_PATH, null)));
                     
-                    System.out.printf("  // loadUserPreferences: local path: node={name=%s, item={name=%s, type=%s, path=%s}}\n",
-                        nodeName, 
-                        newNode.get(BOOKMARKEDITEM_KEY_NAME, null),
-                        newNode.get(BOOKMARKEDITEM_KEY_TYPE, null),
-                        newNode.get(BOOKMARKEDITEM_KEY_PATH, null)); // DEBUG
+//                    System.out.printf("  // loadUserPreferences: local path: node={name=%s, item={name=%s, type=%s, path=%s}}\n",
+//                        nodeName, 
+//                        newNode.get(BOOKMARKEDITEM_KEY_NAME, null),
+//                        newNode.get(BOOKMARKEDITEM_KEY_TYPE, null),
+//                        newNode.get(BOOKMARKEDITEM_KEY_PATH, null)); // DEBUG
                 }
 			}
 			
@@ -193,11 +193,11 @@ public class AppPreferences {
 				newNode.put(BOOKMARKEDITEM_KEY_TYPE, item.type);
 				newNode.put(BOOKMARKEDITEM_KEY_PATH, item.absolutePath);
                 
-                System.out.printf("  // storeUserPreferences: local path: node={name=%s, item={name=%s, type=%s, path=%s}}\n",
-                        newNode.name(), 
-                        newNode.get(BOOKMARKEDITEM_KEY_NAME, null),
-                        newNode.get(BOOKMARKEDITEM_KEY_TYPE, null),
-                        newNode.get(BOOKMARKEDITEM_KEY_PATH, null)); // DEBUG
+//                System.out.printf("  // storeUserPreferences: local path: node={name=%s, item={name=%s, type=%s, path=%s}}\n",
+//                        newNode.name(), 
+//                        newNode.get(BOOKMARKEDITEM_KEY_NAME, null),
+//                        newNode.get(BOOKMARKEDITEM_KEY_TYPE, null),
+//                        newNode.get(BOOKMARKEDITEM_KEY_PATH, null)); // DEBUG
 			}
 			prefNode.flush();
 			

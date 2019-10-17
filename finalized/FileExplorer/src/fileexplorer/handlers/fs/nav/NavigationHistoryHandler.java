@@ -82,28 +82,28 @@ public class NavigationHistoryHandler {
 	
 	/** Tester */
 	public static void main(String[] args) throws Exception {
-		System.out.println("<init>");
+		// System.out.println("<init>");
 		FileSystemHandler fsh = FileSystemHandler.getLocalHandler("C:/Users");		
 		NavigationHistoryHandler history = fsh.historyHandler;
-		System.out.println("  history=" + history);
+//		System.out.println("  history=" + history);
 		
-		System.out.println("<appending>");
+//		System.out.println("<appending>");
 		history.append(fsh.getFileAttributes("C:/Users/soura"));
-		System.out.println("  history=" + history);
+//		System.out.println("  history=" + history);
 		
 		history.append(fsh.getFileAttributes("C:/Users/soura/Desktop"));
-		System.out.println("  history=" + history);
+//		System.out.println("  history=" + history);
 		
-		System.out.println("<back>");
+//		System.out.println("<back>");
 		history.backward();
-		System.out.println("  history=" + history);
+//		System.out.println("  history=" + history);
 		
-		System.out.println("<appending>");
+//		System.out.println("<appending>");
 		history.append(fsh.getFileAttributes("C:/Users/soura/AppData"));
-		System.out.println("  history=" + history);
+//		System.out.println("  history=" + history);
 		
-		System.out.println("<remove current>");
+//		System.out.println("<remove current>");
 		history.removeCurrent();
-		System.out.println("  history=" + history);
+//		System.out.println("  history=" + history);
 	}
 }

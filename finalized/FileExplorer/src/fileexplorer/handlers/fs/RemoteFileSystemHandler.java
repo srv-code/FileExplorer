@@ -177,9 +177,9 @@ public class RemoteFileSystemHandler extends FileSystemHandler {
 //		System.out.printf("Count: dirs=%d, files=%d, total=%d \n",
 //				dirCount, fileCount, dirCount+fileCount);
 		if(showDebugInfo) {
-			System.out.printf("[Copied:  dirs=%d, files=%d, total=%d]\n", cpDirCount, cpFileCount, cpDirCount+cpFileCount);
+			// System.out.printf("[Copied:  dirs=%d, files=%d, total=%d]\n", cpDirCount, cpFileCount, cpDirCount+cpFileCount);
 			if (move)
-				System.out.printf("[Removed: dirs=%d, files=%d, total=%d]\n", rmDirCount, rmFileCount, rmDirCount+rmFileCount);
+				// System.out.printf("[Removed: dirs=%d, files=%d, total=%d]\n", rmDirCount, rmFileCount, rmDirCount+rmFileCount);
 		}
 	}
 	*/

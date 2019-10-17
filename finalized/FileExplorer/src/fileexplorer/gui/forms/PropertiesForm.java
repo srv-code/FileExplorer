@@ -90,6 +90,8 @@ public class PropertiesForm extends javax.swing.JFrame {
 			chkReadable.setEnabled(canEdit);
 			chkWritable.setEnabled(canEdit);
 			
+            System.out.printf("  // singleFileOperation=%b, files[0].type=%s\n", singleFileOperation, files[0].type);
+            
 			// set values to GUI components		
 			if(singleFileOperation) {
 				lblTypeIcon.setIcon(iconRegistry.getTypeIcon(files[0].type));

@@ -18,8 +18,8 @@ import javax.swing.ImageIcon;
  *   shareable resources.
  */
 public class SystemResources {
-	public static final String APP_NAME = "FileExplorer";
-	public static final float APP_VERSION = 0.9f;
+	public static final String APP_NAME = "File Explorer";
+	public static final float APP_VERSION = 1.01f;
 	
 	public static String[] getHelpText() {
 		List<String> text = new ArrayList<>();
@@ -187,7 +187,7 @@ public class SystemResources {
 			new Object[] { Arrays.asList("zip", "zipx", "rar", "tar", "tgz", "cab", "iso", "gz", "7z", "bzip", "bzip2", "gzip", "wim", "jar", "xz"), compressedIcon_small, compressedIcon_big },
 
 			// video files
-			new Object[] { Arrays.asList("avi", "mp4", "mpg", "mkv", "mov", "3gp", "3gpp" , "flv", "oga", "wmv", "webm"), videoIcon_small, videoIcon_big },
+			new Object[] { Arrays.asList("avi", "ogg", "ogv", "siv", "mp4", "mpg", "mkv", "mov", "3gp", "3gpp" , "flv", "oga", "wmv", "webm"), videoIcon_small, videoIcon_big },
 			
 			// audio files
 			new Object[] { Arrays.asList("wav", "mp3", "mp2", "wma", "m3u", "m4a", "aac", "mid", "mxmf"), musicIcon_small, musicIcon_big }
